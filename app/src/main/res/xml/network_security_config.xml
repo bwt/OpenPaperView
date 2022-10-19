@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- allow the user to configure an insecure URL (hopefully only for tests) -->
+    <base-config cleartextTrafficPermitted="true">
+        <!-- This is the configuration used when no server's CA is provided is the settings -->
+        <trust-anchors>
+            <certificates src="system" />
+            <!--
+            Uncomment to trust systems-wide user added CA's
+            It should not be necessary as it is possible to configure a CA in the application
+            <certificates src="user" />
+            -->
+        </trust-anchors>
+    </base-config>
+</network-security-config>

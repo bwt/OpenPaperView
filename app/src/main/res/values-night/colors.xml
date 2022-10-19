@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="splash_bgnd">#ff000000</color>
+    <!-- md_theme_dark_background -->
+    <color name="behind_cutout">#FF1A1C1E</color>
+</resources>
