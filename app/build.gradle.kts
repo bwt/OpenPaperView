@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "net.phbwt.paperwork"
     compileSdk = 33
-    buildToolsVersion = "33.0.0"
+    buildToolsVersion = "33.0.2"
 
     defaultConfig {
         applicationId = "net.phbwt.paperwork"
@@ -66,7 +66,7 @@ android {
 
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.3.2"
+        kotlinCompilerExtensionVersion = "1.4.3"
     }
 
     packagingOptions {
@@ -96,15 +96,16 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.lifecycle}")
 
     // compose
-    // https://developer.android.com/jetpack/androidx/releases/activity
-    implementation("androidx.activity:activity-compose:1.6.0")
-    implementation("androidx.compose.ui:ui-tooling-preview:${Versions.compose}")
-    debugImplementation("androidx.compose.ui:ui-tooling:${Versions.compose}")
-    implementation("androidx.compose.ui:ui:${Versions.compose}")
-    // https://developer.android.com/jetpack/androidx/releases/compose-material3
-    implementation("androidx.compose.material3:material3:1.0.0-rc01")
-    implementation("androidx.compose.runtime:runtime-livedata:${Versions.compose}")
-    implementation("androidx.compose.material:material-icons-extended:${Versions.compose}")
+    // https://developer.android.com/jetpack/compose/bom/bom-mapping
+    implementation(platform("androidx.compose:compose-bom:2023.01.00"))
+//    api(platform("dev.chrisbanes.compose:compose-bom:2023.02.00-beta01"))
+
+    implementation("androidx.activity:activity-compose:1.6.1")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.accompanist:accompanist-flowlayout:${Versions.accompanist}")
     implementation("com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}")
 
@@ -138,7 +139,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor")
 
     // workmanager + hilt and coroutine integration
-    implementation("androidx.work:work-runtime-ktx:2.7.1")
+    implementation("androidx.work:work-runtime-ktx:2.8.0")
     implementation("androidx.hilt:hilt-work:${Versions.hiltBase}")
     kapt("androidx.hilt:hilt-compiler:${Versions.hiltBase}")
     // https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/CHANGELOG.md
@@ -146,7 +147,7 @@ dependencies {
 
     // I'll write some tests, at some point, I promise
     testImplementation("junit:junit:4.+")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4:${Versions.compose}")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }
