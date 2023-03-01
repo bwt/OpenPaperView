@@ -1,7 +1,6 @@
 package net.phbwt.paperwork.data.dao
 
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -9,12 +8,13 @@ import kotlinx.coroutines.flow.Flow
 import net.phbwt.paperwork.BuildConfig
 import net.phbwt.paperwork.data.entity.DNL_NONE
 import net.phbwt.paperwork.data.entity.DocumentFull
+import net.phbwt.paperwork.data.entity.Part
 
 @Dao
 interface DocumentDao {
 
     @Transaction
-    @RawQuery
+    @RawQuery(observedEntities = [Part::class])
     fun searchImpl(query: SupportSQLiteQuery): Flow<List<DocumentFull>>
 
     fun search(labels: List<String>, baseSearch: String): Flow<List<DocumentFull>> {
@@ -74,12 +74,6 @@ limit 150
 
         return searchImpl(SimpleSQLiteQuery(query, args.toTypedArray()))
     }
-
-
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
-    @Transaction
-    @Query("select * from Document order by documentId limit 500")
-    fun allDocuments(): Flow<List<DocumentFull>>
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction

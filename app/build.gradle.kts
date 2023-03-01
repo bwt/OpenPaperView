@@ -91,7 +91,6 @@ dependencies {
     // https://developer.android.com/jetpack/androidx/releases/lifecycle#groovy
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:${Versions.lifecycle}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}")
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:${Versions.lifecycle}")
 

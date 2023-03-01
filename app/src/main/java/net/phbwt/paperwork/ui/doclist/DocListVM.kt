@@ -30,6 +30,7 @@ import net.phbwt.paperwork.data.entity.Document
 import net.phbwt.paperwork.data.entity.DocumentFull
 import net.phbwt.paperwork.data.entity.Part
 import net.phbwt.paperwork.data.settings.Settings
+import net.phbwt.paperwork.helper.ComposeImmutableList
 import net.phbwt.paperwork.helper.latestRelease
 import java.io.*
 import java.util.*
@@ -37,7 +38,6 @@ import java.util.zip.Deflater
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 
 @OptIn(SavedStateHandleSaveableApi::class)
@@ -147,8 +147,9 @@ class DocListVM @Inject constructor(
                 previousYear = year
                 previousMonth = month
             }
-            rows
+            ComposeImmutableList(rows)
         }
+        .flowOn(Dispatchers.Default)
         .latestRelease(viewModelScope, listOf())
 
     val labelTypes = repo.db.labelDao().loadLabelTypes()
