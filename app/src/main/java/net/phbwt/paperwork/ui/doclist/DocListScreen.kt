@@ -260,8 +260,9 @@ fun DocRows(
                     ) {
                         Surface(
                             modifier = Modifier
-                                .fillParentMaxWidth()
-                                .animateItemPlacement(),
+                                // doesn't work since accompanist 0.27, not sure why
+                                //.animateItemPlacement()
+                                .fillParentMaxWidth(),
                             color = colors.secondaryContainer,
                             contentColor = colors.onSecondaryContainer
                         ) {
