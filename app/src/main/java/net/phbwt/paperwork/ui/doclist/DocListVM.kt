@@ -57,7 +57,10 @@ class DocListVM @Inject constructor(
     val labels = savedStateHandle.getStateFlow("labels", listOf<String>())
 
     fun updateSearch(v: String) {
+        // replace with easier to access characters
         search = v
+            .replace('.', '*')
+            .replace('\'', '"')
     }
 
     fun updateLabel(v: List<String>) {

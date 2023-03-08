@@ -144,8 +144,7 @@ dependencies {
     // https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/CHANGELOG.md
     implementation("ru.gildor.coroutines:kotlin-coroutines-okhttp:1.0")
 
-    // I'll write some tests, at some point, I promise
-    testImplementation("junit:junit:4.+")
+    testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
