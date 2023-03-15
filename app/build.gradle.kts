@@ -15,7 +15,7 @@ android {
         applicationId = "net.phbwt.paperwork"
         minSdk = 24
         targetSdk = 33
-        versionCode = 31
+        versionCode = 32
         versionName = "0.$versionCode"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
