@@ -7,12 +7,15 @@ import net.phbwt.paperwork.BuildConfig
 
 class DocumentQueryBuilder {
 
-    private val args = mutableListOf<Any>()
     private val ctes = mutableListOf<String>()
+    private val cteArgs = mutableListOf<Any>()
     private var selects = mutableListOf("d.*")
     private val joins = mutableListOf<String>()
+    private var wheres = mutableListOf<String>()
+    private val whereArgs = mutableListOf<Any>()
 
-    fun addLabels(labels: List<String>) = apply {
+    fun addIncludedLabels(labels: List<String>) = apply {
+
         if (labels.isNotEmpty()) {
             val c = """
 l(documentId) as (
@@ -24,8 +27,16 @@ l(documentId) as (
 )"""
             ctes.add(c)
             joins.add("join l on d.documentId = l.documentId")
-            args.addAll(labels)
-            args.add(labels.size)
+            cteArgs.addAll(labels)
+            cteArgs.add(labels.size)
+        }
+
+    }
+
+    fun addExcludedLabels(labels: List<String>) = apply {
+        if (labels.isNotEmpty()) {
+            wheres.add("(select count(*) from Label l where l.documentId = d.documentId and l.name in (${labels.joinToString(", ") { "?" }})) = 0")
+            whereArgs.addAll(labels)
         }
     }
 
@@ -49,19 +60,23 @@ t(documentId, snippet) as (
             )
             selects.add("snippet")
             joins.add("join t on d.documentId = t.documentId")
-            args.add(ftsQuery)
+            cteArgs.add(ftsQuery)
         }
     }
 
     fun build(): SupportSQLiteQuery {
         val query = """
-${if (ctes.isNotEmpty()) ctes.joinToString(", ", "with") else ""}
+${if (ctes.isNotEmpty()) ctes.joinToString(", ", " with ") else ""}
 select ${selects.joinToString(", ")}
 from Document d
 ${joins.joinToString("\n")}
+${if (wheres.isNotEmpty()) wheres.joinToString(" and ", " where ") else ""}
 order by d.documentId
 limit 150
 """
+
+        val args = cteArgs + whereArgs
+
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "QUERY=${query}\nARGS=$args")
         }

@@ -59,7 +59,7 @@ fun DocListScreen(
     vm: DocListVM = hiltViewModel(),
 ) {
     val search = vm.search
-    val labels by vm.labels.collectAsState(listOf())
+    val labels by vm.labelFilters.collectAsState(listOf())
     val labelTypes by vm.labelTypes.collectAsState(listOf())
     val rows by vm.documentsWithHeaders.collectAsState(listOf())
 
@@ -98,6 +98,7 @@ fun DocListScreen(
         },
         onLabelAdded = { vm.addLabel(it) },
         onLabelRemoved = { vm.removeLabel(it) },
+        onLabelToggled = { vm.toggleLabel(it) },
         onDownloadClicked = { doc ->
             if (doc.downloadStatus == DownloadState.DOWNLOADABLE) {
                 scope.launch { vm.queueDownload(doc.document.documentId) }
@@ -118,13 +119,14 @@ fun DocListScreen(
 @Composable
 fun DocListContent(
     search: String,
-    labels: List<String>,
+    labels: List<DocListVM.LabelFilter>,
     rows: List<Any>,
     labelTypes: List<LabelType>,
     onSearchChange: (String) -> Unit = {},
     onDocClicked: (DocumentFull) -> Unit = {},
     onLabelAdded: (String) -> Unit = {},
-    onLabelRemoved: (String) -> Unit = {},
+    onLabelRemoved: (DocListVM.LabelFilter) -> Unit = {},
+    onLabelToggled: (DocListVM.LabelFilter) -> Unit = {},
     onDownloadClicked: (DocumentFull) -> Unit = {},
     onShowClicked: (DocumentFull) -> Unit = {},
     onShareClicked: (DocumentFull) -> Unit = {},
@@ -133,7 +135,7 @@ fun DocListContent(
 
     Surface(color = colors.background) {
         Column {
-            Filters(search, labels, labelTypes, onLabelRemoved, onLabelAdded, onSearchChange)
+            Filters(search, labels, labelTypes, onLabelRemoved, onLabelAdded, onLabelToggled, onSearchChange)
             DocRows(rows, onDocClicked, onLabelAdded, onDownloadClicked, onShowClicked, onShareClicked)
         }
     }
@@ -143,10 +145,11 @@ fun DocListContent(
 @Composable
 fun Filters(
     search: String,
-    labels: List<String>,
+    labels: List<DocListVM.LabelFilter>,
     labelTypes: List<LabelType>,
-    onLabelRemoved: (String) -> Unit = {},
+    onLabelRemoved: (DocListVM.LabelFilter) -> Unit = {},
     onLabelAdded: (String) -> Unit = {},
+    onLabelToggled: (DocListVM.LabelFilter) -> Unit = {},
     onSearchChange: (String) -> Unit = {},
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -227,7 +230,13 @@ fun Filters(
                 crossAxisSpacing = 5.dp
             ) {
                 for (label in labels) {
-                    Chip(label, { onLabelRemoved(label) }, closable = true)
+                    Chip(
+                        label.label,
+                        onAction = { onLabelToggled(label) },
+                        closable = true,
+                        onClose = { onLabelRemoved(label) },
+                        selected = label.include,
+                    )
                 }
             }
         }
@@ -492,16 +501,25 @@ fun DocRow(
 @Composable
 fun Chip(
     txt: String,
-    onClick: (String) -> Unit,
+    onAction: () -> Unit,
     modifier: Modifier = Modifier,
     closable: Boolean = false,
+    onClose: () -> Unit = {},
+    selected: Boolean = true,
 ) = FilterChip(
-    selected = true,
-    onClick = { onClick(txt) },
+    selected = selected,
+    onClick = onAction,
     label = { Text(txt) },
     // just to remove the paddings
     modifier = modifier.height(FilterChipDefaults.Height),
-    trailingIcon = { if (closable) Icon(Icons.Outlined.Close, null) else null },
+    trailingIcon = {
+        if (closable) IconButton(
+            onClick = onClose,
+            modifier = Modifier.width(24.dp),
+        ) {
+            Icon(Icons.Outlined.Close, null)
+        } else null
+    },
 )
 
 
@@ -513,7 +531,7 @@ fun Chip(
 fun DefaultPreview() {
     AppTheme {
         DocListContent(
-            "zz", listOf("label1", "label2"),
+            "zz", listOf(DocListVM.LabelFilter("label1"), DocListVM.LabelFilter("label2", false)),
             makeFakeDocuments(5, "none"),
             listOf(LabelType("label1")),
         )

@@ -5,6 +5,7 @@ package net.phbwt.paperwork.ui.doclist
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
+import android.os.Parcelable
 import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +23,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
+import kotlinx.parcelize.Parcelize
 import net.phbwt.paperwork.BuildConfig
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.Repository
@@ -54,7 +56,7 @@ class DocListVM @Inject constructor(
     var search by savedStateHandle.saveable { mutableStateOf("") }
         private set
 
-    val labels = savedStateHandle.getStateFlow("labels", listOf<String>())
+    val labelFilters = savedStateHandle.getStateFlow("labels", listOf<LabelFilter>())
 
     fun updateSearch(v: String) {
         // replace with easier to access characters
@@ -63,21 +65,28 @@ class DocListVM @Inject constructor(
             .replace('\'', '"')
     }
 
-    fun updateLabel(v: List<String>) {
+    private fun updateLabel(v: List<LabelFilter>) {
         savedStateHandle["labels"] = v
     }
 
     fun addLabel(newLabel: String) {
-        val v = labels.value
-        if (!v.contains(newLabel)) {
-            updateLabel(v + newLabel)
+        val v = labelFilters.value
+        if (!v.any { it.label == newLabel }) {
+            updateLabel(v + LabelFilter(newLabel))
         }
     }
 
-    fun removeLabel(oldLabel: String) {
-        val v = labels.value
+    fun removeLabel(oldLabel: LabelFilter) {
+        val v = labelFilters.value
         if (v.contains(oldLabel)) {
             updateLabel(v - oldLabel)
+        }
+    }
+
+    fun toggleLabel(oldFilter: LabelFilter) {
+        val v = labelFilters.value
+        if (v.contains(oldFilter)) {
+            updateLabel(v.map { if (it == oldFilter) it.asToggled() else it })
         }
     }
 
@@ -119,10 +128,11 @@ class DocListVM @Inject constructor(
     }.createChooserIntent()
 
     val documentsWithHeaders: Flow<List<Any>> = snapshotFlow { search }
-        .combine(labels, ::Filters)
+        .combine(labelFilters, ::Filters)
         .debounce(300)
         .flatMapLatest { filters ->
-            repo.db.docDao().search(filters.labels, filters.search)
+            val (include, exclude) = filters.labels.partition { it.include }
+            repo.db.docDao().search(include.map { it.label }, exclude.map { it.label }, filters.search)
         }
         .map { docs ->
             // assume same TZ as the mtime
@@ -224,7 +234,16 @@ class DocListVM @Inject constructor(
     }
 
     @Immutable
-    data class Filters(val search: String = "", val labels: List<String> = listOf())
+    @Parcelize
+    data class LabelFilter(
+        val label: String,
+        val include: Boolean = true,
+    ) : Parcelable {
+        fun asToggled() = LabelFilter(label, !include)
+    }
+
+    @Immutable
+    data class Filters(val search: String = "", val labels: List<LabelFilter> = listOf())
 
     @Immutable
     data class HeaderData(val year: Int, val month: String, val key: Int, val yearChange: Boolean)
@@ -234,3 +253,5 @@ class DocListVM @Inject constructor(
         private const val EXPORTED_ZIP = "exported_archive.zip"
     }
 }
+
+

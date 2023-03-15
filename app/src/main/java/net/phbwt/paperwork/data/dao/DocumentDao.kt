@@ -15,9 +15,17 @@ interface DocumentDao {
     @RawQuery(observedEntities = [Part::class])
     fun searchImpl(query: SupportSQLiteQuery): Flow<List<DocumentFull>>
 
-    fun search(labels: List<String>, baseSearch: String): Flow<List<DocumentFull>> {
-        return searchImpl(DocumentQueryBuilder().addLabels(labels).addFts(baseSearch).build())
-    }
+    fun search(
+        includedLabels: List<String>,
+        excludedLabels: List<String>,
+        baseSearch: String,
+    ): Flow<List<DocumentFull>> = searchImpl(
+        DocumentQueryBuilder()
+            .addIncludedLabels(includedLabels)
+            .addExcludedLabels(excludedLabels)
+            .addFts(baseSearch)
+            .build()
+    )
 
     @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
     @Transaction
