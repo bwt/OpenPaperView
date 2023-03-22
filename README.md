@@ -27,7 +27,7 @@ and serve that database (and the actual scans) to the viewer over HTTPS.
 
 ### Features
 
-- Basic filter on Paperwork labels.
+- Filter on Paperwork labels (inclusive or exclusive).
 
 - Full text search.
 
@@ -47,8 +47,6 @@ and serve that database (and the actual scans) to the viewer over HTTPS.
 
 - Everything is readonly, the viewer's function is to search and retrieve papers.
   No edits are possible, there are no plans to add any.
-
-- No label exclusion filter, *i.e.* it is not possible to select documents *not* having some label. There *are* plans to add it.
 
 - Image scans can be viewed online, but PDF must be downloaded first.
 
