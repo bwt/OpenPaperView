@@ -2,6 +2,7 @@ package net.phbwt.paperwork.ui.pagelist
 
 import androidx.compose.runtime.*
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 
 
@@ -11,7 +12,7 @@ fun PageListScreen(
     documentId: Int,
     vm: PageListVM = hiltViewModel(),
 ) {
-    val document by vm.loadDocument(documentId).collectAsState(null)
+    val document by vm.loadDocument(documentId).collectAsStateWithLifecycle(null)
 
     val selectedIndex by remember { mutableStateOf(0) }
 

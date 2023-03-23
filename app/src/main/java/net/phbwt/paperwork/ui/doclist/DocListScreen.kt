@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.google.accompanist.flowlayout.FlowRow
@@ -59,9 +60,9 @@ fun DocListScreen(
     vm: DocListVM = hiltViewModel(),
 ) {
     val search = vm.search
-    val labels by vm.labelFilters.collectAsState(listOf())
-    val labelTypes by vm.labelTypes.collectAsState(listOf())
-    val rows by vm.documentsWithHeaders.collectAsState(listOf())
+    val labels by vm.labelFilters.collectAsStateWithLifecycle(listOf())
+    val labelTypes by vm.labelTypes.collectAsStateWithLifecycle(listOf())
+    val rows by vm.documentsWithHeaders.collectAsStateWithLifecycle(listOf())
 
     BackHandler(enabled = !search.isNullOrBlank() || labels.isNotEmpty()) {
         vm.clearFilters()

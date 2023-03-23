@@ -1,10 +1,13 @@
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
+
 package net.phbwt.paperwork.ui.pagelist
 
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.*
@@ -13,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -24,22 +26,16 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.compose.rememberImagePainter
 import coil.imageLoader
 import coil.memory.MemoryCache
 import coil.request.ImageRequest
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.helper.appDetectTransformGestures
 import java.io.File
-import kotlin.math.sqrt
 
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PageListContentPdf(
     pdfFile: File,
@@ -64,7 +60,7 @@ fun PageListContentPdf(
                 // Our selected tab is our current page
                 selectedTabIndex = pagerState.currentPage,
                 // Override the indicator, using the provided pagerTabIndicatorOffset modifier
-                indicator = { tabPositions ->
+                indicator = { tabPositions: List<TabPosition> ->
                     TabRowDefaults.Indicator(
                         modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions),
                     )
@@ -92,7 +88,7 @@ fun PageListContentPdf(
 //                    .weight(1f)
                     .fillMaxSize(),
                 state = pagerState,
-                count = pageCount,
+                pageCount = pageCount,
                 key = { it },
             ) { index ->
 
@@ -173,3 +169,5 @@ fun PageListContentPdf(
 }
 
 private const val TAG = "PageListContentPdf"
+
+

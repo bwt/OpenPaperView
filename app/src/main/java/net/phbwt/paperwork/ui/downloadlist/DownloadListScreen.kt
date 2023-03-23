@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.data.entity.DocumentFull
@@ -40,7 +41,7 @@ fun DownloadListScreen(
     documentId: Int,
     vm: DownloadListVM = hiltViewModel(),
 ) {
-    val docs by vm.downloads().collectAsState(listOf())
+    val docs by vm.downloads().collectAsStateWithLifecycle(listOf())
 
     val scope = rememberCoroutineScope()
 

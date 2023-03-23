@@ -15,7 +15,6 @@ import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -27,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
@@ -39,7 +39,7 @@ fun SettingsScreen(
     vm: SettingsVM = hiltViewModel(),
 ) {
     val scope = rememberCoroutineScope()
-    val data by vm.data.collectAsState(initial = SettingsData())
+    val data by vm.data.collectAsStateWithLifecycle(SettingsData())
 
     // start activity for client certificate
     val launcherC = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {

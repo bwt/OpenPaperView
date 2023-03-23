@@ -67,7 +67,7 @@ android {
 
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.4.3"
+        kotlinCompilerExtensionVersion = "1.4.4"
     }
 
     packagingOptions {
@@ -80,9 +80,9 @@ android {
 dependencies {
 
     // https://developer.android.com/jetpack/androidx/versions
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.core:core-ktx:1.10.0")
     implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // kotlinx
     // https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/CHANGELOG.md
@@ -90,6 +90,7 @@ dependencies {
 
     // Saved state module for ViewModel
     // https://developer.android.com/jetpack/androidx/releases/lifecycle#groovy
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:${Versions.lifecycle}")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.lifecycle}")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.lifecycle}")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:${Versions.lifecycle}")
@@ -97,10 +98,10 @@ dependencies {
 
     // compose
     // https://developer.android.com/jetpack/compose/bom/bom-mapping
-    implementation(platform("androidx.compose:compose-bom:2023.01.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.04.00"))
 //    api(platform("dev.chrisbanes.compose:compose-bom:2023.02.00-beta01"))
 
-    implementation("androidx.activity:activity-compose:1.6.1")
+    implementation("androidx.activity:activity-compose:1.7.0")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui")
@@ -113,14 +114,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:${Versions.navigation}")
     implementation("androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}")
 
-    // pager
-    implementation("com.google.accompanist:accompanist-pager:${Versions.accompanist}")
-    // copy from https://github.com/google/accompanist/tree/main/pager-indicators/src/main/java/com/google/accompanist/pager
-    // cf https://github.com/google/accompanist/issues/1076
-    // implementation("com.google.accompanist:accompanist-pager-indicators:${Versions.accompanist}")
-
     // https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
-    implementation("io.coil-kt:coil-compose:2.2.2")
+    implementation("io.coil-kt:coil-compose:2.3.0")
 
     // room
     implementation("androidx.room:room-runtime:${Versions.room}")
@@ -139,7 +134,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor")
 
     // workmanager + hilt and coroutine integration
-    implementation("androidx.work:work-runtime-ktx:2.8.0")
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
     implementation("androidx.hilt:hilt-work:${Versions.hiltBase}")
     kapt("androidx.hilt:hilt-compiler:${Versions.hiltBase}")
     // https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/CHANGELOG.md

@@ -1,9 +1,14 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package net.phbwt.paperwork.ui.pagelist
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
@@ -26,17 +31,13 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.pagerTabIndicatorOffset
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.entity.DocumentFull
 import net.phbwt.paperwork.helper.appDetectTransformGestures
 
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PageListContentImages(
     document: DocumentFull?,
@@ -81,7 +82,7 @@ fun PageListContentImages(
                     .fillMaxSize(),
                 //   .disabledHorizontalPointerInputScroll()
                 state = pagerState,
-                count = pages.size,
+                pageCount = pages.size,
                 key = { pages[it].partId },
 //                contentPadding = PaddingValues(horizontal = 25.dp),
             ) { index ->
