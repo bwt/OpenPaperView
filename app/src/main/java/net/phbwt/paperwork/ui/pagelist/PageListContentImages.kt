@@ -3,6 +3,8 @@
 package net.phbwt.paperwork.ui.pagelist
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +37,7 @@ import com.google.accompanist.pager.pagerTabIndicatorOffset
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.entity.DocumentFull
+import net.phbwt.paperwork.helper.animateBy
 import net.phbwt.paperwork.helper.appDetectTransformGestures
 
 
@@ -91,10 +94,32 @@ fun PageListContentImages(
                 var rotation by remember { mutableStateOf(0f) }
                 var offset by remember { mutableStateOf(Offset.Zero) }
 
+                val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
+                    scale *= zoomChange
+                    offset += offsetChange
+                }
+
                 // separate box : clip + gesture not impacted by scale (especially touchSlop)
                 Box(
                     modifier = Modifier
                         .clip(RectangleShape)
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onDoubleTap = { tapOffset ->
+                                    if (scale > 1.00001f) {
+                                        scope.launch {
+                                            transformableState.animateBy(1 / scale, -offset)
+                                        }
+                                    } else {
+                                        val zoomBy = 3f
+                                        val o = tapOffset - ((tapOffset - offset) * zoomBy)
+                                        scope.launch {
+                                            transformableState.animateBy(zoomBy, o)
+                                        }
+                                    }
+                                }
+                            )
+                        }
                         .pointerInput(Unit) {
                             appDetectTransformGestures(true) { centroid, pan, baseZoom, _ ->
                                 val newScale = minOf(99f, maxOf(1f, scale * baseZoom))

@@ -4,9 +4,9 @@ package net.phbwt.paperwork.ui.pagelist
 
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Timer
@@ -32,6 +32,7 @@ import coil.request.ImageRequest
 import com.google.accompanist.pager.pagerTabIndicatorOffset
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
+import net.phbwt.paperwork.helper.animateBy
 import net.phbwt.paperwork.helper.appDetectTransformGestures
 import java.io.File
 
@@ -77,7 +78,8 @@ fun PageListContentPdf(
             }
         }
 
-        val imageCache = LocalContext.current.imageLoader.memoryCache ?: throw IllegalStateException("Coil image loader should have a cache")
+        val imageCache = LocalContext.current.imageLoader.memoryCache
+            ?: throw IllegalStateException("Coil image loader should have a cache")
 
         BoxWithConstraints {
             val width = with(LocalDensity.current) { maxWidth.toPx() }.toInt()
@@ -96,18 +98,40 @@ fun PageListContentPdf(
                 var rotation by remember { mutableStateOf(0f) }
                 var offset by remember { mutableStateOf(Offset.Zero) }
 
+                val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
+                    scale *= zoomChange
+                    offset += offsetChange
+                }
+
                 // separate box : clip + gesture not impacted by scale (especially touchSlop)
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RectangleShape)
                         .pointerInput(Unit) {
+                            detectTapGestures(
+                                onDoubleTap = { tapOffset ->
+                                    if (scale > 1.00001f) {
+                                        scope.launch {
+                                            transformableState.animateBy(1 / scale, -offset)
+                                        }
+                                    } else {
+                                        val zoomBy = 3f
+                                        val o = tapOffset - ((tapOffset - offset) * zoomBy)
+                                        scope.launch {
+                                            transformableState.animateBy(zoomBy, o)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                        .pointerInput(Unit) {
                             appDetectTransformGestures(true) { centroid, pan, baseZoom, _ ->
                                 val newScale = minOf(99f, maxOf(1f, scale * baseZoom))
-                                val zoom = newScale / scale
+                                val zoomBy = newScale / scale
                                 scale = newScale
 
-                                val o = centroid - ((centroid - offset) * zoom)
+                                val o = centroid - ((centroid - offset) * zoomBy)
 
                                 val mx = minOf(0f, maxOf(size.width * (1 - scale), pan.x + o.x))
                                 val my = minOf(0f, maxOf(size.height * (1 - scale), pan.y + o.y))

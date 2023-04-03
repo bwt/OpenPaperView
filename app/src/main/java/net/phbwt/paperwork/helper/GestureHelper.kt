@@ -1,5 +1,6 @@
 package net.phbwt.paperwork.helper
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.gestures.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -76,3 +77,30 @@ suspend fun PointerInputScope.appDetectTransformGestures(
         } while (!canceled && event.changes.any { it.pressed })
     }
 }
+
+/**
+ * animatePanBy + animateZoomBy
+ */
+suspend fun TransformableState.animateBy(
+    zoomChange: Float,
+    panChange: Offset,
+    animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+) {
+    var previousValue = 0f
+    var previousZoom = 1f
+    transform {
+        AnimationState(initialValue = previousValue).animateTo(1f, animationSpec) {
+            val delta = this.value - previousValue
+            val newZoom = 1 + (this.value * (zoomChange - 1))
+
+            transformBy(
+                zoomChange = newZoom / previousZoom,
+                panChange = panChange * delta,
+            )
+            previousValue = this.value
+            previousZoom = newZoom
+        }
+    }
+}
+
+
