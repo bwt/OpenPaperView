@@ -18,6 +18,8 @@ android {
         versionCode = 32
         versionName = "0.$versionCode"
 
+        resourceConfigurations += arrayOf("en", "fr")
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         javaCompileOptions {

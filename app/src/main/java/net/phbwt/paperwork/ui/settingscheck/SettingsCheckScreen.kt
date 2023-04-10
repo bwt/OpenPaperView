@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -111,15 +112,16 @@ fun ItemRow(
         Column(
             modifier = Modifier.weight(1f),
         ) {
+            val context = LocalContext.current
             val alpha = if (item.level == Level.None) .6f else 1f
             Text(
-                text = item.desc,
+                text = item.desc.format(context),
                 modifier = Modifier.alpha(alpha),
                 style = MaterialTheme.typography.bodyMedium,
             )
             if (item.msg != null) {
                 Text(
-                    text = item.msg,
+                    text = item.msg.format(context),
                     modifier = Modifier.alpha(alpha),
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -154,8 +156,8 @@ fun DefaultPreview() {
                 true,
                 true,
                 persistentListOf(
-                    Check("Hello", Level.OK, "line 1"),
-                    Check("Hello 2", Level.Error, "line 2"),
+                    Check(Msg(R.string.check_base_url), Level.OK, Msg(R.string.check_no_network_response_2, "aa", "bb")),
+                    Check(Msg(R.string.check_failure), Level.Error, Msg(R.string.check_no_network_response)),
                 )
             )
         )

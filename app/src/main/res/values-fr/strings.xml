@@ -1,0 +1,93 @@
+<resources>
+    <string name="app_name">OpenPaperView</string>
+
+    <string name="main_search">Recherche</string>
+
+    <string name="main_dialog_title">Tester la demo ?</string>
+    <string name="main_dialog_text">Le serveur n\'est pas défini.
+\nCette application nécessite un serveur HTTPS hébergeant les documents d\'OpenPaper.work
+\nVoulez vous utiliser un serveur de démo ?
+\n(Vous pourrez changer la configuration dans les paramètres)
+\nLe téléchargment de la BD peut prendre quelques secondes.</string>
+    <string name="main_dialog_yes">OK, essayer la demo</string>
+    <string name="main_dialog_no">Non merci</string>
+
+    <string name="download_channel_name">Téléchargement</string>
+    <string name="download_channel_desc">Téléchargement des documents</string>
+    <string name="download_title">En cours</string>
+    <string name="download_body">Téléchargement des documents en cours</string>
+
+    <string name="db_update_available">Une nouvelle BD est disponible</string>
+    <string name="db_update_restart">Redémarrer l\'application</string>
+    <string name="db_update_error">Il y a un problème avec la mise à jour de la DB :\n%1$s</string>
+
+    <string name="screen_docList">Documents</string>
+    <string name="screen_settings">Paramètres</string>
+    <string name="screen_settingsCheck">Tester les paramètres</string>
+    <string name="screen_downloadList">Téléchargements</string>
+    <string name="screen_pageList">Pages</string>
+    <string name="screen_about">A propos</string>
+
+    <string name="send_title">Partages %1$s</string>
+
+    <string name="doclist_local_pdf_toast">Les PDF doivent être téléchargés</string>
+    <string name="doclist_local_pdf_action">Télécharger</string>
+
+    <string name="pages_page_1">Page %1$d</string>
+
+    <string name="settings_baseUrl_label">URL de base</string>
+    <string name="settings_baseUrl_hint">Une URL HTTPS (sans /papers/)</string>
+    <string name="settings_clientPem_label">Certificat et clé privée du client</string>
+    <string name="settings_clientPem_hint">Texte encodé en PEM contenant un certificat et une clé privée.
+Optionnel, mais fortemement recommandé</string>
+    <string name="settings_serverCa_label">Certificat racine</string>
+    <string name="settings_serverCa_hint">Texte encodé en PEM contenant un certificat.
+Le serveur doit fournir une chaîne de certificat remontant à ce certificat.
+Optionnel, sinon les certificats racines d\'Android seront utilisés.
+    </string>
+    <string name="settings_check">Test</string>
+
+    <string name="settingsCheck_stop">Stop</string>
+    <string name="settingsCheck_restart">Réessayer</string>
+    <string name="settingsCheck_reset">Effacer les données</string>
+
+    <string name="check_stopped">Arrêté</string>
+    <string name="check_checking_parameters">Vérification des paramètres</string>
+    <string name="check_failure">Échec</string>
+    <string name="check_base_url">URL</string>
+    <string name="check_base_url_is_not_https">l\'URL n\'est pas HTTPS</string>
+    <string name="check_client_certificate">Certificate client</string>
+    <string name="check_no_client_certificate">Pas de certificat client</string>
+    <string name="check_client_certificate_over_http">Utilisation d\'un certificat client en HTTP</string>
+    <string name="check_server_root_ca">Autorité racine du serveur</string>
+    <string name="check_no_server_root_ca">Pas d`autorité racine pour le serveur</string>
+    <string name="check_server_ca_over_http">Utilisation d\'une autorité racine en HTTP</string>
+    <string name="check_no_network_connectivity">Pas de réseau</string>
+    <string name="check_dnl_db_without_certificate">Téléchargement de la BD sans certificat</string>
+    <string name="check_trying_to_download_the_db">Téléchargement de la BD</string>
+    <string name="check_empty_response">Réponse vide</string>
+    <string name="check_http_error">Erreur HTTP</string>
+    <string name="check_trying_to_download_again_the_db">Nouveau téléchargement de la BD</string>
+    <string name="check_no_network_response">Réponse absente</string>
+    <string name="check_db_received_again">BD reçue à nouveau</string>
+    <string name="check_this_is_not_secure">Ce n\'est pas sécurisé</string>
+    <string name="check_looks_good">Semble correct</string>
+    <string name="check_this_is_inconsistent">C\'est incohérent</string>
+    <string name="check_the_systems_ca_will_be_trusted">Les autorités de l\'OS seront utilisées</string>
+    <string name="check_the_server_should_deny_the_request">Le serveur devrait refuser la requête</string>
+    <string name="check_denied_as_expected">Refusé, comme prévu</string>
+    <string name="check_access_not_denied_server_not_secure">L\'accès n\'a pas été refusé, le serveur n\'est PAS protégé correctement</string>
+    <string name="check_unexpected_error_expected_401_or_403">Erreur inattendue (ni 401, ni 403)</string>
+    <string name="check_the_server_should_repond_no_necessary">Le serveur devrait repondre que ce n\'est pas nécessaire</string>
+    <string name="check_not_modified_as_expected">\'Non modifié\', comme prévu</string>
+    <string name="check_the_cache_control_does_not_work_properly">Le cache du serveur ne fonctionne pas correctement</string>
+
+    <string name="check_response_code_1">Réponse code %1$s</string>
+    <string name="check_response_code_expected_401_or_403_1">Réponse code %1$s (au lieu de 401 ou 403)</string>
+    <string name="check_response_code_without_body_1">Réponse code %1$s vide ???</string>
+    <string name="check_exception_1">%1$s</string>
+
+    <string name="check_received_size_bytes_2">Reçu %1$s (%2$s octets)</string>
+    <string name="check_no_network_response_2">Pas de réponse ?? %1$s, \'%2$s\'</string>
+
+</resources>

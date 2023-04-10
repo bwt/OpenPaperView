@@ -29,6 +29,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -71,7 +72,7 @@ fun PageListContentImages(
                     pages.forEachIndexed { index, _ ->
                         Tab(
                             modifier = Modifier.padding(horizontal = 16.dp),
-                            text = { Text("Page ${index + 1}") },
+                            text = { Text(stringResource(R.string.pages_page_1, index + 1)) },
                             selected = pagerState.currentPage == index,
                             onClick = { scope.launch { pagerState.scrollToPage(index) } },
                         )

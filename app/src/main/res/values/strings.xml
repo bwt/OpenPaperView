@@ -33,6 +33,8 @@
     <string name="doclist_local_pdf_toast">PDF must be downloaded first</string>
     <string name="doclist_local_pdf_action">Download</string>
 
+    <string name="pages_page_1">Page %1$d</string>
+
     <string name="settings_baseUrl_label">Base URL</string>
     <string name="settings_baseUrl_hint">An HTTPS URL (without /papers/)</string>
     <string name="settings_clientPem_label">Client\'s certificate and private key</string>
@@ -45,11 +47,48 @@ The server must provide a chain of certificates whose root is this certificate.
 If left empty, the systems CAs will be trusted.
     </string>
     <string name="settings_check">Test</string>
-    <string name="settings_purgeDownloads">Purge downloads</string>
-    <string name="settings_purgeCache">Purge cache</string>
 
     <string name="settingsCheck_stop">Stop</string>
     <string name="settingsCheck_restart">Test again</string>
     <string name="settingsCheck_reset">Clear Data</string>
+
+    <string name="check_stopped">Stopped</string>
+    <string name="check_checking_parameters">Checking parameters</string>
+    <string name="check_failure">Failure</string>
+    <string name="check_base_url">Base URL</string>
+    <string name="check_base_url_is_not_https">Base URL is not HTTPS</string>
+    <string name="check_client_certificate">Client certificate</string>
+    <string name="check_no_client_certificate">No client certificate</string>
+    <string name="check_client_certificate_over_http">Client certificate over HTTP</string>
+    <string name="check_server_root_ca">Server root CA</string>
+    <string name="check_no_server_root_ca">No Server root CA</string>
+    <string name="check_server_ca_over_http">Server CA over HTTP</string>
+    <string name="check_no_network_connectivity">No network connectivity</string>
+    <string name="check_dnl_db_without_certificate">Trying to download the DB without certificate</string>
+    <string name="check_trying_to_download_the_db">Trying to download the DB</string>
+    <string name="check_empty_response">Empty response</string>
+    <string name="check_http_error">HTTP error</string>
+    <string name="check_trying_to_download_again_the_db">Trying to download again the DB</string>
+    <string name="check_no_network_response">No network response</string>
+    <string name="check_db_received_again">Db received again</string>
+    <string name="check_this_is_not_secure">This is not secure</string>
+    <string name="check_looks_good">Looks good</string>
+    <string name="check_this_is_inconsistent">This is inconsistent</string>
+    <string name="check_the_systems_ca_will_be_trusted">The system\'s CA will be trusted</string>
+    <string name="check_the_server_should_deny_the_request">The server should deny the request</string>
+    <string name="check_denied_as_expected">Denied, as expected</string>
+    <string name="check_access_not_denied_server_not_secure">Access not denied, the server is NOT properly protected</string>
+    <string name="check_unexpected_error_expected_401_or_403">Unexpected error (expected 401 or 403)</string>
+    <string name="check_the_server_should_repond_no_necessary">The server should respond that it is not necessary</string>
+    <string name="check_not_modified_as_expected">\'Not modified\', as expected</string>
+    <string name="check_the_cache_control_does_not_work_properly">The cache control does not work properly</string>
+
+    <string name="check_response_code_1">Response code %1$s</string>
+    <string name="check_response_code_expected_401_or_403_1">Response code %1$s (expected 401 ot 403)</string>
+    <string name="check_response_code_without_body_1">Response code %1$s without body ???</string>
+    <string name="check_exception_1">%1$s</string>
+
+    <string name="check_received_size_bytes_2">Received %1$s (%2$s bytes)</string>
+    <string name="check_no_network_response_2">No network response ?? %1$s, \'%2$s\'</string>
 
 </resources>
