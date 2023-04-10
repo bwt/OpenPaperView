@@ -6,6 +6,10 @@ plugins {
     id("dagger.hilt.android.plugin")
 }
 
+val versionMajor = 1
+val versionMinor = 0
+val versionPatch = 1
+
 android {
     namespace = "net.phbwt.paperwork"
     compileSdk = 33
@@ -15,8 +19,8 @@ android {
         applicationId = "net.phbwt.paperwork"
         minSdk = 24
         targetSdk = 33
-        versionCode = 32
-        versionName = "0.$versionCode"
+        versionCode = versionMajor * 1_000_000 + versionMinor * 1_000 + versionPatch
+        versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
 
         resourceConfigurations += arrayOf("en", "fr")
 
