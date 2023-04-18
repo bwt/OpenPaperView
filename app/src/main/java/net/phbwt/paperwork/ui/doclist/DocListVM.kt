@@ -60,9 +60,27 @@ class DocListVM @Inject constructor(
 
     fun updateSearch(v: String) {
         // replace with easier to access characters
-        search = v
-            .replace('.', '*')
-            .replace('\'', '"')
+        search = v.map { chr ->
+            when (chr) {
+                '.' -> '*'
+
+                // Other Punctuation, not mapped to *
+                '"', '\'' -> '"'
+                '\u2032', '\u2033', '\u2034',
+                '\u2035', '\u2036', '\u2037',
+                '\uff02', '\uff07',
+                '\u3003' -> '"'
+
+                else -> when (chr.category) {
+                    CharCategory.INITIAL_QUOTE_PUNCTUATION,
+                    CharCategory.FINAL_QUOTE_PUNCTUATION -> '"'
+
+                    CharCategory.OTHER_PUNCTUATION -> '*'
+
+                    else -> chr
+                }
+            }
+        }.joinToString("")
     }
 
     private fun updateLabel(v: List<LabelFilter>) {
@@ -101,6 +119,7 @@ class DocListVM @Inject constructor(
                 data = buildPdfUri(doc)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
+
             else -> null
         }
     }
