@@ -74,7 +74,7 @@ android {
 
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.4.4"
+        kotlinCompilerExtensionVersion = "1.4.7"
     }
 
     packagingOptions {
@@ -87,8 +87,8 @@ android {
 dependencies {
 
     // https://developer.android.com/jetpack/androidx/versions
-    implementation("androidx.core:core-ktx:1.10.0")
-    implementation("androidx.core:core-splashscreen:1.0.0")
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // kotlinx
@@ -105,10 +105,10 @@ dependencies {
 
     // compose
     // https://developer.android.com/jetpack/compose/bom/bom-mapping
-    implementation(platform("androidx.compose:compose-bom:2023.04.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.05.01"))
 //    api(platform("dev.chrisbanes.compose:compose-bom:2023.02.00-beta01"))
 
-    implementation("androidx.activity:activity-compose:1.7.0")
+    implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui")
@@ -122,7 +122,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}")
 
     // https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
-    implementation("io.coil-kt:coil-compose:2.3.0")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     // room
     implementation("androidx.room:room-runtime:${Versions.room}")
@@ -134,8 +134,8 @@ dependencies {
     kapt("com.google.dagger:hilt-compiler:${Versions.hiltDagger}")
 
     // OkHttp
-    // https://square.github.io/okhttp/changelogs/changelog/
-    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.10.0"))
+    // https://github.com/square/okhttp/blob/master/docs/changelogs/changelog_4x.md
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.11.0"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:okhttp-tls")
     implementation("com.squareup.okhttp3:logging-interceptor")

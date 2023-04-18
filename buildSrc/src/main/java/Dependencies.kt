@@ -1,6 +1,6 @@
 object Versions {
 
-    const val kotlin = "1.8.10"
+    const val kotlin = "1.8.21"
 
     // https://github.com/google/accompanist/releases
     const val accompanist = "0.30.1"
@@ -12,7 +12,7 @@ object Versions {
     const val navigation = "2.5.3"
 
     // https://github.com/google/dagger/releases
-    const val hiltDagger = "2.45"
+    const val hiltDagger = "2.46.1"
 
     // https://developer.android.com/jetpack/androidx/releases/hilt
     const val hiltNavigationCompose = "1.0.0"
