@@ -8,7 +8,7 @@ plugins {
 
 val versionMajor = 1
 val versionMinor = 0
-val versionPatch = 1
+val versionPatch = 7
 
 android {
     namespace = "net.phbwt.paperwork"
@@ -35,6 +35,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        setProperty("archivesBaseName", "${applicationId}_${versionMajor}.${versionMinor}.${versionPatch}")
     }
 
     signingConfigs {
