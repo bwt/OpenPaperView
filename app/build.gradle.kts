@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("kotlin-parcelize")
     id("dagger.hilt.android.plugin")
 }
@@ -128,7 +129,7 @@ dependencies {
 
     // room
     implementation("androidx.room:room-runtime:${Versions.room}")
-    kapt("androidx.room:room-compiler:${Versions.room}")
+    ksp("androidx.room:room-compiler:${Versions.room}")
     implementation("androidx.room:room-ktx:${Versions.room}")
 
     // hilt

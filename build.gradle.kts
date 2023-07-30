@@ -1,3 +1,10 @@
+
+
+// https://github.com/google/ksp/releases
+plugins {
+    id("com.google.devtools.ksp") version "${Versions.kotlin}-1.0.11" apply false
+}
+
 buildscript {
 
     repositories {
