@@ -12,8 +12,8 @@ val versionPatch = 7
 
 android {
     namespace = "net.phbwt.paperwork"
-    compileSdk = 33
-    buildToolsVersion = "33.0.2"
+    compileSdk = 34
+    buildToolsVersion = "34.0.0"
 
     defaultConfig {
         applicationId = "net.phbwt.paperwork"
@@ -76,7 +76,7 @@ android {
 
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.4.7"
+        kotlinCompilerExtensionVersion = "1.4.8"
     }
 
     packagingOptions {
@@ -89,6 +89,7 @@ android {
 dependencies {
 
     // https://developer.android.com/jetpack/androidx/versions
+    implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
@@ -107,10 +108,9 @@ dependencies {
 
     // compose
     // https://developer.android.com/jetpack/compose/bom/bom-mapping
-    implementation(platform("androidx.compose:compose-bom:2023.05.01"))
+    implementation(platform("androidx.compose:compose-bom:2023.06.01"))
 //    api(platform("dev.chrisbanes.compose:compose-bom:2023.02.00-beta01"))
 
-    implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui")
