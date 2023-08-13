@@ -37,7 +37,6 @@ class Document:
 # the id being the directory name
 # and documents.doc_id in paperwork's doc_tracking.db
 documents = dict()
-cleaner = re.compile(r"\W+")
 
 
 def warn(code, message):
@@ -88,7 +87,7 @@ def scan_doc_dir(dir_path):
             if extras and extras[0].startswith('#'):
                 doc.title = extras[0].removeprefix('#').strip()
                 extras = extras[1:]
-            doc.extra_keywords = clean_text(" ".join(extras))
+            doc.extra_keywords = " ".join(extras)
         elif name == 'doc.pdf':
             # PDF, try to count the pages
             doc.parts.append(name)
@@ -146,9 +145,10 @@ def add_meta_data():
         # (which Paperwork added to the text)
         # but keep the other extra
         if doc.original_extra and doc_text.endswith(doc.original_extra):
-            doc_text = doc_text.removesuffix(doc.original_extra) + " " + doc.extra_keywords
+            doc_text = doc.extra_keywords + " " + doc_text.removesuffix(doc.original_extra)
 
         doc.text = clean_text(doc_text)
+
         doc.mtime = doc_mtime * 1000
 
     con.close()
@@ -317,9 +317,11 @@ def read_text(path):
 
 
 def clean_text(txt):
-    # Remove non character
-
-    return cleaner.sub(" ", txt)
+   # remove repeated chars (like ...., ----)
+   txt = re.sub(r"(.)\1{4,99999}", " ", txt).strip()
+    # compact spaces
+   txt = re.sub(r"\s+", " ", txt).strip()
+   return txt
 
 
 if __name__ == '__main__':
