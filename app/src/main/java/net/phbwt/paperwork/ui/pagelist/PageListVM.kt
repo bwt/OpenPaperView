@@ -23,8 +23,4 @@ class PageListVM @Inject constructor(
 
     fun getPdfLocalPath(doc: DocumentFull?) = if (doc != null) File(settings.localPartsDir, doc.partPath(0)) else null
 
-    companion object {
-        private const val TAG = "PageListVM"
-    }
-
 }

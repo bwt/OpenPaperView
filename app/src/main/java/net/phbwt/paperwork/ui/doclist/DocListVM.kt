@@ -113,15 +113,13 @@ class DocListVM @Inject constructor(
         updateLabel(listOf())
     }
 
-    fun makeDocumentShowIntent(doc: DocumentFull): Intent? {
-        return when {
-            doc.isPdfDoc -> Intent(Intent.ACTION_VIEW).apply {
-                data = buildPdfUri(doc)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            }
-
-            else -> null
+    fun makeDocumentShowIntent(doc: DocumentFull): Intent? = when {
+        doc.isPdfDoc -> Intent(Intent.ACTION_VIEW).apply {
+            data = buildPdfUri(doc)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
+
+        else -> null
     }
 
     suspend fun makeDocumentShareIntent(doc: DocumentFull, builder: ShareCompat.IntentBuilder): Intent = builder.apply {

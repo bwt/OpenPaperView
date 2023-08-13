@@ -33,11 +33,11 @@ class SettingsVM @Inject constructor(
     // Instead of doing it properly (hoisting the state here, like the DocList's search)
     // we use an ugly hack : trying to update the flow very fast
 
-//    private val baseUrlBypass1 = MutableStateFlow<String?>(null)
+    //    private val baseUrlBypass1 = MutableStateFlow<String?>(null)
     private val baseUrlBypass2 = Channel<String>()
 //    private val baseUrlBypass3 = MutableSharedFlow<String>()
 
-//    private val baseUrl = merge(baseUrlBypass1.filterNotNull(), settings.baseUrlStr)
+    //    private val baseUrl = merge(baseUrlBypass1.filterNotNull(), settings.baseUrlStr)
     private val baseUrl = merge(baseUrlBypass2.receiveAsFlow(), settings.baseUrlStr)
 //    private val baseUrl = merge(baseUrlBypass3, settings.baseUrlStr)
 

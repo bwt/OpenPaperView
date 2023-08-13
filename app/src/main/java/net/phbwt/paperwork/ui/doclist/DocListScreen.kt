@@ -284,6 +284,7 @@ fun DocRows(
                         }
                     }
                 }
+
                 is DocumentFull -> {
                     item(
                         key = row.document.documentId,
@@ -562,7 +563,7 @@ fun makeFakeDocument(id: Int, nameStart: String) = DocumentFull(
     "This is a |§wonderful| snippet",
     listOf(makeFakePart(), makeFakePart(), makeFakePart()),
     if (id % 2 == 0) listOf("A beautiful tag", "like")
-    else listOf("like", "A pretty tag", "like"),
+    else listOf("like", "A pretty tag", "like", "no other", "tag", "at least", "it", "seems so"),
 )
 
 fun makeFakePart() = Part(

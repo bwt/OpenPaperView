@@ -33,9 +33,4 @@ class DownloadListVM @Inject constructor(
         repo.db.downloadDao().setDocumentCleared(doc.document.documentId)
         File(settings.localPartsDir, doc.docPath).deleteRecursively()
     }
-
-    companion object {
-        private const val TAG = "DownloadListVM"
-    }
-
 }

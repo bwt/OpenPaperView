@@ -84,7 +84,7 @@ fun DownloadRows(
 ) {
     val listState = rememberLazyListState()
 
-    var documentIndex by remember { mutableStateOf(-1) }
+    var documentIndex by remember { mutableIntStateOf(-1) }
     var scrollDone by remember { mutableStateOf(false) }
 
     LaunchedEffect(documentIndex) {

@@ -156,11 +156,6 @@ fun PrefItem(
         value = txt,
         onValueChange = onValueChanged,
         modifier = Modifier.fillMaxWidth(),
-//        trailingIcon = {
-//            TrailingClose(visible = data.value.isNotBlank()) {
-//                onValueChanged("")
-//            }
-//        },
         keyboardOptions = KeyboardOptions(
             keyboardType = type,
             autoCorrect = false,

@@ -14,7 +14,7 @@ fun PageListScreen(
 ) {
     val document by vm.loadDocument(documentId).collectAsStateWithLifecycle(null)
 
-    val selectedIndex by remember { mutableStateOf(0) }
+    val selectedIndex by remember { mutableIntStateOf(0) }
 
     val pdfFile = vm.getPdfLocalPath(document)
 

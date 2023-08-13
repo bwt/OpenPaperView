@@ -123,12 +123,15 @@ class SettingsCheckVM @Inject constructor(
                 addItem(Check(Msg(R.string.check_client_certificate), Level.Error, Msg(clientPem.exceptionOrNull())))
                 return null
             }
+
             clientPem.getOrThrow() == null -> {
                 addItem(Check(Msg(R.string.check_no_client_certificate), Level.Warn, Msg(R.string.check_this_is_not_secure)))
             }
+
             !dbRequest.isHttps -> {
                 addItem(Check(Msg(R.string.check_client_certificate_over_http), Level.Error, Msg(R.string.check_this_is_inconsistent)))
             }
+
             else -> {
                 addItem(Check(Msg(R.string.check_client_certificate), Level.OK, Msg(R.string.check_looks_good)))
             }
@@ -140,12 +143,15 @@ class SettingsCheckVM @Inject constructor(
                 addItem(Check(Msg(R.string.check_server_root_ca), Level.Error, Msg(serverCa.exceptionOrNull())))
                 return null
             }
+
             serverCa.getOrThrow() == null -> {
                 addItem(Check(Msg(R.string.check_no_server_root_ca), Level.OK, Msg(R.string.check_the_systems_ca_will_be_trusted)))
             }
+
             !dbRequest.isHttps -> {
                 addItem(Check(Msg(R.string.check_server_ca_over_http), Level.Error, Msg(R.string.check_this_is_inconsistent)))
             }
+
             else -> {
                 addItem(Check(Msg(R.string.check_server_root_ca), Level.OK, Msg(R.string.check_looks_good)))
             }
@@ -180,11 +186,25 @@ class SettingsCheckVM @Inject constructor(
                     response.code in listOf(401, 403) -> {
                         addItem(Check(Msg(R.string.check_response_code_1, response.code), Level.OK, Msg(R.string.check_denied_as_expected)))
                     }
+
                     response.isSuccessful -> {
-                        addItem(Check(Msg(R.string.check_response_code_expected_401_or_403_1, response.code), Level.Error, Msg(R.string.check_access_not_denied_server_not_secure)))
+                        addItem(
+                            Check(
+                                Msg(R.string.check_response_code_expected_401_or_403_1, response.code),
+                                Level.Error,
+                                Msg(R.string.check_access_not_denied_server_not_secure)
+                            )
+                        )
                     }
+
                     else -> {
-                        addItem(Check(Msg(R.string.check_response_code_1, response.code), Level.Warn, Msg(R.string.check_unexpected_error_expected_401_or_403)))
+                        addItem(
+                            Check(
+                                Msg(R.string.check_response_code_1, response.code),
+                                Level.Warn,
+                                Msg(R.string.check_unexpected_error_expected_401_or_403)
+                            )
+                        )
                     }
                 }
             }
@@ -217,7 +237,13 @@ class SettingsCheckVM @Inject constructor(
                         size += buffer.size
                         buffer.clear()
                     }
-                    addItem(Check(Msg(R.string.check_received_size_bytes_2, Formatter.formatFileSize(getApplication(), size), size.toString()), Level.OK, null))
+                    addItem(
+                        Check(
+                            Msg(R.string.check_received_size_bytes_2, Formatter.formatFileSize(getApplication(), size), size.toString()),
+                            Level.OK,
+                            null
+                        )
+                    )
                 }
             } else {
                 addItem(Check(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code)))
@@ -244,7 +270,13 @@ class SettingsCheckVM @Inject constructor(
 
                 response.networkResponse == null -> {
                     // should not happen
-                    addItem(Check(Msg(R.string.check_no_network_response), Level.Error, Msg(R.string.check_no_network_response_2, response.code.toString(), response.message)))
+                    addItem(
+                        Check(
+                            Msg(R.string.check_no_network_response),
+                            Level.Error,
+                            Msg(R.string.check_no_network_response_2, response.code.toString(), response.message)
+                        )
+                    )
                 }
 
                 response.networkResponse?.code == 304 -> {
