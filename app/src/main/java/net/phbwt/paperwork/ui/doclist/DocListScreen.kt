@@ -1,4 +1,9 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class, ExperimentalAnimationApi::class)
+@file:OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalLayoutApi::class
+)
 
 package net.phbwt.paperwork.ui.doclist
 
@@ -41,7 +46,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.google.accompanist.flowlayout.FlowRow
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.dao.SNIPPET_RESULT
@@ -227,8 +231,8 @@ fun Filters(
             FlowRow(
                 modifier = Modifier
                     .padding(top = 5.dp, start = 5.dp, end = 5.dp),
-                mainAxisSpacing = 5.dp,
-                crossAxisSpacing = 5.dp
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
             ) {
                 for (label in labels) {
                     Chip(
@@ -370,7 +374,10 @@ fun DocRow(
             }
 
             // labels
-            FlowRow(mainAxisSpacing = 5.dp, crossAxisSpacing = 5.dp) {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                verticalArrangement = Arrangement.spacedBy(5.dp),
+            ) {
                 for (tag in doc.labelNames) {
                     Chip(tag, { onLabelClicked(tag) })
                 }
