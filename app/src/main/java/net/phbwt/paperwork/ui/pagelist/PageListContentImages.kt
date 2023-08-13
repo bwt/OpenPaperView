@@ -51,14 +51,15 @@ fun PageListContentImages(
 
         val pages = document.parts
 
-        val pagerState = rememberPagerState(initialPage = selectedIndex)
+        val pagerState = rememberPagerState(initialPage = selectedIndex) { pages.size }
+
         val scope = rememberCoroutineScope()
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            if (document.parts.size > 1) {
+            if (pages.size > 1) {
                 ScrollableTabRow(
                     // Our selected tab is our current page
                     selectedTabIndex = pagerState.currentPage,
@@ -80,29 +81,27 @@ fun PageListContentImages(
                 }
             }
 
+            var scale by remember { mutableFloatStateOf(1f) }
+            var rotation by remember { mutableFloatStateOf(0f) }
+            var offset by remember { mutableStateOf(Offset.Zero) }
+
+            val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
+                scale *= zoomChange
+                offset += offsetChange
+            }
+
             HorizontalPager(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxSize(),
-                //   .disabledHorizontalPointerInputScroll()
                 state = pagerState,
-                pageCount = pages.size,
+                modifier = Modifier.fillMaxSize(),
+                //   .disabledHorizontalPointerInputScroll()
                 key = { pages[it].partId },
 //                contentPadding = PaddingValues(horizontal = 25.dp),
             ) { index ->
 
-                var scale by remember { mutableStateOf(1f) }
-                var rotation by remember { mutableStateOf(0f) }
-                var offset by remember { mutableStateOf(Offset.Zero) }
-
-                val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
-                    scale *= zoomChange
-                    offset += offsetChange
-                }
-
                 // separate box : clip + gesture not impacted by scale (especially touchSlop)
                 Box(
                     modifier = Modifier
+                        .fillMaxSize()
                         .clip(RectangleShape)
                         .pointerInput(Unit) {
                             detectTapGestures(
@@ -146,14 +145,14 @@ fun PageListContentImages(
                             .build(),
                         contentDescription = null,
                         modifier = Modifier
-                            .graphicsLayer(
-                                scaleX = scale,
-                                scaleY = scale,
-                                translationX = offset.x,
-                                translationY = offset.y,
-                                transformOrigin = TransformOrigin(0f, 0f),
-                            )
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                                translationX = offset.x
+                                translationY = offset.y
+                                transformOrigin = TransformOrigin(0f, 0f)
+                            },
                         contentScale = ContentScale.Fit,
                         placeholder = painterResource(R.drawable.ic_cloud_queue_24),
                         error = painterResource(R.drawable.ic_error_outline_24),

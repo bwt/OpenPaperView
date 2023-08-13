@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalFoundationApi::class)
 
 package net.phbwt.paperwork.ui.pagelist
 
@@ -48,14 +48,14 @@ fun PageListContentPdf(
         renderer.open(pdfFile)
     }
 
-    val pagerState = rememberPagerState()
+    val pageCount = renderer.state?.pageCount ?: 0
+    val pagerState = rememberPagerState(initialPage = 0) { pageCount }
     val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        val pageCount = renderer.state?.pageCount ?: 0
 
         if (pageCount > 1) {
             ScrollableTabRow(
@@ -86,23 +86,20 @@ fun PageListContentPdf(
             val width = with(LocalDensity.current) { maxWidth.toPx() }.toInt()
             val height = with(LocalDensity.current) { maxHeight.toPx() }.toInt()
 
+            var scale by remember { mutableFloatStateOf(1f) }
+            var rotation by remember { mutableFloatStateOf(0f) }
+            var offset by remember { mutableStateOf(Offset.Zero) }
+
+            val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
+                scale *= zoomChange
+                offset += offsetChange
+            }
+
             HorizontalPager(
-                modifier = Modifier
-//                    .weight(1f)
-                    .fillMaxSize(),
                 state = pagerState,
-                pageCount = pageCount,
+                modifier = Modifier.fillMaxSize(),
                 key = { it },
             ) { index ->
-
-                var scale by remember { mutableStateOf(1f) }
-                var rotation by remember { mutableStateOf(0f) }
-                var offset by remember { mutableStateOf(Offset.Zero) }
-
-                val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
-                    scale *= zoomChange
-                    offset += offsetChange
-                }
 
                 // separate box : clip + gesture not impacted by scale (especially touchSlop)
                 Box(
@@ -175,14 +172,14 @@ fun PageListContentPdf(
                                 .build(),
                             contentDescription = "Page ${index + 1} of ${pageCount}",
                             modifier = Modifier
-                                .graphicsLayer(
-                                    scaleX = scale,
-                                    scaleY = scale,
-                                    translationX = offset.x,
-                                    translationY = offset.y,
-                                    transformOrigin = TransformOrigin(0f, 0f),
-                                )
-                                .fillMaxSize(),
+                                .fillMaxSize()
+                                .graphicsLayer {
+                                    scaleX = scale
+                                    scaleY = scale
+                                    translationX = offset.x
+                                    translationY = offset.y
+                                    transformOrigin = TransformOrigin(0f, 0f)
+                                },
                             contentScale = ContentScale.Fit,
                             error = painterResource(R.drawable.ic_error_outline_24),
                         )
