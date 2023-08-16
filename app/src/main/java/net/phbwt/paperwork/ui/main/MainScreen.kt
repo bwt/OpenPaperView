@@ -2,7 +2,10 @@
 
 package net.phbwt.paperwork.ui.main
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -198,7 +201,13 @@ fun MainContent(
                     NavHost(
                         navController = navController,
                         startDestination = Dest.DocList.route,
-                        Modifier.padding(innerPadding),
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize(),
+                        // avoid default transition
+                        // TODO : define transitions
+                        enterTransition = { EnterTransition.None },
+                        exitTransition = { ExitTransition.None },
                     ) {
                         composable(
                             Dest.DocList.route,
