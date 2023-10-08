@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
     id("com.google.devtools.ksp")
     id("kotlin-parcelize")
     id("dagger.hilt.android.plugin")
@@ -27,10 +26,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        javaCompileOptions {
-            annotationProcessorOptions {
-                argument("room.schemaLocation", "$projectDir/schemas")
-            }
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+            arg("room.generateKotlin", "true")
         }
 
         vectorDrawables {
@@ -133,7 +131,10 @@ dependencies {
 
     // hilt
     implementation("com.google.dagger:hilt-android:${Versions.hiltDagger}")
-    kapt("com.google.dagger:hilt-compiler:${Versions.hiltDagger}")
+    // both hilt-compiler are required
+    // cf https://github.com/google/dagger/issues/4058#issuecomment-1739045490
+    ksp("com.google.dagger:hilt-compiler:${Versions.hiltDagger}")
+    ksp("androidx.hilt:hilt-compiler:${Versions.hiltBase}")
 
     // OkHttp
     // https://github.com/square/okhttp/blob/master/docs/changelogs/changelog_4x.md
@@ -145,7 +146,6 @@ dependencies {
     // workmanager + hilt and coroutine integration
     implementation("androidx.work:work-runtime-ktx:2.8.1")
     implementation("androidx.hilt:hilt-work:${Versions.hiltBase}")
-    kapt("androidx.hilt:hilt-compiler:${Versions.hiltBase}")
     // https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/CHANGELOG.md
     implementation("ru.gildor.coroutines:kotlin-coroutines-okhttp:1.0")
 

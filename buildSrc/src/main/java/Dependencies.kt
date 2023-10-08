@@ -15,9 +15,11 @@ object Versions {
     const val hiltDagger = "2.48"
 
     // https://developer.android.com/jetpack/androidx/releases/hilt
-    const val hiltNavigationCompose = "1.0.0"
-    const val hiltBase = "1.0.0"
+    // hilt ksp requires 1.1.0
+    const val hiltNavigationCompose = "1.1.0-beta01"
+    const val hiltBase = "1.1.0-beta01"
 
     // https://developer.android.com/jetpack/androidx/releases/room
-    const val room = "2.5.2"
+    // hilt ksp requires 2.6.0
+    const val room = "2.6.0-rc01"
 }
