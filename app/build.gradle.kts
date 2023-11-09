@@ -75,7 +75,7 @@ android {
 
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
 
     packagingOptions {
@@ -88,14 +88,14 @@ android {
 dependencies {
 
     // https://developer.android.com/jetpack/androidx/versions
-    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.activity:activity-compose:1.8.1")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // kotlinx
     // https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/CHANGELOG.md
-    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.6")
 
     // Saved state module for ViewModel
     // https://developer.android.com/jetpack/androidx/releases/lifecycle#groovy
@@ -107,7 +107,7 @@ dependencies {
 
     // compose
     // https://developer.android.com/jetpack/compose/bom/bom-mapping
-    implementation(platform("androidx.compose:compose-bom:2023.09.02"))
+    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
 //    api(platform("dev.chrisbanes.compose:compose-bom:2023.02.00-beta01"))
 
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -122,7 +122,7 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}")
 
     // https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     // room
     implementation("androidx.room:room-runtime:${Versions.room}")
@@ -138,7 +138,7 @@ dependencies {
 
     // OkHttp
     // https://github.com/square/okhttp/blob/master/docs/changelogs/changelog_4x.md
-    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.11.0"))
+    implementation(platform("com.squareup.okhttp3:okhttp-bom:4.12.0"))
     implementation("com.squareup.okhttp3:okhttp")
     implementation("com.squareup.okhttp3:okhttp-tls")
     implementation("com.squareup.okhttp3:logging-interceptor")

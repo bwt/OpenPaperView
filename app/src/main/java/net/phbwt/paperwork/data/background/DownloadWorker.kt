@@ -212,7 +212,7 @@ class DownloadWorker @AssistedInject constructor(
         // Try first to find the image in Coil's cache
 
         val cacheKey = dnl.partPath()
-        Coil.imageLoader(applicationContext).diskCache?.get(cacheKey)?.use {
+        Coil.imageLoader(applicationContext).diskCache?.openSnapshot(cacheKey)?.use {
             Log.d(TAG, "Copying ${dnl.partPath()} from cache")
             withContext(Dispatchers.IO) {
                 FileSystem.SYSTEM.copy(it.data, dest.toOkioPath())

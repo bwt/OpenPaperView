@@ -1,8 +1,7 @@
 
 
-// https://github.com/google/ksp/releases
 plugins {
-    id("com.google.devtools.ksp") version "${Versions.kotlin}-1.0.13" apply false
+    id("com.google.devtools.ksp") version "${Versions.kotlin}-${Versions.ksp}" apply false
 }
 
 buildscript {
@@ -12,7 +11,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.1.2")
+        classpath("com.android.tools.build:gradle:8.1.4")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
         classpath("com.google.dagger:hilt-android-gradle-plugin:${Versions.hiltDagger}")
     }
