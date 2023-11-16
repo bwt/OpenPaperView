@@ -2,7 +2,7 @@
     ExperimentalMaterial3Api::class,
     ExperimentalComposeUiApi::class,
     ExperimentalAnimationApi::class,
-    ExperimentalLayoutApi::class
+    ExperimentalLayoutApi::class,
 )
 
 package net.phbwt.paperwork.ui.doclist
@@ -68,7 +68,9 @@ fun DocListScreen(
     val labelTypes by vm.labelTypes.collectAsStateWithLifecycle(listOf())
     val rows by vm.documentsWithHeaders.collectAsStateWithLifecycle(listOf())
 
-    BackHandler(enabled = !search.isNullOrBlank() || labels.isNotEmpty()) {
+    val hasFilter = !search.isNullOrBlank() || labels.isNotEmpty()
+
+    BackHandler(enabled = hasFilter && !WindowInsets.isImeVisible) {
         vm.clearFilters()
     }
 
@@ -300,6 +302,12 @@ fun DocRows(
                     }
                 }
             }
+        }
+        // if we draw behind the navigation bar (IME closed)
+        // we add a spacer so that the last item
+        // can been scrolled into the visible area
+        item {
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
         }
     }
 }

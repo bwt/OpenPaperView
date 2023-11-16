@@ -5,11 +5,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 
-private val LightColors = lightColorScheme(
+val LightColors = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
     primaryContainer = md_theme_light_primaryContainer,
@@ -40,7 +38,7 @@ private val LightColors = lightColorScheme(
 )
 
 
-private val DarkColors = darkColorScheme(
+val DarkColors = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
     primaryContainer = md_theme_dark_primaryContainer,
@@ -79,19 +77,6 @@ fun AppTheme(
         LightColors
     } else {
         DarkColors
-    }
-
-    val systemUiController = rememberSystemUiController()
-    val useDarkIcons = !useDarkTheme
-
-    // https://google.github.io/accompanist/systemuicontroller/
-    DisposableEffect(systemUiController, useDarkIcons) {
-        systemUiController.setSystemBarsColor(
-            color = colors.secondaryContainer,
-            darkIcons = useDarkIcons
-        )
-
-        onDispose {}
     }
 
     MaterialTheme(

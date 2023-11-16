@@ -115,7 +115,6 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("com.google.accompanist:accompanist-systemuicontroller:${Versions.accompanist}")
 
     // navigation
     implementation("androidx.navigation:navigation-compose:${Versions.navigation}")

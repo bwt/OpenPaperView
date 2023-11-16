@@ -97,6 +97,9 @@ fun SettingsCheckContent(
                     Text(stringResource(resId))
                 }
             }
+
+            // handle the navigationbar
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
         }
     }
 }

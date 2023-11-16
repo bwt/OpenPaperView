@@ -132,6 +132,9 @@ fun SettingsContent(
                     Text(stringResource(R.string.settings_check))
                 }
             }
+
+            // handle the navigationbar
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
         }
     }
 }

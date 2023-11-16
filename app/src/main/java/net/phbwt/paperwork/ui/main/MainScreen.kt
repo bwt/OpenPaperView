@@ -7,11 +7,34 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,7 +59,6 @@ import net.phbwt.paperwork.ui.downloadlist.DownloadListScreen
 import net.phbwt.paperwork.ui.pagelist.PageListScreen
 import net.phbwt.paperwork.ui.settings.SettingsScreen
 import net.phbwt.paperwork.ui.settingscheck.SettingsCheckScreen
-import net.phbwt.paperwork.ui.theme.AppTheme
 
 @Composable
 fun MainScreen(
@@ -111,133 +133,135 @@ fun MainContent(
         }
     }
 
-    AppTheme {
 
-        var showDialog by remember { mutableStateOf(true) }
+    // 'check the demo' dialog
+    var showDialog by remember { mutableStateOf(true) }
 
-        if (showDialog && !isConfigured) {
+    if (showDialog && !isConfigured) {
 
-            if (runningInTestLab) {
-                LaunchedEffect(Unit) {
-                    setDemoServer()
-                }
+        if (runningInTestLab) {
+            LaunchedEffect(Unit) {
+                setDemoServer()
             }
-
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text(stringResource(id = R.string.main_dialog_title)) },
-                text = { Text(stringResource(id = R.string.main_dialog_text)) },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showDialog = false
-                            scope.launch { setDemoServer() }
-                        }
-                    ) { Text(stringResource(id = R.string.main_dialog_yes)) }
-                },
-                dismissButton = {
-                    TextButton(
-                        onClick = {
-                            showDialog = false
-                        }
-                    ) { Text(stringResource(id = R.string.main_dialog_no)) }
-                },
-            )
         }
 
-        ModalNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    val tlds = if (runningInTestLab) TEST_TLDS else TLDS
-                    for (dest in tlds) {
-                        NavigationDrawerItem(
-                            icon = { Icon(dest.icon, contentDescription = null) },
-                            label = { Text(stringResource(dest.labelRes)) },
-                            selected = dest == currentDest,
-                            onClick = {
-                                scope.launch { drawerState.close() }
-
-                                navController.navigate(dest.topRoute) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        // XXX : if true and restoreState is false, the VM are kept
-                                        // but not reused (possibly with coroutines in the viewModelScope)
-                                        saveState = false
-                                    }
-                                    launchSingleTop = true
-                                    // XXX : true breaks navigate to doclist when starting
-                                    // from the downloadList for a specific documentId
-                                    restoreState = false
-                                }
-                            },
-                            modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
-                        )
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text(stringResource(id = R.string.main_dialog_title)) },
+            text = { Text(stringResource(id = R.string.main_dialog_text)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
+                        scope.launch { setDemoServer() }
                     }
-                }
+                ) { Text(stringResource(id = R.string.main_dialog_yes)) }
             },
-
-            content = {
-                Scaffold(
-                    snackbarHost = { SnackbarHost(snackbarHostState) },
-                    topBar = {
-                        if (currentDest != Dest.PageList) {
-                            TopAppBar(
-                                title = { Text(stringResource(currentDest.labelRes)) },
-                                navigationIcon = {
-                                    IconToggleButton(
-                                        checked = false,
-                                        onCheckedChange = {
-                                            scope.launch { if (it) drawerState.open() else drawerState.close() }
-                                        }) {
-                                        Icon(Icons.Filled.Menu, contentDescription = null)
-                                    }
-                                }
-                            )
-                        }
-                    },
-                ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = Dest.DocList.route,
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize(),
-                        // avoid default transition
-                        // TODO : define transitions
-                        enterTransition = { EnterTransition.None },
-                        exitTransition = { ExitTransition.None },
-                    ) {
-                        composable(
-                            Dest.DocList.route,
-                        ) { DocListScreen(navController, snackbarHostState) }
-                        composable(
-                            Dest.DownloadsList.route,
-                            arguments = listOf(navArgument("documentId") { type = NavType.IntType }),
-                        ) { bse ->
-                            DownloadListScreen(navController, bse.getIntArg("documentId"))
-                        }
-                        composable(
-                            Dest.Settings.route,
-                        ) { SettingsScreen(navController) }
-                        composable(
-                            Dest.SettingsCheck.route,
-                        ) { SettingsCheckScreen(navController) }
-                        composable(
-                            Dest.PageList.route,
-                            arguments = listOf(navArgument("documentId") { type = NavType.IntType }),
-                        ) { bse ->
-                            PageListScreen(navController, bse.getIntArg("documentId"))
-                        }
-                        composable(
-                            Dest.About.route,
-                        ) { AboutScreen(navController) }
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showDialog = false
                     }
-                }
+                ) { Text(stringResource(id = R.string.main_dialog_no)) }
             },
         )
     }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val tlds = if (runningInTestLab) TEST_TLDS else TLDS
+                for (dest in tlds) {
+                    NavigationDrawerItem(
+                        icon = { Icon(dest.icon, contentDescription = null) },
+                        label = { Text(stringResource(dest.labelRes)) },
+                        selected = dest == currentDest,
+                        onClick = {
+                            scope.launch { drawerState.close() }
+
+                            navController.navigate(dest.topRoute) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    // XXX : if true and restoreState is false, the VM are kept
+                                    // but not reused (possibly with coroutines in the viewModelScope)
+                                    saveState = false
+                                }
+                                launchSingleTop = true
+                                // XXX : true breaks navigate to doclist when starting
+                                // from the downloadList for a specific documentId
+                                restoreState = false
+                            }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
+            }
+        },
+
+        content = {
+            Scaffold(
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+                topBar = {
+                    if (currentDest != Dest.PageList) {
+                        TopAppBar(
+                            title = { Text(stringResource(currentDest.labelRes)) },
+                            navigationIcon = {
+                                IconToggleButton(
+                                    checked = false,
+                                    onCheckedChange = {
+                                        scope.launch { if (it) drawerState.open() else drawerState.close() }
+                                    }) {
+                                    Icon(Icons.Filled.Menu, contentDescription = null)
+                                }
+                            }
+                        )
+                    }
+                },
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = Dest.DocList.route,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        // pad only the top, the bottom
+                        // (behind the navigationbar) is handled by each screen
+                        .padding(top = innerPadding.calculateTopPadding())
+                        .imePadding(),
+                    // avoid default transition
+                    // TODO : define transitions
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                ) {
+                    composable(
+                        Dest.DocList.route,
+                    ) { DocListScreen(navController, snackbarHostState) }
+                    composable(
+                        Dest.DownloadsList.route,
+                        arguments = listOf(navArgument("documentId") { type = NavType.IntType }),
+                    ) { bse ->
+                        DownloadListScreen(navController, bse.getIntArg("documentId"))
+                    }
+                    composable(
+                        Dest.Settings.route,
+                    ) { SettingsScreen(navController) }
+                    composable(
+                        Dest.SettingsCheck.route,
+                    ) { SettingsCheckScreen(navController) }
+                    composable(
+                        Dest.PageList.route,
+                        arguments = listOf(navArgument("documentId") { type = NavType.IntType }),
+                    ) { bse ->
+                        PageListScreen(navController, bse.getIntArg("documentId"))
+                    }
+                    composable(
+                        Dest.About.route,
+                    ) { AboutScreen(navController) }
+                }
+            }
+        },
+    )
 }
 
 private fun NavBackStackEntry.getIntArg(argName: String) = arguments?.getInt(argName) ?: throw IllegalArgumentException("Missing '$argName' argument")
