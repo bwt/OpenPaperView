@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId = "net.phbwt.paperwork"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = versionMajor * 1_000_000 + versionMinor * 1_000 + versionPatch
         versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
 
