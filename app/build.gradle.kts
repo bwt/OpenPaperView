@@ -8,7 +8,7 @@ plugins {
 
 val versionMajor = 1
 val versionMinor = 0
-val versionPatch = 11
+val versionPatch = 14
 
 android {
     namespace = "net.phbwt.paperwork"
