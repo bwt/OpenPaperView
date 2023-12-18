@@ -1,9 +1,9 @@
 object Versions {
 
-    const val kotlin = "1.9.20"
+    const val kotlin = "1.9.21"
 
     // https://github.com/google/ksp/releases
-    const val ksp = "1.0.14"
+    const val ksp = "1.0.16"
 
     // https://github.com/google/accompanist/releases
     const val accompanist = "0.32.0"
@@ -12,10 +12,10 @@ object Versions {
     const val lifecycle = "2.6.2"
 
     // https://developer.android.com/jetpack/androidx/releases/navigation
-    const val navigation = "2.7.5"
+    const val navigation = "2.7.6"
 
     // https://github.com/google/dagger/releases
-    const val hiltDagger = "2.48.1"
+    const val hiltDagger = "2.50"
 
     // https://developer.android.com/jetpack/androidx/releases/hilt
     // hilt ksp requires 1.1.0
@@ -23,6 +23,5 @@ object Versions {
     const val hiltBase = "1.1.0"
 
     // https://developer.android.com/jetpack/androidx/releases/room
-    // hilt ksp requires 2.6.0
-    const val room = "2.6.0"
+    const val room = "2.6.1"
 }

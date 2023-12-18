@@ -26,11 +26,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        ksp {
-            arg("room.schemaLocation", "$projectDir/schemas")
-            arg("room.generateKotlin", "true")
-        }
-
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -73,12 +68,17 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.4"
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+        arg("room.generateKotlin", "true")
     }
 
-    packagingOptions {
+    composeOptions {
+        // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
+        kotlinCompilerExtensionVersion = "1.5.7"
+    }
+
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -88,7 +88,7 @@ android {
 dependencies {
 
     // https://developer.android.com/jetpack/androidx/versions
-    implementation("androidx.activity:activity-compose:1.8.1")
+    implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
@@ -143,7 +143,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor")
 
     // workmanager + hilt and coroutine integration
-    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
     implementation("androidx.hilt:hilt-work:${Versions.hiltBase}")
     // https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/CHANGELOG.md
     implementation("ru.gildor.coroutines:kotlin-coroutines-okhttp:1.0")

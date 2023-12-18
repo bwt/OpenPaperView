@@ -19,8 +19,8 @@ class OpenPaperViewApplication : Application(), Configuration.Provider {
 
     // Default initializer disabled in manifest
     // cf https://developer.android.com/training/dependency-injection/hilt-jetpack#workmanager
-    override fun getWorkManagerConfiguration() =
-        Configuration.Builder()
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
 
@@ -54,4 +54,5 @@ class OpenPaperViewApplication : Application(), Configuration.Provider {
         // check db updates
         DownloadWorker.enqueueLoad(this)
     }
+
 }
