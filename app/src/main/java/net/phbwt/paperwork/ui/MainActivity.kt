@@ -6,7 +6,6 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.toArgb
@@ -21,7 +20,6 @@ import net.phbwt.paperwork.ui.theme.LightColors
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalLayoutApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -38,19 +36,20 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun ChangeSystemBarsTheme(isDark: Boolean) {
         LaunchedEffect(isDark) {
+            val statusbarDark = DarkColors.primaryContainer.toArgb()
+            val statusbarLight = LightColors.primaryContainer.toArgb()
+            // ignored on 29+
+            val navbarLight = LightColors.primaryContainer.copy(alpha = .6f).toArgb()
+            val navbarDark = DarkColors.primaryContainer.copy(alpha = .6f).toArgb()
             if (isDark) {
-                val statusbarColor = LightColors.onSecondaryContainer.toArgb()
-                val navbarColor = LightColors.onSecondaryContainer.copy(alpha = .6f).toArgb()
                 enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.dark(statusbarColor),
-                    navigationBarStyle = SystemBarStyle.dark(navbarColor),
+                    statusBarStyle = SystemBarStyle.dark(statusbarDark),
+                    navigationBarStyle = SystemBarStyle.auto(navbarLight, navbarDark),
                 )
             } else {
-                val statusbarColor = DarkColors.onSecondaryContainer.toArgb()
-                val navbarColor = DarkColors.onSecondaryContainer.copy(alpha = .6f).toArgb()
                 enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.light(statusbarColor, statusbarColor),
-                    navigationBarStyle = SystemBarStyle.light(navbarColor, navbarColor),
+                    statusBarStyle = SystemBarStyle.light(statusbarLight, statusbarDark),
+                    navigationBarStyle = SystemBarStyle.auto(navbarLight, navbarDark),
                 )
             }
         }
