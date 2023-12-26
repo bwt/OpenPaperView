@@ -143,7 +143,12 @@ fun DocListContent(
     Surface(color = colors.background) {
         Column {
             Filters(search, labels, labelTypes, onLabelRemoved, onLabelAdded, onLabelToggled, onSearchChange)
-            DocRows(rows, onDocClicked, onLabelAdded, onDownloadClicked, onShowClicked, onShareClicked)
+            // workaround position lost on reconfiguration / navigation
+            // because the list is temporarily empty
+            // https://issuetracker.google.com/issues/179397301
+            if (rows.isNotEmpty()) {
+                DocRows(rows, onDocClicked, onLabelAdded, onDownloadClicked, onShowClicked, onShareClicked)
+            }
         }
     }
 }
