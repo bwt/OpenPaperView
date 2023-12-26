@@ -8,6 +8,7 @@ import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -98,65 +99,72 @@ fun PageListContentImages(
 //                contentPadding = PaddingValues(horizontal = 25.dp),
             ) { index ->
 
-                // separate box : clip + gesture not impacted by scale (especially touchSlop)
+                // another box : clipped zone includes navigation bar padding
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RectangleShape)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onDoubleTap = { tapOffset ->
-                                    if (scale > 1.00001f) {
-                                        scope.launch {
-                                            transformableState.animateBy(1 / scale, -offset)
-                                        }
-                                    } else {
-                                        val zoomBy = 3f
-                                        val o = tapOffset - ((tapOffset - offset) * zoomBy)
-                                        scope.launch {
-                                            transformableState.animateBy(zoomBy, o)
+                        .clip(RectangleShape),
+                ) {
+                    // image wrapped in a box : gesture not impacted by scale (especially touchSlop)
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .navigationBarsPadding()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = { tapOffset ->
+                                        if (scale > 1.00001f) {
+                                            scope.launch {
+                                                transformableState.animateBy(1 / scale, -offset)
+                                            }
+                                        } else {
+                                            val zoomBy = 3f
+                                            val o = tapOffset - ((tapOffset - offset) * zoomBy)
+                                            scope.launch {
+                                                transformableState.animateBy(zoomBy, o)
+                                            }
                                         }
                                     }
-                                }
-                            )
-                        }
-                        .pointerInput(Unit) {
-                            appDetectTransformGestures(true) { centroid, pan, baseZoom, _ ->
-                                val newScale = minOf(99f, maxOf(1f, scale * baseZoom))
-                                val zoom = newScale / scale
-                                scale = newScale
-
-                                val o = centroid - ((centroid - offset) * zoom)
-
-                                val mx = minOf(0f, maxOf(size.width * (1 - scale), pan.x + o.x))
-                                val my = minOf(0f, maxOf(size.height * (1 - scale), pan.y + o.y))
-
-                                offset = Offset(mx, my)
-                                // FIXME gesture end rebound
-                                scale > 1.05f
+                                )
                             }
-                        },
-                ) {
-                    val dataAndCacheKey = document.partPath(index)
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(dataAndCacheKey)
-                            .diskCacheKey(dataAndCacheKey)
-                            .build(),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer {
-                                scaleX = scale
-                                scaleY = scale
-                                translationX = offset.x
-                                translationY = offset.y
-                                transformOrigin = TransformOrigin(0f, 0f)
+                            .pointerInput(Unit) {
+                                appDetectTransformGestures(true) { centroid, pan, baseZoom, _ ->
+                                    val newScale = minOf(99f, maxOf(1f, scale * baseZoom))
+                                    val zoom = newScale / scale
+                                    scale = newScale
+
+                                    val o = centroid - ((centroid - offset) * zoom)
+
+                                    val mx = minOf(0f, maxOf(size.width * (1 - scale), pan.x + o.x))
+                                    val my = minOf(0f, maxOf(size.height * (1 - scale), pan.y + o.y))
+
+                                    offset = Offset(mx, my)
+                                    // FIXME gesture end rebound
+                                    scale > 1.05f
+                                }
                             },
-                        contentScale = ContentScale.Fit,
-                        placeholder = painterResource(R.drawable.ic_cloud_queue_24),
-                        error = painterResource(R.drawable.ic_error_outline_24),
-                    )
+                    ) {
+                        val dataAndCacheKey = document.partPath(index)
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(dataAndCacheKey)
+                                .diskCacheKey(dataAndCacheKey)
+                                .build(),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer {
+                                    scaleX = scale
+                                    scaleY = scale
+                                    translationX = offset.x
+                                    translationY = offset.y
+                                    transformOrigin = TransformOrigin(0f, 0f)
+                                },
+                            contentScale = ContentScale.Fit,
+                            placeholder = painterResource(R.drawable.ic_cloud_queue_24),
+                            error = painterResource(R.drawable.ic_error_outline_24),
+                        )
+                    }
                 }
             }
         }

@@ -101,88 +101,94 @@ fun PageListContentPdf(
                 key = { it },
             ) { index ->
 
-                // separate box : clip + gesture not impacted by scale (especially touchSlop)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RectangleShape)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onDoubleTap = { tapOffset ->
-                                    if (scale > 1.00001f) {
-                                        scope.launch {
-                                            transformableState.animateBy(1 / scale, -offset)
-                                        }
-                                    } else {
-                                        val zoomBy = 3f
-                                        val o = tapOffset - ((tapOffset - offset) * zoomBy)
-                                        scope.launch {
-                                            transformableState.animateBy(zoomBy, o)
+                // another box : clipped zone includes navigation bar padding
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RectangleShape),
+                ) {
+                    // image wrapped in a box : gesture not impacted by scale (especially touchSlop)
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .navigationBarsPadding()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = { tapOffset ->
+                                        if (scale > 1.00001f) {
+                                            scope.launch {
+                                                transformableState.animateBy(1 / scale, -offset)
+                                            }
+                                        } else {
+                                            val zoomBy = 3f
+                                            val o = tapOffset - ((tapOffset - offset) * zoomBy)
+                                            scope.launch {
+                                                transformableState.animateBy(zoomBy, o)
+                                            }
                                         }
                                     }
-                                }
-                            )
-                        }
-                        .pointerInput(Unit) {
-                            appDetectTransformGestures(true) { centroid, pan, baseZoom, _ ->
-                                val newScale = minOf(99f, maxOf(1f, scale * baseZoom))
-                                val zoomBy = newScale / scale
-                                scale = newScale
-
-                                val o = centroid - ((centroid - offset) * zoomBy)
-
-                                val mx = minOf(0f, maxOf(size.width * (1 - scale), pan.x + o.x))
-                                val my = minOf(0f, maxOf(size.height * (1 - scale), pan.y + o.y))
-
-                                offset = Offset(mx, my)
-                                // FIXME gesture end rebound
-                                scale > 1.05f
+                                )
                             }
-                        },
-                ) {
-                    val cacheKey = MemoryCache.Key("$pdfFile-$index}")
-                    var bitmap by remember { mutableStateOf(imageCache[cacheKey]?.bitmap) }
-                    if (bitmap == null) {
-                        LaunchedEffect(pdfFile, index) {
-                            Log.w(TAG, "> $index")
-                            bitmap = renderer.renderPage(
-                                index,
-                                width, height,
+                            .pointerInput(Unit) {
+                                appDetectTransformGestures(true) { centroid, pan, baseZoom, _ ->
+                                    val newScale = minOf(99f, maxOf(1f, scale * baseZoom))
+                                    val zoomBy = newScale / scale
+                                    scale = newScale
+
+                                    val o = centroid - ((centroid - offset) * zoomBy)
+
+                                    val mx = minOf(0f, maxOf(size.width * (1 - scale), pan.x + o.x))
+                                    val my = minOf(0f, maxOf(size.height * (1 - scale), pan.y + o.y))
+
+                                    offset = Offset(mx, my)
+                                    // FIXME gesture end rebound
+                                    scale > 1.05f
+                                }
+                            },
+                    ) {
+                        val cacheKey = MemoryCache.Key("$pdfFile-$index}")
+                        var bitmap by remember { mutableStateOf(imageCache[cacheKey]?.bitmap) }
+                        if (bitmap == null) {
+                            LaunchedEffect(pdfFile, index) {
+                                Log.w(TAG, "> $index")
+                                bitmap = renderer.renderPage(
+                                    index,
+                                    width, height,
+                                    null,
+                                    null,
+                                    imageCache,
+                                    cacheKey,
+                                )
+                                Log.w(TAG, "< $index")
+                            }
+                            Icon(
+                                Icons.Outlined.Timer,
                                 null,
-                                null,
-                                imageCache,
-                                cacheKey,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .fillMaxSize(.3f),
+                                tint = MaterialTheme.colorScheme.outline,
                             )
-                            Log.w(TAG, "< $index")
-                        }
-                        Icon(
-                            Icons.Outlined.Timer,
-                            null,
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .fillMaxSize(.3f),
-                            tint = MaterialTheme.colorScheme.outline,
-                        )
-                    } else {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
+                        } else {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
 //                                .size(width, height)
-                                .memoryCacheKey(cacheKey)
-                                .data(bitmap)
-                                .build(),
-                            contentDescription = "Page ${index + 1} of ${pageCount}",
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .graphicsLayer {
-                                    scaleX = scale
-                                    scaleY = scale
-                                    translationX = offset.x
-                                    translationY = offset.y
-                                    transformOrigin = TransformOrigin(0f, 0f)
-                                },
-                            contentScale = ContentScale.Fit,
-                            error = painterResource(R.drawable.ic_error_outline_24),
-                        )
+                                    .memoryCacheKey(cacheKey)
+                                    .data(bitmap)
+                                    .build(),
+                                contentDescription = "Page ${index + 1} of ${pageCount}",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                        translationX = offset.x
+                                        translationY = offset.y
+                                        transformOrigin = TransformOrigin(0f, 0f)
+                                    },
+                                contentScale = ContentScale.Fit,
+                                error = painterResource(R.drawable.ic_error_outline_24),
+                            )
+                        }
                     }
                 }
             }

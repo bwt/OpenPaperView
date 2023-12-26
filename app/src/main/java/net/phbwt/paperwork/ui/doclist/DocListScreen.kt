@@ -307,7 +307,7 @@ fun DocRows(
         // we add a spacer so that the last item
         // can been scrolled into the visible area
         item {
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
     }
 }
@@ -535,7 +535,7 @@ fun Chip(
             modifier = Modifier.width(24.dp),
         ) {
             Icon(Icons.Outlined.Close, null)
-        } else null
+        }
     },
 )
 

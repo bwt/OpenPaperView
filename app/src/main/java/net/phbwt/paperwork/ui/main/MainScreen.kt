@@ -5,6 +5,8 @@ package net.phbwt.paperwork.ui.main
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -36,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -202,7 +205,8 @@ fun MainContent(
 
         content = {
             Scaffold(
-                snackbarHost = { SnackbarHost(snackbarHostState) },
+                // FIXME : there is an additional space when the IME is open (systembar)
+                snackbarHost = { SnackbarHost(snackbarHostState, Modifier.imePadding()) },
                 topBar = {
                     if (currentDest != Dest.PageList) {
                         TopAppBar(
@@ -225,9 +229,15 @@ fun MainContent(
                     startDestination = Dest.DocList.route,
                     modifier = Modifier
                         .fillMaxSize()
-                        // pad only the top, the bottom
-                        // (behind the navigationbar) is handled by each screen
-                        .padding(top = innerPadding.calculateTopPadding())
+                        // The bottom padding (behind the navigationbar)
+                        // is handled by each screen
+                        // typically by adding as Spacer directly (in a column)
+                        // or as an additional item (lazycolumn)
+                        .padding(
+                            top = innerPadding.calculateTopPadding(),
+                            start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+                            end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                        )
                         .imePadding(),
                     // avoid default transition
                     // TODO : define transitions

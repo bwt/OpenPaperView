@@ -134,7 +134,7 @@ fun SettingsContent(
             }
 
             // handle the navigationbar
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
+            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
     }
 }
