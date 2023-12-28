@@ -187,10 +187,12 @@ fun DownloadHeader(
                     LocalTextStyle provides MaterialTheme.typography.bodyMedium,
 //                    LocalContentAlpha provides 0.5f,
                 ) {
-                    // infos
-                    Text(doc.parts.count { it.isLocal }.toString(), fontWeight = FontWeight.Bold)
-                    Text(" / ")
-                    Text(doc.parts.size.toString(), fontWeight = FontWeight.Bold)
+                    if (doc.parts.size > 1) {
+                        // ok / total
+                        Text(doc.parts.count { it.isLocal }.toString(), fontWeight = FontWeight.Bold)
+                        Text(" / ")
+                        Text(doc.parts.size.toString(), fontWeight = FontWeight.Bold)
+                    }
                     Spacer(Modifier.weight(1f))
                     Text(doc.document.date.fmtDtm(LocalContext.current))
                 }
