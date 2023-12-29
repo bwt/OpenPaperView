@@ -15,10 +15,9 @@ import androidx.navigation.NavController
 @Composable
 fun PageListScreen(
     navController: NavController,
-    documentId: Int,
     vm: PageListVM = hiltViewModel(),
 ) {
-    val document by vm.loadDocument(documentId).collectAsStateWithLifecycle(null)
+    val document by vm.document.collectAsStateWithLifecycle()
 
     val selectedIndex by remember { mutableIntStateOf(0) }
 

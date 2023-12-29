@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import net.phbwt.paperwork.R
 
 
+const val PARAM_DOCUMENT_ID = "documentId"
+
 sealed class Dest(
     val route: String,
     val topRoute: String,
@@ -22,7 +24,7 @@ sealed class Dest(
     )
 
     object DownloadsList : Dest(
-        route = "downloadList/{documentId}",
+        route = "downloadList/{$PARAM_DOCUMENT_ID}",
         topRoute = "downloadList/0",
         icon = Icons.Filled.Download,
         labelRes = R.string.screen_downloadList,
@@ -43,7 +45,7 @@ sealed class Dest(
     )
 
     object PageList : Dest(
-        route = "pageList/{documentId}",
+        route = "pageList/{$PARAM_DOCUMENT_ID}",
         topRoute = "pageList/0",
         icon = Icons.Filled.Image,
         labelRes = R.string.screen_pageList,

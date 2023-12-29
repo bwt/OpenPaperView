@@ -61,10 +61,10 @@ import net.phbwt.paperwork.ui.theme.AppTheme
 @Composable
 fun DownloadListScreen(
     navController: NavController,
-    documentId: Int,
     vm: DownloadListVM = hiltViewModel(),
 ) {
     val docs by vm.downloads().collectAsStateWithLifecycle(listOf())
+    val documentId by vm.documentId.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
 

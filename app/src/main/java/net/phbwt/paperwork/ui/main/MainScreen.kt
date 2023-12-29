@@ -249,9 +249,9 @@ fun MainContent(
                     ) { DocListScreen(navController, snackbarHostState) }
                     composable(
                         Dest.DownloadsList.route,
-                        arguments = listOf(navArgument("documentId") { type = NavType.IntType }),
+                        arguments = listOf(navArgument(PARAM_DOCUMENT_ID) { type = NavType.IntType }),
                     ) { bse ->
-                        DownloadListScreen(navController, bse.getIntArg("documentId"))
+                        DownloadListScreen(navController)
                     }
                     composable(
                         Dest.Settings.route,
@@ -261,9 +261,9 @@ fun MainContent(
                     ) { SettingsCheckScreen(navController) }
                     composable(
                         Dest.PageList.route,
-                        arguments = listOf(navArgument("documentId") { type = NavType.IntType }),
+                        arguments = listOf(navArgument(PARAM_DOCUMENT_ID) { type = NavType.IntType }),
                     ) { bse ->
-                        PageListScreen(navController, bse.getIntArg("documentId"))
+                        PageListScreen(navController)
                     }
                     composable(
                         Dest.About.route,

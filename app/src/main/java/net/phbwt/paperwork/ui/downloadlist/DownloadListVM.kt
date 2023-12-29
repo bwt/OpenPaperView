@@ -11,6 +11,7 @@ import net.phbwt.paperwork.data.background.DownloadWorker
 import net.phbwt.paperwork.data.entity.DocumentFull
 import net.phbwt.paperwork.data.entity.Part
 import net.phbwt.paperwork.data.settings.Settings
+import net.phbwt.paperwork.ui.main.PARAM_DOCUMENT_ID
 import java.io.File
 import javax.inject.Inject
 
@@ -22,6 +23,7 @@ class DownloadListVM @Inject constructor(
     private val repo: Repository,
 ) : AndroidViewModel(application) {
 
+    val documentId = savedStateHandle.getStateFlow(PARAM_DOCUMENT_ID, -1)
     fun downloads() = repo.db.docDao().withDownloads()
 
     suspend fun restart(part: Part) {
