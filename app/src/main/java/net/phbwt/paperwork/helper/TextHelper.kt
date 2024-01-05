@@ -17,6 +17,7 @@ fun Long.fmtDtm(context: Context): String {
         this <= 0 -> ""
         this > System.currentTimeMillis() - 8 * 3600 * 1000 ->
             DateUtils.formatDateTime(context, this, DateUtils.FORMAT_SHOW_TIME)
+
         else ->
             DateUtils.formatDateTime(context, this, DateUtils.FORMAT_SHOW_DATE)
     }
@@ -32,6 +33,17 @@ fun Throwable?.desc(): String = if (this == null) {
         cn
     } else {
         "$cn : ${this.message}"
+    }
+}
+
+fun Throwable?.msg(): String = if (this == null) {
+    ""
+} else {
+    val cn = this::class.java.simpleName
+    if (this.message.isNullOrBlank()) {
+        cn
+    } else {
+        this.message ?: ""
     }
 }
 

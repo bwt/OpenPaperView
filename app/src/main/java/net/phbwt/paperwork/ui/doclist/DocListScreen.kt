@@ -219,13 +219,14 @@ fun Filters(
                 },
             ) {
                 filtered.forEach { selectionOption ->
+                    val cb = {
+                        onLabelAdded(selectionOption.name)
+                        // AFTER adding label
+                        onSearchChange("")
+                    }
                     DropdownMenuItem(
-                        text = { Text(selectionOption.name) },
-                        onClick = {
-                            onLabelAdded(selectionOption.name)
-                            // AFTER adding label
-                            onSearchChange("")
-                        }
+                        text = { Chip(selectionOption.name, cb) },
+                        onClick = cb,
                     )
                 }
             }

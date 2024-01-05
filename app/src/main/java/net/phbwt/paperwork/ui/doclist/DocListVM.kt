@@ -149,7 +149,11 @@ class DocListVM @Inject constructor(
         .debounce(300)
         .flatMapLatest { filters ->
             val (include, exclude) = filters.labels.partition { it.include }
-            repo.db.docDao().search(include.map { it.label }, exclude.map { it.label }, filters.search)
+            repo.db.docDao().search(
+                include.map { it.label },
+                exclude.map { it.label },
+                filters.search
+            )
         }
         .map { docs ->
             // assume same TZ as the mtime

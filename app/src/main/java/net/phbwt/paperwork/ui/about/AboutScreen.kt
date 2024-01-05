@@ -84,7 +84,7 @@ fun AboutContent(
             )
 
             Text(
-                "Copyright 2023 Philippe Banwarth.",
+                "Copyright 2024 Philippe Banwarth.",
                 modifier = Modifier.padding(8.dp),
                 style = MaterialTheme.typography.bodyMedium,
             )

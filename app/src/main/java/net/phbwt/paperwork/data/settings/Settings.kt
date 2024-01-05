@@ -17,6 +17,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Request
 import okhttp3.tls.HeldCertificate
 import okhttp3.tls.decodeCertificatePem
+import java.io.File
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -56,10 +57,12 @@ class Settings @Inject constructor(
         runCatching { it.toHttpUrl() }
     }
 
-    val contentBaseUrl = baseUrl.mapResultFlow { it.newBuilder().addPathSegment("papers").build() }
+    val contentBaseUrl: Flow<Result<HttpUrl>> = baseUrl.mapResultFlow {
+        it.newBuilder().addPathSegment("papers").build()
+    }
 
     // Request (without body) are immutable, so we can reuse it
-    val dbRequest = baseUrl.mapResultFlow { baseUrl ->
+    val dbRequest: Flow<Result<Request>> = baseUrl.mapResultFlow { baseUrl ->
         val dbUrl = baseUrl.newBuilder().addPathSegment("papers.sqlite").build()
 
         Request.Builder()
@@ -84,18 +87,28 @@ class Settings @Inject constructor(
 
     //endregion
 
+    // Document's page images (not for PDF) may exist
+    // in Coil's cache, in the downloaded data, or both.
+    // The DownloadWorker first checks the cache : if available the image is
+    // copied to the downloaded data.
+    // On the other hand, a custom Coil fetcher try to use the downloaded
+    // data if available (without copying it to the cache)
+
     // Coil image cache
-    val imageCache = ctxt.cacheDir.resolve("image_cache")
+    // contains documents thumbnails and pages images of non-PDF document
+    val imageCacheDir: File = ctxt.cacheDir.resolve("image_cache")
 
     // OkHttp db cache
-    val dbCache = ctxt.cacheDir.resolve("db_cache")
+    // contains the SQLite file downloaded
+    val dbCacheDir: File = ctxt.cacheDir.resolve("db_cache")
 
     // OkHttp settings checks cache
-    val checksCache = ctxt.cacheDir.resolve("checks_cache")
+    // temporary cache used when checking the settings
+    val checksCacheDir: File = ctxt.cacheDir.resolve("checks_cache")
 
-    // Downloaded image and pdf
-    // @see xml/file_provider_paths.xml
-    val localPartsDir = ctxt.filesDir.resolve("local_files/parts")
+    // Downloaded data : PDF and page images
+    // also shared, @see xml/file_provider_paths.xml
+    val localPartsDir: File = ctxt.filesDir.resolve("local_files/parts")
 
     suspend fun updateBaseUrl(newVal: String) = update(BASE_URL, newVal)
     suspend fun updateClientPem(newVal: String) = update(CLIENT_PEM, newVal)

@@ -16,7 +16,6 @@ import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -38,28 +37,27 @@ fun SettingsScreen(
     navController: NavController,
     vm: SettingsVM = hiltViewModel(),
 ) {
-    val scope = rememberCoroutineScope()
     val data by vm.data.collectAsStateWithLifecycle(SettingsData())
 
     // start activity for client certificate
     val launcherC = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
         it?.let {
-            scope.launch { vm.updateClientPem(it) }
+            vm.updateClientPem(it)
         }
     }
 
     // start activity for server CA
     val launcherS = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
         it?.let {
-            scope.launch { vm.updateServerCa(it) }
+            vm.updateServerCa(it)
         }
     }
 
     SettingsContent(
         data = data,
-        onBaseUrlChanged = { vm.fastUpdate(it); scope.launch { vm.updateBaseUrl(it) } },
-        onClientPemChanged = { scope.launch { vm.updateClientPem(it) } },
-        onServerCaChanged = { scope.launch { vm.updateServerCa(it) } },
+        onBaseUrlChanged = { vm.updateBaseUrl(it) },
+        onClientPemChanged = { vm.updateClientPem(it) },
+        onServerCaChanged = { vm.updateServerCa(it) },
         onImportClientPEM = {
             // application/x-pem-file does not work
             // application/x-x509-ca-cert does ??

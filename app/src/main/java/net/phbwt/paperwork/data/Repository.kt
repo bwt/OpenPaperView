@@ -52,17 +52,20 @@ class Repository @Inject constructor(
     val db = dbBuilder(applicationContext.currentDbName(true))
         .build()
 
-    // shared instance
-    // rebuild every time the parameter change
+    // HTTP client used to download content (thumbnails, images, PDF)
+    // no cache (will be handled by Coil)
     val contentHttpClient: Flow<Result<OkHttpClient>> by lazy {
         combineResultFlows(settings.clientPem, settings.serverCa, ::buildOkHttpClientWithoutCache)
-            .stateIn(externalScope, SharingStarted.Eagerly, null).filterNotNull()
+            .stateIn(externalScope, SharingStarted.Eagerly, null)
+            .filterNotNull()
     }
 
+    // HTTP client used only to download the DB
+    // build upon the content client + cache
     val dbHttpClient: Flow<Result<OkHttpClient>> by lazy {
         // we only add a cache to let OkHttp handle Etag, Last-Modified, ... HTTP headers
         contentHttpClient
-            .mapResultFlow { it.withHttpCache(settings.dbCache) }
+            .mapResultFlow { it.withHttpCache(settings.dbCacheDir) }
             .stateIn(externalScope, SharingStarted.Eagerly, null)
             .filterNotNull()
     }
@@ -101,7 +104,7 @@ class Repository @Inject constructor(
     // reuse the same cache when rebuilding
     private val coilDiskCache: DiskCache by lazy {
         DiskCache.Builder()
-            .directory(settings.imageCache)
+            .directory(settings.imageCacheDir)
             .build()
     }
 
@@ -208,7 +211,10 @@ fun Context.currentDbName(purgeOlder: Boolean = false): String {
     return names.lastOrNull() ?: getDbName(0)
 }
 
-private fun Context.currentDbNumber() = currentDbName().removePrefix(DB_PREFIX).removeSuffix(DB_SUFFIX).toInt()
+private fun Context.currentDbNumber() = currentDbName()
+    .removePrefix(DB_PREFIX)
+    .removeSuffix(DB_SUFFIX)
+    .toInt()
 private fun getDbName(count: Int) = "%1\$s%2\$05d%3\$s".format(DB_PREFIX, count, DB_SUFFIX)
 fun Context.newDbName() = getDbName(currentDbNumber() + 1)
 

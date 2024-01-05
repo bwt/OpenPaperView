@@ -1,23 +1,34 @@
+@file:OptIn(SavedStateHandleSaveableApi::class)
+
 package net.phbwt.paperwork.ui.settings
 
 import android.app.Application
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
+import androidx.lifecycle.viewmodel.compose.saveable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
+import net.phbwt.paperwork.data.background.DownloadWorker
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.desc
+import net.phbwt.paperwork.helper.firstThenDebounce
+import net.phbwt.paperwork.helper.msg
 import okio.buffer
 import okio.source
 import javax.inject.Inject
-
 
 @HiltViewModel
 class SettingsVM @Inject constructor(
@@ -27,48 +38,53 @@ class SettingsVM @Inject constructor(
     private val settings: Settings,
 ) : AndroidViewModel(application) {
 
-    // TextField state should not be hold in a StateFlow
-    // see https://medium.com/androiddevelopers/effective-state-management-for-textfield-in-compose-d6e5b070fbe5
-    // The initial value comes from a flow.
-    // Instead of doing it properly (hoisting the state here, like the DocList's search)
-    // we use an ugly hack : trying to update the flow very fast
+    //region editable fields hoisting
 
-    //    private val baseUrlBypass1 = MutableStateFlow<String?>(null)
-    private val baseUrlBypass2 = Channel<String>()
-//    private val baseUrlBypass3 = MutableSharedFlow<String>()
+    var baseUrl by savedStateHandle.saveable { mutableStateOf("") }
+        private set
 
-    //    private val baseUrl = merge(baseUrlBypass1.filterNotNull(), settings.baseUrlStr)
-    private val baseUrl = merge(baseUrlBypass2.receiveAsFlow(), settings.baseUrlStr)
-//    private val baseUrl = merge(baseUrlBypass3, settings.baseUrlStr)
+    //endregion
 
+
+    // Editable text fields states are hoisted directly :
+    // base URL and auto download labels
+    // here we only use the URL validation error and the downloadable count
     val data = combine(
         combineWithError(baseUrl, settings.baseUrl),
         combineWithError(settings.clientPemStr, settings.clientPem),
         combineWithError(settings.serverCaStr, settings.serverCa),
         ::SettingsData
-    )
-
-    fun fastUpdate(newVal: String) {
-//        baseUrlBypass1.value = newVal
-        baseUrlBypass2.trySend(newVal)
-//        baseUrlBypass3.tryEmit(newVal)
+        )
     }
 
-    suspend fun updateBaseUrl(newVal: String) {
-//        baseUrlBypass1.value = newVal
-//        baseUrlBypass2.send(newVal)
-//        baseUrlBypass3.emit(newVal)
-
-        settings.updateBaseUrl(newVal)
+    init {
+        viewModelScope.launch {
+            baseUrl = settings.baseUrlStr.first()
+        }
     }
 
-    suspend fun updateClientPem(newVal: String) = settings.updateClientPem(newVal)
+    fun updateBaseUrl(newVal: String) {
+        baseUrl = newVal
+        viewModelScope.launch {
+            settings.updateBaseUrl(newVal)
+        }
+    }
 
-    suspend fun updateClientPem(uri: Uri) = updateClientPem(loadFromUri(uri))
+    fun updateClientPem(newVal: String) = viewModelScope.launch {
+        settings.updateClientPem(newVal)
+    }
 
-    suspend fun updateServerCa(newVal: String) = settings.updateServerCa(newVal)
+    fun updateClientPem(uri: Uri) = viewModelScope.launch {
+        updateClientPem(loadFromUri(uri))
+    }
 
-    suspend fun updateServerCa(uri: Uri) = updateServerCa(loadFromUri(uri))
+    fun updateServerCa(newVal: String) = viewModelScope.launch {
+        settings.updateServerCa(newVal)
+    }
+
+    fun updateServerCa(uri: Uri) = viewModelScope.launch {
+        updateServerCa(loadFromUri(uri))
+    }
 
     private suspend fun loadFromUri(newVal: Uri): String = withContext(Dispatchers.IO) {
         try {
@@ -76,7 +92,7 @@ class SettingsVM @Inject constructor(
                 it?.source()?.buffer()?.readUtf8() ?: "No content ???"
             }
         } catch (ex: Exception) {
-            Log.w(TAG, "Failed to read the client cetificate and key", ex)
+            Log.w(TAG, "Failed to read the client certificate and key", ex)
             "Error: ${ex.desc()}"
         }
     }
@@ -85,7 +101,7 @@ class SettingsVM @Inject constructor(
         valueFlow: Flow<String>,
         errorFlow: Flow<Result<Any?>>,
     ): Flow<SettingItem> = combine(valueFlow, errorFlow) { v, e ->
-        SettingItem(v, e.exceptionOrNull()?.message ?: "")
+        SettingItem(v, e.exceptionOrNull().msg())
     }
 
     companion object {

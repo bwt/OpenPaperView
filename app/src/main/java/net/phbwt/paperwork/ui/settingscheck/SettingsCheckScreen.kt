@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -79,7 +80,7 @@ fun SettingsCheckContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
             ) {
                 Button(
                     onClick = { scope.launch { onReset() } },
@@ -90,7 +91,6 @@ fun SettingsCheckContent(
                 Button(
                     onClick = { if (data.running) onStop() else onStart() },
                     modifier = Modifier
-                        .padding(start = 8.dp)
                         .animateContentSize(),
                 ) {
                     val resId = if (data.running) R.string.settingsCheck_stop else R.string.settingsCheck_restart

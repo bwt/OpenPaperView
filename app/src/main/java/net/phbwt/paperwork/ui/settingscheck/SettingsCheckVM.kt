@@ -86,7 +86,7 @@ class SettingsCheckVM @Inject constructor(
         checkDbDownloadCache(p)
 
         // we don't need the cache anymore
-        settings.checksCache.deleteRecursively()
+        settings.checksCacheDir.deleteRecursively()
 
         setParamsOk(true)
     }
@@ -178,8 +178,8 @@ class SettingsCheckVM @Inject constructor(
 
             delay(300)
 
-            settings.checksCache.deleteRecursively()
-            val httpClient = buildOkHttpClientWithoutCache(null, p.serverCa).withHttpCache(settings.checksCache)
+            settings.checksCacheDir.deleteRecursively()
+            val httpClient = buildOkHttpClientWithoutCache(null, p.serverCa).withHttpCache(settings.checksCacheDir)
 
             httpClient.newCall(p.dbRequest).await().use { response ->
                 when {
@@ -220,8 +220,8 @@ class SettingsCheckVM @Inject constructor(
 
         delay(300)
 
-        settings.checksCache.deleteRecursively()
-        val httpClient = buildOkHttpClientWithoutCache(p.clientPem, p.serverCa).withHttpCache(settings.checksCache)
+        settings.checksCacheDir.deleteRecursively()
+        val httpClient = buildOkHttpClientWithoutCache(p.clientPem, p.serverCa).withHttpCache(settings.checksCacheDir)
 
         httpClient.newCall(p.dbRequest).await().use { response ->
             if (response.isSuccessful) {
@@ -258,7 +258,7 @@ class SettingsCheckVM @Inject constructor(
     private suspend fun checkDbDownloadCache(p: P) {
         addItem(Check(Msg(R.string.check_trying_to_download_again_the_db), Level.None, Msg(R.string.check_the_server_should_repond_no_necessary)))
 
-        val httpClient = buildOkHttpClientWithoutCache(p.clientPem, p.serverCa).withHttpCache(settings.checksCache)
+        val httpClient = buildOkHttpClientWithoutCache(p.clientPem, p.serverCa).withHttpCache(settings.checksCacheDir)
 
         // the Okhttp cache must be populated (by downloading the db)
 
