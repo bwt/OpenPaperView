@@ -26,9 +26,11 @@ import javax.inject.Singleton
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 private val BASE_URL = stringPreferencesKey("base_url")
+private val AUTO_DOWNLOAD_LABELS = stringPreferencesKey("auto_download_labels")
 private val SERVER_CA = stringPreferencesKey("server_ca")
 private val CLIENT_PEM = stringPreferencesKey("client_pem")
 
+const val LABELS_SEPARATOR = ','
 
 @Singleton
 class Settings @Inject constructor(
@@ -39,6 +41,10 @@ class Settings @Inject constructor(
 
     val baseUrlStr: Flow<String> = ctxt.dataStore.data
         .map { it[BASE_URL] ?: "" }
+        .distinctUntilChanged()
+
+    val autoDownloadLabelsStr: Flow<String> = ctxt.dataStore.data
+        .map { it[AUTO_DOWNLOAD_LABELS] ?: "" }
         .distinctUntilChanged()
 
     val clientPemStr: Flow<String> = ctxt.dataStore.data
@@ -77,6 +83,10 @@ class Settings @Inject constructor(
             .build()
     }
 
+    val autoDownloadLabels: Flow<Result<List<String>>> = autoDownloadLabelsStr.map {
+        runCatching { it.split(LABELS_SEPARATOR).map { it.trim() }.distinct() }
+    }
+
     val clientPem: Flow<Result<HeldCertificate?>> = clientPemStr.map {
         runCatching { if (it.isNotBlank()) HeldCertificate.decode(it.trim()) else null }
     }
@@ -111,6 +121,7 @@ class Settings @Inject constructor(
     val localPartsDir: File = ctxt.filesDir.resolve("local_files/parts")
 
     suspend fun updateBaseUrl(newVal: String) = update(BASE_URL, newVal)
+    suspend fun updateAutoDownloadLabels(newVal: String) = update(AUTO_DOWNLOAD_LABELS, newVal)
     suspend fun updateClientPem(newVal: String) = update(CLIENT_PEM, newVal)
     suspend fun updateServerCa(newVal: String) = update(SERVER_CA, newVal)
 

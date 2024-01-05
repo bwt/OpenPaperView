@@ -108,6 +108,37 @@ and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
     )
     suspend fun queueDownloadForDocument(docId: Int)
 
+    suspend fun queueAutoDownloads(labels: List<String>): Int = when {
+        labels.isEmpty() -> 0
+        else -> queueAutoDownloadsImpl(labels)
+    }
+
+    @Query(
+        """
+update Part
+set downloadStatus = $DNL_QUEUED
+, downloadError = null
+where documentId in (select distinct documentId from Label where name in (:labels))
+and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
+"""
+    )
+    suspend fun queueAutoDownloadsImpl(labels: List<String>): Int
+
+    suspend fun countAutoDownloads(labels: List<String>): Int = when {
+        labels.isEmpty() -> 0
+        else -> countAutoDownloadsImpl(labels)
+    }
+
+
+    @Query(
+        """
+select count(distinct documentId)
+from Label where name in (:labels)
+"""
+    )
+    suspend fun countAutoDownloadsImpl(labels: List<String>): Int
+
+
 }
 
 private const val TAG = "DownloadDao"

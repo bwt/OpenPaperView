@@ -255,7 +255,7 @@ fun MainContent(
                     }
                     composable(
                         Dest.Settings.route,
-                    ) { SettingsScreen(navController) }
+                    ) { SettingsScreen(navController, snackbarHostState) }
                     composable(
                         Dest.SettingsCheck.route,
                     ) { SettingsCheckScreen(navController) }

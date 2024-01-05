@@ -5,7 +5,16 @@ package net.phbwt.paperwork.ui.settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -13,15 +22,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Download
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,14 +56,23 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
+import net.phbwt.paperwork.data.entity.LabelType
+import net.phbwt.paperwork.data.entity.asFilter
+import net.phbwt.paperwork.data.settings.LABELS_SEPARATOR
 import net.phbwt.paperwork.ui.main.Dest
 import net.phbwt.paperwork.ui.theme.AppTheme
 
 @Composable
 fun SettingsScreen(
     navController: NavController,
+    snackbarHostState: SnackbarHostState,
     vm: SettingsVM = hiltViewModel(),
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    val baseUrl = vm.baseUrl
+    val autoDowloadLabels = vm.autoDownloadLabels
     val data by vm.data.collectAsStateWithLifecycle(SettingsData())
 
     // start activity for client certificate
@@ -54,29 +90,59 @@ fun SettingsScreen(
     }
 
     SettingsContent(
-        data = data,
-        onBaseUrlChanged = { vm.updateBaseUrl(it) },
-        onClientPemChanged = { vm.updateClientPem(it) },
-        onServerCaChanged = { vm.updateServerCa(it) },
+        baseUrl,
+        autoDowloadLabels,
+        data,
+        onBaseUrlChanged = {
+            vm.updateBaseUrl(it)
+        },
+        onClientPemChanged = {
+            vm.updateClientPem(it)
+        },
+        onServerCaChanged = {
+            vm.updateServerCa(it)
+        },
+        onAutoDownloadLabelsChanged = { value, completed ->
+            vm.updateAutoDownloadLabels(value, completed)
+        },
         onImportClientPEM = {
             // application/x-pem-file does not work
             // application/x-x509-ca-cert does ??
             launcherC.launch("application/*")
         },
-        onImportServerCA = { launcherS.launch("application/*") },
-        onCheck = { navController.navigate(Dest.SettingsCheck.topRoute) },
+        onImportServerCA = {
+            launcherS.launch("application/*")
+        },
+        onCheck = {
+            navController.navigate(Dest.SettingsCheck.topRoute)
+        },
+        onAutoDownload = {
+            scope.launch {
+                val count = vm.startAutoDownloads(data.labelsInfo)
+                val toastMessage = context.resources.getQuantityString(
+                    R.plurals.settings_auto_dowload_started,
+                    count,
+                    count,
+                )
+                snackbarHostState.showSnackbar(toastMessage)
+            }
+        }
     )
 }
 
 @Composable
 fun SettingsContent(
+    baseUrl: String,
+    autoDowloadLabels: TextFieldValue,
     data: SettingsData,
     onBaseUrlChanged: (String) -> Unit = {},
     onClientPemChanged: (String) -> Unit = {},
     onServerCaChanged: (String) -> Unit = {},
+    onAutoDownloadLabelsChanged: (TextFieldValue, Boolean) -> Unit = { _, _ -> },
     onImportClientPEM: () -> Unit = {},
     onImportServerCA: () -> Unit = {},
     onCheck: () -> Unit = {},
+    onAutoDownload: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
 
@@ -92,8 +158,11 @@ fun SettingsContent(
                     .verticalScroll(rememberScrollState()),
             ) {
 
-                PrefItem(
-                    data.baseUrl,
+                PrefSimpleItem(
+                    SettingItem(
+                        value = baseUrl,
+                        error = data.baseUrlError,
+                    ),
                     onBaseUrlChanged,
                     KeyboardType.Uri,
                     false,
@@ -102,7 +171,16 @@ fun SettingsContent(
                     R.string.settings_baseUrl_hint,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                PrefTextItem(
+
+                PrefLabelsItem(
+                    value = autoDowloadLabels,
+                    allValues = data.allLabels,
+                    info = data.labelsInfo,
+                    onValueChanged = onAutoDownloadLabelsChanged,
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+
+                PrefLoadableTextItem(
                     data.clientPem,
                     onClientPemChanged,
                     onImportClientPEM,
@@ -110,7 +188,8 @@ fun SettingsContent(
                     R.string.settings_clientPem_hint,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                PrefTextItem(
+
+                PrefLoadableTextItem(
                     data.serverCa,
                     onServerCaChanged,
                     onImportServerCA,
@@ -122,13 +201,19 @@ fun SettingsContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
             ) {
+                Button(
+                    onClick = onAutoDownload,
+                ) {
+                    Text(stringResource(R.string.settings_auto_download))
+                }
                 Button(
                     onClick = onCheck,
                 ) {
                     Text(stringResource(R.string.settings_check))
                 }
+
             }
 
             // handle the navigationbar
@@ -138,14 +223,15 @@ fun SettingsContent(
 }
 
 @Composable
-fun PrefItem(
+fun PrefSimpleItem(
     data: SettingItem,
-    onValueChanged: (String) -> Unit = {},
+    onValueChanged: (String) -> Unit,
     type: KeyboardType,
     readOnly: Boolean,
     singleLine: Boolean,
     @StringRes labelRes: Int,
     @StringRes hintRes: Int,
+    modifier: Modifier = Modifier,
 ) {
     val txt = when {
         data.value.isNotBlank() -> data.value
@@ -156,7 +242,7 @@ fun PrefItem(
     OutlinedTextField(
         value = txt,
         onValueChange = onValueChanged,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(
             keyboardType = type,
             autoCorrect = false,
@@ -168,28 +254,106 @@ fun PrefItem(
         placeholder = { Text(stringResource(hintRes)) },
         label = { Text(stringResource(labelRes)) },
         isError = data.hasError,
+        supportingText = {
+            if (data.hasError) {
+                Text(data.error)
+            }
+        }
     )
-    if (data.hasError) {
-        Text(
-            text = data.error,
-            modifier = Modifier.padding(8.dp),
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.error,
+}
+
+@Composable
+fun PrefLabelsItem(
+    value: TextFieldValue,
+    allValues: List<LabelType>,
+    info: LabelsInfo,
+    onValueChanged: (TextFieldValue, Boolean) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val lastLabel = value.text.takeLastWhile { it != LABELS_SEPARATOR }.trim()
+
+    val isExact = remember(lastLabel) {
+        val filter = lastLabel.asFilter()
+        allValues.any { it.normalizedName == filter }
+    }
+
+    val filtered = remember(lastLabel) {
+        if (lastLabel.length >= 2) {
+            val filter = lastLabel.asFilter()
+            allValues.filter { it.normalizedName.contains(filter) }
+        } else {
+            listOf()
+        }
+    }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = Modifier.padding(horizontal = 5.dp),
+    ) {
+
+        OutlinedTextField(
+            value = value,
+            onValueChange = { onValueChanged(it, false) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                autoCorrect = false,
+                imeAction = ImeAction.Next,
+            ),
+            singleLine = true,
+            maxLines = 1,
+            placeholder = { Text(stringResource(R.string.settings_autoDownloadLabels_hint)) },
+            label = { Text(stringResource(R.string.settings_autoDownloadLabels_label)) },
+            supportingText = {
+                Text(
+                    pluralStringResource(
+                        id = R.plurals.settings_auto_dowload_count,
+                        count = info.documentCount,
+                        info.documentCount,
+                    )
+                )
+            }
         )
+
+        if (!isExact && filtered.isNotEmpty() && filtered.size < 15) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = {
+                    // see ExposedDropdownMenuBox looses focus and disappears on keyboard input
+                    // https://issuetracker.google.com/issues/238331998
+                    expanded = false
+                },
+            ) {
+                filtered.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = { Text(selectionOption.name) },
+                        onClick = {
+                            val before = value.text.dropLastWhile { it != LABELS_SEPARATOR }
+                            onValueChanged(value.copy("$before ${selectionOption.name}, "), true)
+                        }
+                    )
+                }
+            }
+        }
+
     }
 }
 
 @Composable
-fun PrefTextItem(
+fun PrefLoadableTextItem(
     data: SettingItem,
-    onValueChanged: (String) -> Unit = {},
+    onValueChanged: (String) -> Unit,
     onImport: () -> Unit = {},
     @StringRes labelRes: Int,
     @StringRes hintRes: Int,
 ) {
     val clipboardManager = LocalClipboardManager.current
 
-    PrefItem(data, onValueChanged, KeyboardType.Ascii, true, false, labelRes, hintRes)
+    PrefSimpleItem(data, onValueChanged, KeyboardType.Ascii, true, false, labelRes, hintRes)
     Row {
         IconButton(onClick = onImport) {
             Icon(Icons.Outlined.Download, null)
@@ -222,11 +386,15 @@ fun PrefTextItem(
 fun DefaultPreview() {
     AppTheme {
         SettingsContent(
+            "http://",
+            TextFieldValue("aaa, dddd"),
             SettingsData(
+                "URL error",
+                listOf(),
+                LabelsInfo(),
                 SettingItem("value 1", "An error"),
                 SettingItem(""),
-                SettingItem("Another value"),
-            )
+            ),
         )
     }
 }

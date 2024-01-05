@@ -159,6 +159,16 @@ class DownloadWorker @AssistedInject constructor(
             }
         }
 
+        // Prepare auto downloads
+        // the actual downloads will be triggered
+        // after switching to the new DB
+
+        val labels = settings.autoDownloadLabels.first().getOrNull()
+        if (labels != null) {
+            val count = newDb.downloadDao().queueAutoDownloads(labels)
+            Log.i(TAG, "Will auto download $count parts for labels ${labels.joinToString()}")
+        }
+
         newDb.close()
     }
 
