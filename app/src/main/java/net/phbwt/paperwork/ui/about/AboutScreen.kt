@@ -39,13 +39,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.Destination
 import net.phbwt.paperwork.BuildConfig
 import net.phbwt.paperwork.ui.theme.AppTheme
 
+@Destination
 @Composable
 fun AboutScreen(
-    navController: NavController,
     vm: AboutVM = hiltViewModel(),
 ) {
     val dbVersion = remember { vm.getDbVersion() }
@@ -129,6 +129,12 @@ fun AboutContent(
                 "Coil",
                 "https://github.com/coil-kt/coil",
                 "Image loading for Android backed by Kotlin Coroutines.",
+            )
+
+            LibRow(
+                "Compose Destinations",
+                "https://github.com/raamcosta/compose-destinations",
+                "A KSP library that processes annotations and generates code that uses Official Jetpack Compose Navigation under the hood.",
             )
 
             LibRow(

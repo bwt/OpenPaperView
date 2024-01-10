@@ -8,12 +8,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flatMapLatest
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.entity.DocumentFull
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.latestRelease
-import net.phbwt.paperwork.ui.main.PARAM_DOCUMENT_ID
+import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import java.io.File
 import javax.inject.Inject
 
@@ -26,11 +25,11 @@ class PageListVM @Inject constructor(
     private val settings: Settings,
 ) : AndroidViewModel(application) {
 
-    val document = savedStateHandle.getStateFlow(PARAM_DOCUMENT_ID, -1)
-        .flatMapLatest {
-            require(it >= 0) { "missing documentId" }
-            repo.db.docDao().loadDocument(it)
-        }.latestRelease(viewModelScope, null)
+    val navArgs = PageListScreenDestination.argsFrom(savedStateHandle)
+
+    val document = repo.db.docDao()
+        .loadDocument(navArgs.documentId)
+        .latestRelease(viewModelScope, null)
 
     fun getPdfLocalPath(doc: DocumentFull?) = if (doc != null) File(settings.localPartsDir, doc.partPath(0)) else null
 

@@ -53,18 +53,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.entity.LabelType
 import net.phbwt.paperwork.data.entity.asFilter
 import net.phbwt.paperwork.data.settings.LABELS_SEPARATOR
-import net.phbwt.paperwork.ui.main.Dest
+import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
 import net.phbwt.paperwork.ui.theme.AppTheme
 
+@Destination
 @Composable
 fun SettingsScreen(
-    navController: NavController,
+    navigator: DestinationsNavigator,
     snackbarHostState: SnackbarHostState,
     vm: SettingsVM = hiltViewModel(),
 ) {
@@ -114,7 +116,7 @@ fun SettingsScreen(
             launcherS.launch("application/*")
         },
         onCheck = {
-            navController.navigate(Dest.SettingsCheck.topRoute)
+            navigator.navigate(SettingsCheckScreenDestination())
         },
         onAutoDownload = {
             scope.launch {

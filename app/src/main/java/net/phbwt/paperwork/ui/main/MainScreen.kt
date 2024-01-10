@@ -2,8 +2,6 @@
 
 package net.phbwt.paperwork.ui.main
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -43,25 +41,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.navigation.navigate
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.DbUpdateStatus
 import net.phbwt.paperwork.data.UpdateAvailable
 import net.phbwt.paperwork.data.UpdateError
-import net.phbwt.paperwork.ui.about.AboutScreen
-import net.phbwt.paperwork.ui.doclist.DocListScreen
-import net.phbwt.paperwork.ui.downloadlist.DownloadListScreen
-import net.phbwt.paperwork.ui.pagelist.PageListScreen
-import net.phbwt.paperwork.ui.settings.SettingsScreen
-import net.phbwt.paperwork.ui.settingscheck.SettingsCheckScreen
+import net.phbwt.paperwork.ui.NavGraphs
+import net.phbwt.paperwork.ui.appCurrentDestinationAsState
+import net.phbwt.paperwork.ui.main.Dest.Companion.asDest
+import net.phbwt.paperwork.ui.startAppDestination
 
 @Composable
 fun MainScreen(
@@ -94,8 +87,8 @@ fun MainContent(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDest = Dest.find(navBackStackEntry?.destination?.route ?: Dest.DocList.route)
+    val currentDest = ((navController.appCurrentDestinationAsState().value
+        ?: NavGraphs.root.startAppDestination)).asDest()
 
     // 'New DB' snackbar
     when (updateState) {
@@ -135,7 +128,6 @@ fun MainContent(
             // nothing to do
         }
     }
-
 
     // 'check the demo' dialog
     var showDialog by remember { mutableStateOf(true) }
@@ -185,7 +177,8 @@ fun MainContent(
                         onClick = {
                             scope.launch { drawerState.close() }
 
-                            navController.navigate(dest.topRoute) {
+                            navController.navigate(dest.topDirection) {
+
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     // XXX : if true and restoreState is false, the VM are kept
                                     // but not reused (possibly with coroutines in the viewModelScope)
@@ -224,9 +217,9 @@ fun MainContent(
                     }
                 },
             ) { innerPadding ->
-                NavHost(
+                DestinationsNavHost(
                     navController = navController,
-                    startDestination = Dest.DocList.route,
+                    navGraph = NavGraphs.root,
                     modifier = Modifier
                         .fillMaxSize()
                         // The bottom padding (behind the navigationbar)
@@ -239,39 +232,11 @@ fun MainContent(
                             end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
                         )
                         .imePadding(),
-                    // avoid default transition
-                    // TODO : define transitions
-                    enterTransition = { EnterTransition.None },
-                    exitTransition = { ExitTransition.None },
-                ) {
-                    composable(
-                        Dest.DocList.route,
-                    ) { DocListScreen(navController, snackbarHostState) }
-                    composable(
-                        Dest.DownloadsList.route,
-                        arguments = listOf(navArgument(PARAM_DOCUMENT_ID) { type = NavType.IntType }),
-                    ) { bse ->
-                        DownloadListScreen(navController)
+                    dependenciesContainerBuilder = {
+                        dependency(snackbarHostState)
                     }
-                    composable(
-                        Dest.Settings.route,
-                    ) { SettingsScreen(navController, snackbarHostState) }
-                    composable(
-                        Dest.SettingsCheck.route,
-                    ) { SettingsCheckScreen(navController) }
-                    composable(
-                        Dest.PageList.route,
-                        arguments = listOf(navArgument(PARAM_DOCUMENT_ID) { type = NavType.IntType }),
-                    ) { bse ->
-                        PageListScreen(navController)
-                    }
-                    composable(
-                        Dest.About.route,
-                    ) { AboutScreen(navController) }
-                }
+                )
             }
         },
     )
 }
-
-private fun NavBackStackEntry.getIntArg(argName: String) = arguments?.getInt(argName) ?: throw IllegalArgumentException("Missing '$argName' argument")

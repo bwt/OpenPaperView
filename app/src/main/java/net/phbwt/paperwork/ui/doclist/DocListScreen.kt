@@ -14,14 +14,60 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.DownloadDone
+import androidx.compose.material.icons.outlined.DownloadForOffline
+import androidx.compose.material.icons.outlined.Downloading
+import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.PictureAsPdf
+import androidx.compose.material.icons.outlined.QuestionAnswer
+import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -44,22 +90,33 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ShareCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.dao.SNIPPET_RESULT
 import net.phbwt.paperwork.data.dao.SNIPPET_SPLIT
-import net.phbwt.paperwork.data.entity.*
+import net.phbwt.paperwork.data.entity.Document
+import net.phbwt.paperwork.data.entity.DocumentFull
+import net.phbwt.paperwork.data.entity.DownloadState
+import net.phbwt.paperwork.data.entity.LabelType
+import net.phbwt.paperwork.data.entity.Part
+import net.phbwt.paperwork.data.entity.asFilter
 import net.phbwt.paperwork.helper.TrailingClose
 import net.phbwt.paperwork.helper.fmtDtm
 import net.phbwt.paperwork.helper.startActivitySafely
+import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
+import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import net.phbwt.paperwork.ui.theme.AppTheme
 import kotlin.random.Random
 
+@RootNavGraph(start = true)
+@Destination
 @Composable
 fun DocListScreen(
-    navController: NavController,
+    navigator: DestinationsNavigator,
     snackbarHostState: SnackbarHostState,
     vm: DocListVM = hiltViewModel(),
 ) {
@@ -88,7 +145,7 @@ fun DocListScreen(
         onSearchChange = { vm.updateSearch(it) },
         onDocClicked = { doc ->
             if (doc.downloadStatus == DownloadState.LOCAL || doc.isImagesDoc) {
-                navController.navigate("pageList/${doc.document.documentId}")
+                navigator.navigate(PageListScreenDestination(doc.document.documentId))
             } else {
                 // only local PDF can be shown
                 scope.launch {
@@ -110,7 +167,7 @@ fun DocListScreen(
             if (doc.downloadStatus == DownloadState.DOWNLOADABLE) {
                 scope.launch { vm.queueDownload(doc.document.documentId) }
             } else {
-                navController.navigate("downloadList/${doc.document.documentId}")
+                navigator.navigate(DownloadListScreenDestination(doc.document.documentId))
             }
         },
         onShowClicked = { doc -> vm.makeDocumentShowIntent(doc).startActivitySafely(context) },

@@ -24,4 +24,8 @@ object Versions {
 
     // https://developer.android.com/jetpack/androidx/releases/room
     const val room = "2.6.1"
+
+    // https://github.com/raamcosta/compose-destinations/releases
+    const val compose_destinations = "1.9.59"
+
 }

@@ -9,12 +9,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.Destination
 
+data class PageListScreenArgs(
+    val documentId: Int,
+)
 
+@Destination(navArgsDelegate = PageListScreenArgs::class)
 @Composable
 fun PageListScreen(
-    navController: NavController,
     vm: PageListVM = hiltViewModel(),
 ) {
     val document by vm.document.collectAsStateWithLifecycle()

@@ -2,70 +2,81 @@ package net.phbwt.paperwork.ui.main
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.FormatListBulleted
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.ramcosta.composedestinations.spec.Direction
 import net.phbwt.paperwork.R
+import net.phbwt.paperwork.ui.destinations.AboutScreenDestination
+import net.phbwt.paperwork.ui.destinations.Destination
+import net.phbwt.paperwork.ui.destinations.DocListScreenDestination
+import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
+import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
+import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
+import net.phbwt.paperwork.ui.destinations.SettingsScreenDestination
 
-
-const val PARAM_DOCUMENT_ID = "documentId"
 
 sealed class Dest(
-    val route: String,
-    val topRoute: String,
+    val destination: Destination,
+    val topDirection: Direction,
     val icon: ImageVector,
     @StringRes val labelRes: Int,
 ) {
 
-    object DocList : Dest(
-        route = "docList",
-        topRoute = "docList",
+    data object DocList : Dest(
+        DocListScreenDestination,
+        DocListScreenDestination,
         icon = Icons.Filled.FormatListBulleted,
         labelRes = R.string.screen_docList,
     )
 
-    object DownloadsList : Dest(
-        route = "downloadList/{$PARAM_DOCUMENT_ID}",
-        topRoute = "downloadList/0",
+    data object DownloadList : Dest(
+        DownloadListScreenDestination,
+        DownloadListScreenDestination(),
         icon = Icons.Filled.Download,
         labelRes = R.string.screen_downloadList,
     )
 
-    object Settings : Dest(
-        route = "settings",
-        topRoute = "settings",
+    data object Settings : Dest(
+        SettingsScreenDestination,
+        SettingsScreenDestination,
         icon = Icons.Filled.Settings,
         labelRes = R.string.screen_settings,
     )
 
-    object SettingsCheck : Dest(
-        route = "settingsCheck",
-        topRoute = "settingsCheck",
+    data object SettingsCheck : Dest(
+        SettingsCheckScreenDestination,
+        SettingsCheckScreenDestination,
         icon = Icons.Filled.Settings,
         labelRes = R.string.screen_settingsCheck,
     )
 
-    object PageList : Dest(
-        route = "pageList/{$PARAM_DOCUMENT_ID}",
-        topRoute = "pageList/0",
+    data object PageList : Dest(
+        PageListScreenDestination,
+        PageListScreenDestination(0),
         icon = Icons.Filled.Image,
         labelRes = R.string.screen_pageList,
     )
 
-    object About : Dest(
-        route = "about",
-        topRoute = "about",
+    data object About : Dest(
+        AboutScreenDestination,
+        AboutScreenDestination,
         icon = Icons.Filled.Info,
         labelRes = R.string.screen_about,
     )
 
     companion object {
-
-        fun find(route: String) = ALL_DESTS.first { it.route == route || it.topRoute == route }
+        fun Destination.asDest() = ALL_DESTS.first {
+            it.destination == this
+        }
     }
 }
 
-val TLDS = listOf(Dest.DocList, Dest.DownloadsList, Dest.Settings, Dest.About)
-val TEST_TLDS = listOf(Dest.DocList, Dest.DownloadsList)
-val ALL_DESTS = listOf(Dest.DocList, Dest.PageList, Dest.DownloadsList, Dest.Settings, Dest.SettingsCheck, Dest.About)
+val TLDS = listOf(Dest.DocList, Dest.DownloadList, Dest.Settings, Dest.About)
+val TEST_TLDS = listOf(Dest.DocList, Dest.DownloadList)
+val ALL_DESTS = listOf(Dest.DocList, Dest.PageList, Dest.DownloadList, Dest.Settings, Dest.SettingsCheck, Dest.About)
 
 

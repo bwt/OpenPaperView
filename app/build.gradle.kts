@@ -123,6 +123,10 @@ dependencies {
     // https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
     implementation("io.coil-kt:coil-compose:2.5.0")
 
+    // Compose Destinations
+    implementation("io.github.raamcosta.compose-destinations:core:${Versions.compose_destinations}")
+    ksp("io.github.raamcosta.compose-destinations:ksp:${Versions.compose_destinations}")
+
     // room
     implementation("androidx.room:room-runtime:${Versions.room}")
     ksp("androidx.room:room-compiler:${Versions.room}")

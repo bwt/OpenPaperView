@@ -49,33 +49,40 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.data.entity.DocumentFull
 import net.phbwt.paperwork.data.entity.DownloadState
 import net.phbwt.paperwork.data.entity.Part
 import net.phbwt.paperwork.helper.fmtDtm
+import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import net.phbwt.paperwork.ui.doclist.makeFakeDocuments
 import net.phbwt.paperwork.ui.theme.AppTheme
 
+
+data class DownloadListScreenArgs(
+    val documentId: Int = -12,
+)
+
+@Destination(navArgsDelegate = DownloadListScreenArgs::class)
 @Composable
 fun DownloadListScreen(
-    navController: NavController,
+    navigator: DestinationsNavigator,
     vm: DownloadListVM = hiltViewModel(),
 ) {
     val docs by vm.downloads().collectAsStateWithLifecycle(listOf())
-    val documentId by vm.documentId.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
 
     DownloadListContent(
+        vm.navArgs,
         docs = docs,
-        documentId,
         onPartRestart = { scope.launch { vm.restart(it) } },
         onDocumentDelete = { scope.launch { vm.clear(it) } },
         onDocClicked = { doc ->
             if (doc.downloadStatus == DownloadState.LOCAL || doc.isImagesDoc) {
-                navController.navigate("pageList/${doc.document.documentId}")
+                navigator.navigate(PageListScreenDestination(doc.document.documentId))
             }
         },
     )
@@ -83,15 +90,15 @@ fun DownloadListScreen(
 
 @Composable
 fun DownloadListContent(
+    navArgs: DownloadListScreenArgs,
     docs: List<DocumentFull>,
-    documentId: Int = 12,
     onPartRestart: (Part) -> Unit = {},
     onDocumentDelete: (DocumentFull) -> Unit = { },
     onDocClicked: (DocumentFull) -> Unit = {},
 ) {
     Surface(color = MaterialTheme.colorScheme.background) {
         Column {
-            DownloadRows(docs, documentId, onPartRestart, onDocumentDelete, onDocClicked)
+            DownloadRows(docs, navArgs.documentId, onPartRestart, onDocumentDelete, onDocClicked)
         }
     }
 }
@@ -292,7 +299,7 @@ private const val TAG = "DownloadListScreen"
 @Composable
 fun DefaultPreview() {
     AppTheme {
-        DownloadListContent(makeFakeDocuments(13, "document"))
+        DownloadListContent(DownloadListScreenArgs(12), makeFakeDocuments(13, "document"))
 //        DocListContent("zz", listOf("label1", "label2"), makeFakeDocuments(5, "none"))
     }
 }
