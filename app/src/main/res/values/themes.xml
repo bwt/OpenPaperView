@@ -1,7 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:background">@color/behind_cutout</item>
+<!-- spurious background, visible in dialogs with round corners -->
+<!--        <item name="android:background">@color/behind_cutout</item>-->
     </style>
 
     <style name="AppTheme.Splash" parent="Theme.SplashScreen">
