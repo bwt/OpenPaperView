@@ -42,9 +42,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
+import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.theme.AppTheme
 
-@Destination
+@Destination(style = AppTransitions::class)
 @Composable
 fun SettingsCheckScreen(
     vm: SettingsCheckVM = hiltViewModel(),

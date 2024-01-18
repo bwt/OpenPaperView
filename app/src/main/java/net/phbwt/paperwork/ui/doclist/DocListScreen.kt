@@ -109,11 +109,12 @@ import net.phbwt.paperwork.helper.fmtDtm
 import net.phbwt.paperwork.helper.startActivitySafely
 import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
 import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
+import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.theme.AppTheme
 import kotlin.random.Random
 
 @RootNavGraph(start = true)
-@Destination
+@Destination(style = AppTransitions::class)
 @Composable
 fun DocListScreen(
     navigator: DestinationsNavigator,

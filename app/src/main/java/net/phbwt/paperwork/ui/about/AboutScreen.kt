@@ -41,9 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import net.phbwt.paperwork.BuildConfig
+import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.theme.AppTheme
 
-@Destination
+@Destination(style = AppTransitions::class)
 @Composable
 fun AboutScreen(
     vm: AboutVM = hiltViewModel(),

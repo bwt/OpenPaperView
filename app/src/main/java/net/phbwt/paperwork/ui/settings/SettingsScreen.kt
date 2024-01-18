@@ -61,9 +61,10 @@ import net.phbwt.paperwork.data.entity.LabelType
 import net.phbwt.paperwork.data.entity.asFilter
 import net.phbwt.paperwork.data.settings.LABELS_SEPARATOR
 import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
+import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.theme.AppTheme
 
-@Destination
+@Destination(style = AppTransitions::class)
 @Composable
 fun SettingsScreen(
     navigator: DestinationsNavigator,

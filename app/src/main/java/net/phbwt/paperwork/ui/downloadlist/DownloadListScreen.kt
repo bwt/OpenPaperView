@@ -58,6 +58,7 @@ import net.phbwt.paperwork.data.entity.Part
 import net.phbwt.paperwork.helper.fmtDtm
 import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import net.phbwt.paperwork.ui.doclist.makeFakeDocuments
+import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.theme.AppTheme
 
 
@@ -65,7 +66,10 @@ data class DownloadListScreenArgs(
     val documentId: Int = -12,
 )
 
-@Destination(navArgsDelegate = DownloadListScreenArgs::class)
+@Destination(
+    navArgsDelegate = DownloadListScreenArgs::class,
+    style = AppTransitions::class,
+)
 @Composable
 fun DownloadListScreen(
     navigator: DestinationsNavigator,

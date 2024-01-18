@@ -2,6 +2,10 @@
 
 package net.phbwt.paperwork.ui.main
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -9,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
@@ -41,11 +46,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.navigation.navigate
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.DbUpdateStatus
@@ -53,6 +60,13 @@ import net.phbwt.paperwork.data.UpdateAvailable
 import net.phbwt.paperwork.data.UpdateError
 import net.phbwt.paperwork.ui.NavGraphs
 import net.phbwt.paperwork.ui.appCurrentDestinationAsState
+import net.phbwt.paperwork.ui.appDestination
+import net.phbwt.paperwork.ui.destinations.Destination
+import net.phbwt.paperwork.ui.destinations.DocListScreenDestination
+import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
+import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
+import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
+import net.phbwt.paperwork.ui.destinations.SettingsScreenDestination
 import net.phbwt.paperwork.ui.main.Dest.Companion.asDest
 import net.phbwt.paperwork.ui.startAppDestination
 
@@ -201,19 +215,25 @@ fun MainContent(
                 // FIXME : there is an additional space when the IME is open (systembar)
                 snackbarHost = { SnackbarHost(snackbarHostState, Modifier.imePadding()) },
                 topBar = {
-                    if (currentDest != Dest.PageList) {
-                        TopAppBar(
-                            title = { Text(stringResource(currentDest.labelRes)) },
-                            navigationIcon = {
-                                IconToggleButton(
-                                    checked = false,
-                                    onCheckedChange = {
-                                        scope.launch { if (it) drawerState.open() else drawerState.close() }
-                                    }) {
-                                    Icon(Icons.Filled.Menu, contentDescription = null)
+                    Box(
+                        modifier = Modifier
+                            .statusBarsPadding()
+                            .animateContentSize(tween(transitionDuration, transitionDelayIn)),
+                    ) {
+                        if (currentDest != Dest.PageList) {
+                            TopAppBar(
+                                title = { Text(stringResource(currentDest.labelRes)) },
+                                navigationIcon = {
+                                    IconToggleButton(
+                                        checked = false,
+                                        onCheckedChange = {
+                                            scope.launch { if (it) drawerState.open() else drawerState.close() }
+                                        }) {
+                                        Icon(Icons.Filled.Menu, contentDescription = null)
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 },
             ) { innerPadding ->
@@ -239,4 +259,36 @@ fun MainContent(
             }
         },
     )
+}
+
+
+const val transitionDuration = 400
+const val transitionDelayIn = 0
+const val transitionDelayOut = 120
+val moveIn = AnimatedContentTransitionScope.SlideDirection.Left
+val moveOut = AnimatedContentTransitionScope.SlideDirection.Right
+
+object AppTransitions : DestinationStyle.Animated {
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
+        slideIntoContainer(
+            if (goingBack()) moveOut else moveIn,
+            animationSpec = tween(transitionDuration - transitionDelayIn, transitionDelayIn),
+        )
+
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
+        slideOutOfContainer(
+            if (goingBack()) moveOut else moveIn,
+            animationSpec = tween(transitionDuration - (transitionDelayOut * 2), transitionDelayOut),
+        )
+
+    private fun AnimatedContentTransitionScope<NavBackStackEntry>.goingBack() =
+        goingBack(initialState.appDestination(), targetState.appDestination())
+
+    private fun goingBack(from: Destination, to: Destination) = when {
+        to is DocListScreenDestination -> true
+        from is PageListScreenDestination && to is DownloadListScreenDestination -> true
+        from is SettingsCheckScreenDestination && to is SettingsScreenDestination -> true
+        else -> false
+    }
+
 }
