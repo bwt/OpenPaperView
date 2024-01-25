@@ -69,11 +69,11 @@ Optionnel, sinon les certificats racines d\'Android seront utilisés.
     <string name="check_failure">Échec</string>
     <string name="check_base_url">URL</string>
     <string name="check_base_url_is_not_https">l\'URL n\'est pas HTTPS</string>
-    <string name="check_client_certificate">Certificate client</string>
+    <string name="check_client_certificate">Certificat client</string>
     <string name="check_no_client_certificate">Pas de certificat client</string>
     <string name="check_client_certificate_over_http">Utilisation d\'un certificat client en HTTP</string>
     <string name="check_server_root_ca">Autorité racine du serveur</string>
-    <string name="check_no_server_root_ca">Pas d`autorité racine pour le serveur</string>
+    <string name="check_no_server_root_ca">Pas d\'autorité racine pour le serveur</string>
     <string name="check_server_ca_over_http">Utilisation d\'une autorité racine en HTTP</string>
     <string name="check_no_network_connectivity">Pas de réseau</string>
     <string name="check_dnl_db_without_certificate">Téléchargement de la BD sans certificat</string>

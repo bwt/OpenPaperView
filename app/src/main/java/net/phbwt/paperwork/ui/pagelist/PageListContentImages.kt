@@ -77,7 +77,6 @@ fun PageListContentImages(
             }
 
             var scale by remember { mutableFloatStateOf(1f) }
-            var rotation by remember { mutableFloatStateOf(0f) }
             var offset by remember { mutableStateOf(Offset.Zero) }
 
             val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->

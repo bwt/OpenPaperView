@@ -30,6 +30,7 @@ class MainVM @Inject constructor(
 
     suspend fun setDemoServer() {
         settings.updateBaseUrl("https://bwtdev.eu/OpenPaperViewDemo")
+        settings.updateAutoDownloadLabels("label 2, some_other_label")
         DownloadWorker.enqueueLoad(getApplication())
     }
 

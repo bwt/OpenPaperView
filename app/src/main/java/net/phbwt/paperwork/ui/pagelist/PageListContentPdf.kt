@@ -97,7 +97,6 @@ fun PageListContentPdf(
             val height = with(LocalDensity.current) { maxHeight.toPx() }.toInt()
 
             var scale by remember { mutableFloatStateOf(1f) }
-            var rotation by remember { mutableFloatStateOf(0f) }
             var offset by remember { mutableStateOf(Offset.Zero) }
 
             val transformableState = rememberTransformableState { zoomChange, offsetChange, _ ->
@@ -112,9 +111,10 @@ fun PageListContentPdf(
             ) { index ->
 
                 // another box : clipped zone includes navigation bar padding
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RectangleShape),
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RectangleShape),
                 ) {
                     // image wrapped in a box : gesture not impacted by scale (especially touchSlop)
                     Box(

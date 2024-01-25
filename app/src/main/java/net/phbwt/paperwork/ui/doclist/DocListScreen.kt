@@ -126,7 +126,7 @@ fun DocListScreen(
     val labelTypes by vm.labelTypes.collectAsStateWithLifecycle(listOf())
     val rows by vm.documentsWithHeaders.collectAsStateWithLifecycle(listOf())
 
-    val hasFilter = !search.isNullOrBlank() || labels.isNotEmpty()
+    val hasFilter = search.isNotBlank() || labels.isNotEmpty()
 
     BackHandler(enabled = hasFilter && !WindowInsets.isImeVisible) {
         vm.clearFilters()
@@ -562,6 +562,7 @@ fun DocRow(
                         contentDescription = null,
                         tint = when (dnlStatus) {
                             DownloadState.FAILED -> colors.error
+                            DownloadState.LOCAL -> colors.primary
                             else -> colors.secondary
                         },
                     )

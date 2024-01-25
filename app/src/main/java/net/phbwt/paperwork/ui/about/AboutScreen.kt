@@ -129,19 +129,19 @@ fun AboutContent(
             LibRow(
                 "Coil",
                 "https://github.com/coil-kt/coil",
-                "Image loading for Android backed by Kotlin Coroutines.",
+                "Image loading for Android and Compose Multiplatform.",
             )
 
             LibRow(
                 "Compose Destinations",
                 "https://github.com/raamcosta/compose-destinations",
-                "A KSP library that processes annotations and generates code that uses Official Jetpack Compose Navigation under the hood.",
+                "Annotation processing library for type-safe Jetpack Compose navigation with no boilerplate.",
             )
 
             LibRow(
                 "Dagger",
                 "https://github.com/google/dagger",
-                "A fast dependency injector for Java and Android.",
+                "A fast dependency injector for Android and Java.",
             )
 
             LibRow(
@@ -159,7 +159,7 @@ fun AboutContent(
             LibRow(
                 "OkHttp",
                 "https://github.com/square/okhttp",
-                "An HTTP client that’s efficient by default",
+                "Square’s meticulous HTTP client for the JVM, Android, and GraalVM.",
             )
 
             // handle the navigationbar

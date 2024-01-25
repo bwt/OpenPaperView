@@ -14,9 +14,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
@@ -55,7 +59,7 @@ class SettingsCheckVM @Inject constructor(
                 runChecks()
             } catch (ex: Exception) {
                 // e.g. network error
-                addItem(Check(Msg(R.string.check_failure), Level.Error, Msg(ex)))
+                addItem(Msg(R.string.check_failure), Level.Error, Msg(ex))
             }
             setRunning(false)
         }
@@ -64,7 +68,7 @@ class SettingsCheckVM @Inject constructor(
     fun stopChecks() {
         if (currentJob?.isActive == true) {
             currentJob?.cancel("Stopped")
-            addItem(Check(Msg(R.string.check_stopped), Level.Error, null))
+            addItem(Msg(R.string.check_stopped), Level.Error, null)
             setRunning(false)
         }
     }
@@ -79,6 +83,8 @@ class SettingsCheckVM @Inject constructor(
         }
 
         setParamsOk(true)
+
+        delay(300)
 
         checkConnectivity()
         checkDbDownloadWithoutCertificate(p)
@@ -100,60 +106,60 @@ class SettingsCheckVM @Inject constructor(
     data class P(val clientPem: HeldCertificate?, val serverCa: X509Certificate?, val dbRequest: Request)
 
     private suspend fun checkParameters(): P? {
-        addItem(Check(Msg(R.string.check_checking_parameters), Level.None, null))
+        addItem(Msg(R.string.check_checking_parameters), Level.None, null)
 
-        delay(300)
+        delay(100)
 
         val baseUrl = settings.baseUrl.first()
         if (baseUrl.isFailure) {
-            addItem(Check(Msg(R.string.check_base_url), Level.Error, Msg(baseUrl.exceptionOrNull())))
+            addItem(Msg(R.string.check_base_url), Level.Error, Msg(baseUrl.exceptionOrNull()))
             return null
         }
 
         val dbRequest = settings.dbRequest.first().getOrThrow()
         if (!dbRequest.isHttps) {
-            addItem(Check(Msg(R.string.check_base_url_is_not_https), Level.Warn, Msg(R.string.check_this_is_not_secure)))
+            addItem(Msg(R.string.check_base_url_is_not_https), Level.Warn, Msg(R.string.check_this_is_not_secure))
         } else {
-            addItem(Check(Msg(R.string.check_base_url), Level.OK, Msg(R.string.check_looks_good)))
+            addItem(Msg(R.string.check_base_url), Level.OK, Msg(R.string.check_looks_good))
         }
 
         val clientPem = settings.clientPem.first()
         when {
             clientPem.isFailure -> {
-                addItem(Check(Msg(R.string.check_client_certificate), Level.Error, Msg(clientPem.exceptionOrNull())))
+                addItem(Msg(R.string.check_client_certificate), Level.Error, Msg(clientPem.exceptionOrNull()))
                 return null
             }
 
             clientPem.getOrThrow() == null -> {
-                addItem(Check(Msg(R.string.check_no_client_certificate), Level.Warn, Msg(R.string.check_this_is_not_secure)))
+                addItem(Msg(R.string.check_no_client_certificate), Level.Warn, Msg(R.string.check_this_is_not_secure))
             }
 
             !dbRequest.isHttps -> {
-                addItem(Check(Msg(R.string.check_client_certificate_over_http), Level.Error, Msg(R.string.check_this_is_inconsistent)))
+                addItem(Msg(R.string.check_client_certificate_over_http), Level.Error, Msg(R.string.check_this_is_inconsistent))
             }
 
             else -> {
-                addItem(Check(Msg(R.string.check_client_certificate), Level.OK, Msg(R.string.check_looks_good)))
+                addItem(Msg(R.string.check_client_certificate), Level.OK, Msg(R.string.check_looks_good))
             }
         }
 
         val serverCa = settings.serverCa.first()
         when {
             serverCa.isFailure -> {
-                addItem(Check(Msg(R.string.check_server_root_ca), Level.Error, Msg(serverCa.exceptionOrNull())))
+                addItem(Msg(R.string.check_server_root_ca), Level.Error, Msg(serverCa.exceptionOrNull()))
                 return null
             }
 
             serverCa.getOrThrow() == null -> {
-                addItem(Check(Msg(R.string.check_no_server_root_ca), Level.OK, Msg(R.string.check_the_systems_ca_will_be_trusted)))
+                addItem(Msg(R.string.check_no_server_root_ca), Level.OK, Msg(R.string.check_the_systems_ca_will_be_trusted))
             }
 
             !dbRequest.isHttps -> {
-                addItem(Check(Msg(R.string.check_server_ca_over_http), Level.Error, Msg(R.string.check_this_is_inconsistent)))
+                addItem(Msg(R.string.check_server_ca_over_http), Level.Error, Msg(R.string.check_this_is_inconsistent))
             }
 
             else -> {
-                addItem(Check(Msg(R.string.check_server_root_ca), Level.OK, Msg(R.string.check_looks_good)))
+                addItem(Msg(R.string.check_server_root_ca), Level.OK, Msg(R.string.check_looks_good))
             }
         }
 
@@ -165,7 +171,7 @@ class SettingsCheckVM @Inject constructor(
             ?.activeNetworkInfo
             ?.isConnected ?: false
         if (!connected) {
-            addItem(Check(Msg(R.string.check_no_network_connectivity), Level.Error, null))
+            addItem(Msg(R.string.check_no_network_connectivity), Level.Error, null)
         }
     }
 
@@ -174,7 +180,7 @@ class SettingsCheckVM @Inject constructor(
      */
     private suspend fun checkDbDownloadWithoutCertificate(p: P) {
         if (p.clientPem != null) {
-            addItem(Check(Msg(R.string.check_dnl_db_without_certificate), Level.None, Msg(R.string.check_the_server_should_deny_the_request)))
+            addItem(Msg(R.string.check_dnl_db_without_certificate), Level.None, Msg(R.string.check_the_server_should_deny_the_request))
 
             delay(300)
 
@@ -184,26 +190,22 @@ class SettingsCheckVM @Inject constructor(
             httpClient.newCall(p.dbRequest).await().use { response ->
                 when {
                     response.code in listOf(401, 403) -> {
-                        addItem(Check(Msg(R.string.check_response_code_1, response.code), Level.OK, Msg(R.string.check_denied_as_expected)))
+                        addItem(Msg(R.string.check_response_code_1, response.code), Level.OK, Msg(R.string.check_denied_as_expected))
                     }
 
                     response.isSuccessful -> {
                         addItem(
-                            Check(
-                                Msg(R.string.check_response_code_expected_401_or_403_1, response.code),
-                                Level.Error,
-                                Msg(R.string.check_access_not_denied_server_not_secure)
-                            )
+                            Msg(R.string.check_response_code_expected_401_or_403_1, response.code),
+                            Level.Error,
+                            Msg(R.string.check_access_not_denied_server_not_secure)
                         )
                     }
 
                     else -> {
                         addItem(
-                            Check(
-                                Msg(R.string.check_response_code_1, response.code),
-                                Level.Warn,
-                                Msg(R.string.check_unexpected_error_expected_401_or_403)
-                            )
+                            Msg(R.string.check_response_code_1, response.code),
+                            Level.Warn,
+                            Msg(R.string.check_unexpected_error_expected_401_or_403)
                         )
                     }
                 }
@@ -216,7 +218,7 @@ class SettingsCheckVM @Inject constructor(
      * TODO : check the SQLite db
      */
     private suspend fun checkDbDownloadWithCertificate(p: P) {
-        addItem(Check(Msg(R.string.check_trying_to_download_the_db), Level.None, null))
+        addItem(Msg(R.string.check_trying_to_download_the_db), Level.None, null)
 
         delay(300)
 
@@ -229,24 +231,25 @@ class SettingsCheckVM @Inject constructor(
                 val src = response.body?.source()
 
                 if (src == null) {
-                    addItem(Check(Msg(R.string.check_empty_response), Level.Error, Msg(R.string.check_response_code_without_body_1, response.code)))
+                    addItem(Msg(R.string.check_empty_response), Level.Error, Msg(R.string.check_response_code_without_body_1, response.code))
                 } else {
+
                     var size = 0L
                     val buffer = Buffer()
+
                     while (src.read(buffer, 8192) != -1L) {
                         size += buffer.size
                         buffer.clear()
                     }
                     addItem(
-                        Check(
-                            Msg(R.string.check_received_size_bytes_2, Formatter.formatFileSize(getApplication(), size), size.toString()),
-                            Level.OK,
-                            null
-                        )
+                        Msg(R.string.check_received_size_bytes_2, Formatter.formatFileSize(getApplication(), size), size.toString()),
+                        Level.OK,
+                        null
                     )
                 }
             } else {
-                addItem(Check(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code)))
+                // HTTP error
+                addItem(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code))
             }
         }
     }
@@ -256,7 +259,7 @@ class SettingsCheckVM @Inject constructor(
      * Download a second time the DB.
      */
     private suspend fun checkDbDownloadCache(p: P) {
-        addItem(Check(Msg(R.string.check_trying_to_download_again_the_db), Level.None, Msg(R.string.check_the_server_should_repond_no_necessary)))
+        addItem(Msg(R.string.check_trying_to_download_again_the_db), Level.None, Msg(R.string.check_the_server_should_repond_no_necessary))
 
         val httpClient = buildOkHttpClientWithoutCache(p.clientPem, p.serverCa).withHttpCache(settings.checksCacheDir)
 
@@ -265,26 +268,24 @@ class SettingsCheckVM @Inject constructor(
         httpClient.newCall(p.dbRequest).await().use { response ->
             when {
                 !response.isSuccessful -> {
-                    addItem(Check(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code)))
+                    addItem(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code))
                 }
 
                 response.networkResponse == null -> {
                     // should not happen
                     addItem(
-                        Check(
-                            Msg(R.string.check_no_network_response),
-                            Level.Error,
-                            Msg(R.string.check_no_network_response_2, response.code.toString(), response.message)
-                        )
+                        Msg(R.string.check_no_network_response),
+                        Level.Error,
+                        Msg(R.string.check_no_network_response_2, response.code.toString(), response.message)
                     )
                 }
 
                 response.networkResponse?.code == 304 -> {
-                    addItem(Check(Msg(R.string.check_response_code_1, 304), Level.OK, Msg(R.string.check_not_modified_as_expected)))
+                    addItem(Msg(R.string.check_response_code_1, 304), Level.OK, Msg(R.string.check_not_modified_as_expected))
                 }
 
                 else -> {
-                    addItem(Check(Msg(R.string.check_db_received_again), Level.Error, Msg(R.string.check_the_cache_control_does_not_work_properly)))
+                    addItem(Msg(R.string.check_db_received_again), Level.Error, Msg(R.string.check_the_cache_control_does_not_work_properly))
                 }
             }
         }
@@ -294,6 +295,12 @@ class SettingsCheckVM @Inject constructor(
         checks += item
         data.value = data.value.copy(items = checks)
     }
+
+    private fun addItem(
+        desc: Msg,
+        level: Level,
+        msg: Msg?,
+    ) = addItem(Check(desc, level, msg))
 
     private fun setRunning(v: Boolean) {
         data.value = data.value.copy(running = v)

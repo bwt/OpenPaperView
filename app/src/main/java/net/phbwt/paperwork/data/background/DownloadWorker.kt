@@ -66,7 +66,7 @@ class DownloadWorker @AssistedInject constructor(
 
         if (BuildConfig.DEBUG) {
             Log.e(TAG, "Adding work delay")
-            delay(2000 + (Random.Default.nextLong() % 1000))
+            delay(500 + (Random.Default.nextLong() % 500))
         }
 
         downloadParts()
@@ -190,7 +190,7 @@ class DownloadWorker @AssistedInject constructor(
 
             if (BuildConfig.DEBUG) {
                 Log.e(TAG, "Adding pre download delay")
-                delay(2000 + (Random.Default.nextLong() % 1000))
+                delay(510 + (Random.Default.nextLong() % 490))
             }
 
             val dest = File(settings.localPartsDir, dnl.partPath())
@@ -272,7 +272,7 @@ class DownloadWorker @AssistedInject constructor(
 
                     if (BuildConfig.DEBUG) {
                         Log.e(TAG, "Adding copy delay")
-                        delay(2000 + (Random.Default.nextLong() % 1000))
+                        delay(520 + (Random.Default.nextLong() % 480))
                     }
 
                     sink.writeAll(body.source())
