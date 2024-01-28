@@ -41,6 +41,7 @@ import androidx.compose.material.icons.outlined.DownloadDone
 import androidx.compose.material.icons.outlined.DownloadForOffline
 import androidx.compose.material.icons.outlined.Downloading
 import androidx.compose.material.icons.outlined.Error
+import androidx.compose.material.icons.outlined.Flip
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material.icons.outlined.QuestionAnswer
@@ -303,9 +304,9 @@ fun Filters(
                 for (label in labels) {
                     Chip(
                         label.label,
-                        onAction = { onLabelToggled(label) },
-                        closable = true,
-                        onClose = { onLabelRemoved(label) },
+                        onAction = {  },
+                        onLeadingClick = { onLabelToggled(label) },
+                        onTrailingClick = { onLabelRemoved(label) },
                         selected = label.include,
                     )
                 }
@@ -585,8 +586,8 @@ fun Chip(
     txt: String,
     onAction: () -> Unit,
     modifier: Modifier = Modifier,
-    closable: Boolean = false,
-    onClose: () -> Unit = {},
+    onLeadingClick: (() -> Unit)? = null,
+    onTrailingClick: (() -> Unit)? = null,
     selected: Boolean = true,
 ) = FilterChip(
     selected = selected,
@@ -594,12 +595,29 @@ fun Chip(
     label = { Text(txt) },
     // just to remove the paddings
     modifier = modifier.height(FilterChipDefaults.Height),
-    trailingIcon = {
-        if (closable) IconButton(
-            onClick = onClose,
+    leadingIcon = {
+        if (onLeadingClick != null) IconButton(
+            onClick = onLeadingClick,
             modifier = Modifier.width(24.dp),
         ) {
-            Icon(Icons.Outlined.Close, null)
+            Icon(
+                Icons.Outlined.Flip,
+                null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    },
+    trailingIcon = {
+        if (onTrailingClick != null) IconButton(
+            onClick = onTrailingClick,
+            modifier = Modifier.width(24.dp),
+        ) {
+            Icon(
+                Icons.Outlined.Close,
+                null,
+                tint = MaterialTheme.colorScheme.primary,
+            )
         }
     },
 )
