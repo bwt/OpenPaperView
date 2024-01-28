@@ -78,6 +78,11 @@ If left empty, the systems CAs will be trusted.
     <string name="check_dnl_db_without_certificate">Trying to download the DB without certificate</string>
     <string name="check_trying_to_download_the_db">Trying to download the DB</string>
     <string name="check_empty_response">Empty response</string>
+    <string name="check_response_was_cached_desc">Response came from cache</string>
+    <string name="check_response_was_cached_msg">This is probably a bug</string>
+    <string name="check_response_was_not_compressed_desc">Response was not compressed</string>
+    <string name="check_response_was_not_compressed_msg">Consider configuring the server to compress \'%1$s\' content</string>
+    <string name="check_compressed_response">Compressed response : %1$s (%2$s bytes)</string>
     <string name="check_http_error">HTTP error</string>
     <string name="check_trying_to_download_again_the_db">Trying to download again the DB</string>
     <string name="check_no_network_response">No network response</string>
@@ -99,7 +104,7 @@ If left empty, the systems CAs will be trusted.
     <string name="check_response_code_without_body_1">Response code %1$s without body ???</string>
     <string name="check_exception_1">%1$s</string>
 
-    <string name="check_received_size_bytes_2">Received %1$s (%2$s bytes)</string>
+    <string name="check_received_size_bytes_2">Read %1$s (%2$s bytes)</string>
     <string name="check_no_network_response_2">No network response ?? %1$s, \'%2$s\'</string>
 
 </resources>

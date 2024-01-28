@@ -79,6 +79,11 @@ Optionnel, sinon les certificats racines d\'Android seront utilisés.
     <string name="check_dnl_db_without_certificate">Téléchargement de la BD sans certificat</string>
     <string name="check_trying_to_download_the_db">Téléchargement de la BD</string>
     <string name="check_empty_response">Réponse vide</string>
+    <string name="check_response_was_cached_desc">Réponse venant du cache</string>
+    <string name="check_response_was_cached_msg">C\'est probablement un bug</string>
+    <string name="check_response_was_not_compressed_desc">Non compressée</string>
+    <string name="check_response_was_not_compressed_msg">Envisagez de configurer le serveur pour compresser le contenu \'%1$s\'</string>
+    <string name="check_compressed_response">Réponse compressée : %1$s (%2$s octets)</string>
     <string name="check_http_error">Erreur HTTP</string>
     <string name="check_trying_to_download_again_the_db">Nouveau téléchargement de la BD</string>
     <string name="check_no_network_response">Réponse absente</string>
@@ -100,7 +105,7 @@ Optionnel, sinon les certificats racines d\'Android seront utilisés.
     <string name="check_response_code_without_body_1">Réponse code %1$s vide ???</string>
     <string name="check_exception_1">%1$s</string>
 
-    <string name="check_received_size_bytes_2">Reçu %1$s (%2$s octets)</string>
+    <string name="check_received_size_bytes_2">Lu %1$s (%2$s octets)</string>
     <string name="check_no_network_response_2">Pas de réponse ?? %1$s, \'%2$s\'</string>
 
 </resources>

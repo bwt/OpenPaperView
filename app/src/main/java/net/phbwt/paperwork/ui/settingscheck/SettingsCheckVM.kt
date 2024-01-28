@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.text.format.Formatter
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.core.content.getSystemService
@@ -28,6 +29,8 @@ import net.phbwt.paperwork.data.buildOkHttpClientWithoutCache
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.data.withHttpCache
 import net.phbwt.paperwork.helper.desc
+import okhttp3.Call
+import okhttp3.EventListener
 import okhttp3.Request
 import okhttp3.tls.HeldCertificate
 import okio.Buffer
@@ -223,10 +226,24 @@ class SettingsCheckVM @Inject constructor(
         delay(300)
 
         settings.checksCacheDir.deleteRecursively()
+
+        // size of the actual content of the network response (without transparent decompression)
+        var compressedSizeFromEvent = 0L
+
         val httpClient = buildOkHttpClientWithoutCache(p.clientPem, p.serverCa).withHttpCache(settings.checksCacheDir)
+            .newBuilder()
+            .eventListener(object : EventListener() {
+                override fun responseBodyEnd(call: Call, byteCount: Long) {
+                    // this should always work
+                    // (as opposed to using the Content-Length header from the network response)
+                    compressedSizeFromEvent = byteCount
+                }
+            })
+            .build()
 
         httpClient.newCall(p.dbRequest).await().use { response ->
             if (response.isSuccessful) {
+                // HTTP OK
 
                 val src = response.body?.source()
 
@@ -243,6 +260,45 @@ class SettingsCheckVM @Inject constructor(
                     }
                     addItem(
                         Msg(R.string.check_received_size_bytes_2, Formatter.formatFileSize(getApplication(), size), size.toString()),
+                        Level.OK,
+                        null
+                    )
+                }
+
+                // AFTER the response body has been read, so that the responseBodyEnd event has been triggered
+
+                val networkResponse = response.networkResponse
+
+                if (networkResponse == null || networkResponse.code == 304) {
+                    // should not happen, we cleared the cache
+                    addItem(
+                        Msg(R.string.check_response_was_cached_desc),
+                        Level.Warn,
+                        Msg(R.string.check_response_was_cached_msg),
+                    )
+                } else if (networkResponse.header("Content-Encoding") != "gzip") {
+                    // not compressed
+                    val contentType = networkResponse.header("Content-Type").toString()
+                    addItem(
+                        Msg(R.string.check_response_was_not_compressed_desc),
+                        Level.Warn,
+                        Msg(R.string.check_response_was_not_compressed_msg, contentType),
+                    )
+                } else {
+                    // compressed
+
+                    val compressedSizeFromHeader = networkResponse.header("Content-Length")?.toLongOrNull() ?: -1
+
+                    if (compressedSizeFromHeader > 0 && compressedSizeFromHeader != compressedSizeFromEvent) {
+                        Log.e(TAG, "Network size mismatch : Content-Length $compressedSizeFromHeader, Event $compressedSizeFromEvent")
+                    }
+
+                    addItem(
+                        Msg(
+                            R.string.check_compressed_response,
+                            Formatter.formatFileSize(getApplication(), compressedSizeFromEvent),
+                            compressedSizeFromEvent.toString(),
+                        ),
                         Level.OK,
                         null
                     )
@@ -310,6 +366,8 @@ class SettingsCheckVM @Inject constructor(
         data.value = data.value.copy(paramsOk = v)
     }
 }
+
+private const val TAG = "SettingsCheckVM"
 
 @Immutable
 data class SettingsCheckState(
