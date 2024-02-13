@@ -230,6 +230,10 @@ fun Filters(
         if (search.length >= 2) {
             val filter = search.asFilter()
             labelTypes.filter { it.normalizedName.contains(filter) }
+                // workaround an annoying bug since material3 1.2.0 :
+                // the dropdown menu is moved up and overlap the textfield
+                // when the IME is open
+                .take(4)
         } else {
             listOf()
         }
@@ -284,7 +288,7 @@ fun Filters(
                         onSearchChange("")
                     }
                     DropdownMenuItem(
-                        text = { Chip(selectionOption.name, cb) },
+                        text = { Text(selectionOption.name) },
                         onClick = cb,
                     )
                 }
@@ -304,7 +308,7 @@ fun Filters(
                 for (label in labels) {
                     Chip(
                         label.label,
-                        onAction = {  },
+                        onAction = { },
                         onLeadingClick = { onLabelToggled(label) },
                         onTrailingClick = { onLabelRemoved(label) },
                         selected = label.include,
