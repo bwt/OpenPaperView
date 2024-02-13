@@ -1,18 +1,18 @@
 object Versions {
 
-    const val kotlin = "1.9.21"
+    const val kotlin = "1.9.22"
 
     // https://github.com/google/ksp/releases
-    const val ksp = "1.0.16"
+    const val ksp = "1.0.17"
 
     // https://github.com/google/accompanist/releases
-    const val accompanist = "0.32.0"
+    const val accompanist = "0.34.0"
 
     // https://developer.android.com/jetpack/androidx/releases/lifecycle#kts
-    const val lifecycle = "2.6.2"
+    const val lifecycle = "2.7.0"
 
     // https://developer.android.com/jetpack/androidx/releases/navigation
-    const val navigation = "2.7.6"
+    const val navigation = "2.7.7"
 
     // https://github.com/google/dagger/releases
     const val hiltDagger = "2.50"
@@ -26,6 +26,6 @@ object Versions {
     const val room = "2.6.1"
 
     // https://github.com/raamcosta/compose-destinations/releases
-    const val compose_destinations = "1.9.59"
+    const val compose_destinations = "1.10.1"
 
 }

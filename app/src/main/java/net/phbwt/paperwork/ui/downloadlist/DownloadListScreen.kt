@@ -21,7 +21,7 @@ import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Warning
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -137,7 +137,7 @@ fun DownloadRows(
         docs.forEach { doc ->
 
             item(key = -doc.document.documentId, contentType = "header") {
-                Divider(color = MaterialTheme.colorScheme.onBackground, thickness = Dp.Hairline)
+                HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.onBackground)
                 DownloadHeader(doc, Modifier.animateItemPlacement(), onDocumentDelete, onDocClicked)
             }
 

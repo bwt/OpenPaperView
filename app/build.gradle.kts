@@ -75,7 +75,7 @@ android {
 
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.7"
+        kotlinCompilerExtensionVersion = "1.5.9"
     }
 
     packaging {
@@ -95,7 +95,7 @@ dependencies {
 
     // kotlinx
     // https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/CHANGELOG.md
-    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.6")
+    implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable-jvm:0.3.7")
 
     // Saved state module for ViewModel
     // https://developer.android.com/jetpack/androidx/releases/lifecycle#groovy
@@ -107,7 +107,7 @@ dependencies {
 
     // compose
     // https://developer.android.com/jetpack/compose/bom/bom-mapping
-    implementation(platform("androidx.compose:compose-bom:2023.10.01"))
+    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
 //    api(platform("dev.chrisbanes.compose:compose-bom:2023.02.00-beta01"))
 
     implementation("androidx.compose.ui:ui-tooling-preview")

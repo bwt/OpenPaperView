@@ -48,12 +48,12 @@ import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -358,7 +358,7 @@ fun DocRows(
                         contentType = "doc",
                     ) {
 
-                        Divider(color = colors.primary, thickness = Dp.Hairline)
+                        HorizontalDivider(thickness = Dp.Hairline, color = colors.primary)
                         DocRow(
                             row,
                             onDocClicked, onLabelClicked, onDownloadClicked, onShowClicked, onShareClicked,
