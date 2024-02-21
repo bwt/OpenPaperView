@@ -29,10 +29,12 @@ and serve that database (and the actual scans) to the viewer over HTTPS.
 
 - Filter on Paperwork labels (inclusive or exclusive).
 
-- Full text search.
+- Offline full text search.
 
 - Documents can be downloaded, so they are available offline.
   Downloaded documents are stored in the internal storage of the application.
+
+- Automatic download of documents selected by labels.
 
 - Any static HTTP server can be used, as long as it supports client authentication with certificates and cache control.
 
@@ -58,7 +60,8 @@ and serve that database (and the actual scans) to the viewer over HTTPS.
 
 ### Known bugs
 
-- On Android 12+, the autocompletion menu for label is dismissed if you continue to type. Please vote for [this bug](https://issuetracker.google.com/issues/238331998)
+- Since material design 3 v 1.2.0, the label autocompletion menu is sometimes annoyingly positioned over the text field.
+  You just have to select an option or continue to type.
 
 
 ### Installation
@@ -143,7 +146,7 @@ Then for each client :
     openssl genrsa -out client_private.key 4096
     ```
 
-1. Create a certificate request, the `Common Name` can be anything as long as it is not empty :
+1. Create a certificate request. You will be asked for a `Common Name`, it can be anything as long as it is not empty :
 
     ```bash
     openssl req -new -key client_private.key -out client_request.csr
@@ -234,6 +237,12 @@ The documents thumbnail, images and pdf :
 - `https:example.com/paperwork/base/papers/some_paper_id/paper.1.thumb.jpg`
 
 
+##### Auto download labels
+
+Every time the database is updated, the documents having one of the labels will be downloaded.
+If manually deleted, they will be re-downloaded with the next update.
+
+
 ##### Authentication
 
 Authentication is done through HTTPS with mutual authentication.
@@ -253,7 +262,7 @@ more Base64 content
 -----END PRIVATE KEY-----
 ```
 
-You can optionaly add a certificate foe a custom certification authority.
+You can optionaly add a certificate for a custom certification authority.
 This is used to authenticate the *server* and is only necessary if the server's certificate is not signed by a well known CA.
 If provided, it will be the only CA trusted by the viewer.
 If not, the system's built-in CAs will be trusted, but not any CA the user may have imported.
