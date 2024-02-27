@@ -21,7 +21,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import net.phbwt.paperwork.BuildConfig
@@ -32,10 +37,15 @@ import net.phbwt.paperwork.data.entity.Document
 import net.phbwt.paperwork.data.entity.DocumentFull
 import net.phbwt.paperwork.data.entity.Part
 import net.phbwt.paperwork.data.settings.Settings
-import net.phbwt.paperwork.helper.ComposeImmutableList
 import net.phbwt.paperwork.helper.latestRelease
-import java.io.*
-import java.util.*
+import net.phbwt.paperwork.helper.toComposeImmutable
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.util.Calendar
+import java.util.Locale
 import java.util.zip.Deflater
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -181,7 +191,7 @@ class DocListVM @Inject constructor(
                 previousYear = year
                 previousMonth = month
             }
-            ComposeImmutableList(rows)
+            rows.toComposeImmutable()
         }
         .flowOn(Dispatchers.Default)
         .latestRelease(viewModelScope, listOf())

@@ -108,4 +108,16 @@ Optionnel, sinon les certificats racines d\'Android seront utilisés.
     <string name="check_received_size_bytes_2">Lu %1$s (%2$s octets)</string>
     <string name="check_no_network_response_2">Pas de réponse ?? %1$s, \'%2$s\'</string>
 
+    <plurals name="dowloads_documents">
+        <item quantity="one">%d document</item>
+        <item quantity="other">%d documents</item>
+        <item quantity="many"> %d de documents</item>
+    </plurals>
+    <plurals name="dowloads_parts">
+        <item quantity="one">, %d fichier</item>
+        <item quantity="other">, %d fichiers</item>
+        <item quantity="many"> %d de fichiers</item>
+    </plurals>
+    <string name="dowloads_size">, total : %1$s</string>
+
 </resources>

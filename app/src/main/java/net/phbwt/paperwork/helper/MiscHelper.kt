@@ -20,3 +20,8 @@ fun Intent?.startActivitySafely(ctxt: Context) = this?.let {
 data class ComposeImmutableList<T>(
     private val internalList: List<T>
 ) : List<T> by internalList
+
+fun <T> List<T>.toComposeImmutable(): ComposeImmutableList<T> = when (this) {
+    is ComposeImmutableList -> this
+    else -> ComposeImmutableList(this)
+}

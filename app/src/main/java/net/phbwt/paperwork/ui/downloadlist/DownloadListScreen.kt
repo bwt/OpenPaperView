@@ -1,16 +1,19 @@
 package net.phbwt.paperwork.ui.downloadlist
 
+import android.text.format.Formatter
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -42,6 +45,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +57,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
+import net.phbwt.paperwork.R
+import net.phbwt.paperwork.data.dao.DownloadStats
 import net.phbwt.paperwork.data.entity.DocumentFull
 import net.phbwt.paperwork.data.entity.DownloadState
 import net.phbwt.paperwork.data.entity.Part
@@ -75,13 +82,13 @@ fun DownloadListScreen(
     navigator: DestinationsNavigator,
     vm: DownloadListVM = hiltViewModel(),
 ) {
-    val docs by vm.downloads().collectAsStateWithLifecycle(listOf())
+    val data by vm.screenData().collectAsStateWithLifecycle(DownloadListData())
 
     val scope = rememberCoroutineScope()
 
     DownloadListContent(
         vm.navArgs,
-        docs = docs,
+        data,
         onPartRestart = { scope.launch { vm.restart(it) } },
         onDocumentDelete = { scope.launch { vm.clear(it) } },
         onDocClicked = { doc ->
@@ -95,15 +102,52 @@ fun DownloadListScreen(
 @Composable
 fun DownloadListContent(
     navArgs: DownloadListScreenArgs,
-    docs: List<DocumentFull>,
+    data: DownloadListData,
     onPartRestart: (Part) -> Unit = {},
     onDocumentDelete: (DocumentFull) -> Unit = { },
     onDocClicked: (DocumentFull) -> Unit = {},
 ) {
     Surface(color = MaterialTheme.colorScheme.background) {
         Column {
-            DownloadRows(docs, navArgs.documentId, onPartRestart, onDocumentDelete, onDocClicked)
+            DownloadRows(
+                data.downloads,
+                navArgs.documentId,
+                onPartRestart,
+                onDocumentDelete,
+                onDocClicked,
+                modifier = Modifier.weight(1f),
+            )
+            DownloadStatsRow(
+                data.stats,
+                modifier = Modifier
+                    .padding(top = 12.dp, bottom = 4.dp)
+                    .windowInsetsPadding(WindowInsets.navigationBars),
+            )
         }
+    }
+}
+
+
+@Composable
+fun DownloadStatsRow(
+    stats: DownloadStats?,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    val d = stats?.documents ?: 0
+    val p = stats?.parts ?: 0
+    val s = stats?.size ?: 0
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = pluralStringResource(id = R.plurals.dowloads_documents, count = d, d)
+                    + (if (d == p) "" else pluralStringResource(id = R.plurals.dowloads_parts, count = p, p))
+                    + stringResource(id = R.string.dowloads_size, Formatter.formatFileSize(context, s)),
+            color = MaterialTheme.colorScheme.secondary,
+            style = MaterialTheme.typography.bodySmall,
+        )
     }
 }
 
@@ -115,6 +159,7 @@ fun DownloadRows(
     onPartRestart: (Part) -> Unit,
     onDocumentDelete: (DocumentFull) -> Unit,
     onDocClicked: (DocumentFull) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
 
@@ -131,6 +176,7 @@ fun DownloadRows(
 
     LazyColumn(
         state = listState,
+        modifier = modifier,
     ) {
         var currentIndex = 0
 
@@ -156,12 +202,6 @@ fun DownloadRows(
                 }
                 currentIndex++
             }
-        }
-        // if we draw behind the navigation bar (IME closed)
-        // we add a spacer so that the last item
-        // can been scrolled into the visible area
-        item {
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
     }
 }
@@ -303,7 +343,7 @@ private const val TAG = "DownloadListScreen"
 @Composable
 fun DefaultPreview() {
     AppTheme {
-        DownloadListContent(DownloadListScreenArgs(12), makeFakeDocuments(13, "document"))
+        DownloadListContent(DownloadListScreenArgs(12), DownloadListData(makeFakeDocuments(13, "document"), DownloadStats(32, 434, 534535)))
 //        DocListContent("zz", listOf("label1", "label2"), makeFakeDocuments(5, "none"))
     }
 }

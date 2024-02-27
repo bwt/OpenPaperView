@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
+import kotlinx.coroutines.flow.Flow
 import net.phbwt.paperwork.data.entity.*
 
 @Dao
@@ -129,7 +130,6 @@ and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
         else -> countAutoDownloadsImpl(labels)
     }
 
-
     @Query(
         """
 select count(distinct documentId)
@@ -138,7 +138,31 @@ from Label where name in (:labels)
     )
     suspend fun countAutoDownloadsImpl(labels: List<String>): Int
 
+    @Query(
+        """
+with doc_parts as (
+    select p.documentId
+    , d.size
+    , count(*) as parts
+    from Part p
+    inner join Document d on d.documentId = p.documentId
+    where p.downloadStatus = $DNL_DONE
+    group by p.documentId
+)
+select count(*) as documents
+, sum(parts) as parts
+, sum(size) as size
+from doc_parts
+"""
+    )
+    fun stats(): Flow<DownloadStats>
 
 }
+
+data class DownloadStats(
+    val documents: Int,
+    val parts: Int,
+    val size: Long,
+)
 
 private const val TAG = "DownloadDao"

@@ -5,12 +5,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
+import net.phbwt.paperwork.data.dao.DownloadStats
 import net.phbwt.paperwork.data.entity.DocumentFull
 import net.phbwt.paperwork.data.entity.Part
 import net.phbwt.paperwork.data.settings.Settings
+import net.phbwt.paperwork.helper.toComposeImmutable
 import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
 import java.io.File
 import javax.inject.Inject
@@ -25,7 +28,10 @@ class DownloadListVM @Inject constructor(
 
     val navArgs = DownloadListScreenDestination.argsFrom(savedStateHandle)
 
-    fun downloads() = repo.db.docDao().withDownloads()
+    fun screenData() = combine(
+        repo.db.docDao().withDownloads(),
+        repo.db.downloadDao().stats(),
+    ) { d, s -> DownloadListData(d.toComposeImmutable(), s) }
 
     suspend fun restart(part: Part) {
         repo.db.downloadDao().restartPart(part.partId)
@@ -37,3 +43,8 @@ class DownloadListVM @Inject constructor(
         File(settings.localPartsDir, doc.docPath).deleteRecursively()
     }
 }
+
+data class DownloadListData(
+    val downloads: List<DocumentFull> = listOf(),
+    val stats: DownloadStats? = null,
+)
