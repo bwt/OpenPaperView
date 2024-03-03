@@ -3,8 +3,14 @@
 package net.phbwt.paperwork.ui.main
 
 import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -62,11 +68,6 @@ import net.phbwt.paperwork.ui.NavGraphs
 import net.phbwt.paperwork.ui.appCurrentDestinationAsState
 import net.phbwt.paperwork.ui.appDestination
 import net.phbwt.paperwork.ui.destinations.Destination
-import net.phbwt.paperwork.ui.destinations.DocListScreenDestination
-import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
-import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
-import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
-import net.phbwt.paperwork.ui.destinations.SettingsScreenDestination
 import net.phbwt.paperwork.ui.main.Dest.Companion.asDest
 import net.phbwt.paperwork.ui.startAppDestination
 
@@ -218,7 +219,7 @@ fun MainContent(
                     Box(
                         modifier = Modifier
                             .statusBarsPadding()
-                            .animateContentSize(tween(transitionDuration, transitionDelayIn)),
+                            .animateContentSize(tween(transitionDuration)),
                     ) {
                         if (currentDest != Dest.PageList) {
                             TopAppBar(
@@ -262,33 +263,61 @@ fun MainContent(
 }
 
 
-const val transitionDuration = 400
-const val transitionDelayIn = 0
-const val transitionDelayOut = 120
-val moveIn = AnimatedContentTransitionScope.SlideDirection.Left
-val moveOut = AnimatedContentTransitionScope.SlideDirection.Right
+const val transitionDuration = 300
+
+private val toStart = AnimatedContentTransitionScope.SlideDirection.Start
+private val toEnd = AnimatedContentTransitionScope.SlideDirection.End
+
+private fun <T> outNow() =
+    tween<T>(transitionDuration * 8 / 20)
+
+private fun <T> inDelayed() =
+    tween<T>(transitionDuration * 16 / 20, transitionDuration * 4 / 20, LinearOutSlowInEasing)
 
 object AppTransitions : DestinationStyle.Animated {
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
-        slideIntoContainer(
-            if (goingBack()) moveOut else moveIn,
-            animationSpec = tween(transitionDuration - transitionDelayIn, transitionDelayIn),
-        )
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition(): EnterTransition {
+        return when (val tt = transitionType()) {
+            TransType.FADE -> fadeIn(
+                inDelayed()
+            ) + scaleIn(inDelayed(), .92f)
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
-        slideOutOfContainer(
-            if (goingBack()) moveOut else moveIn,
-            animationSpec = tween(transitionDuration - (transitionDelayOut * 2), transitionDelayOut),
-        )
-
-    private fun AnimatedContentTransitionScope<NavBackStackEntry>.goingBack() =
-        goingBack(initialState.appDestination(), targetState.appDestination())
-
-    private fun goingBack(from: Destination, to: Destination) = when {
-        to is DocListScreenDestination -> true
-        from is PageListScreenDestination && to is DownloadListScreenDestination -> true
-        from is SettingsCheckScreenDestination && to is SettingsScreenDestination -> true
-        else -> false
+            else -> slideIntoContainer(
+                if (tt == TransType.OUT) toEnd else toStart,
+                animationSpec = tween(transitionDuration),
+                initialOffset = { it / 10 },
+            ) + fadeIn(inDelayed())
+        }
     }
+
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition(): ExitTransition {
+        return when (val tt = transitionType()) {
+            TransType.FADE -> fadeOut(
+                outNow()
+            )
+
+            else -> slideOutOfContainer(
+                if (tt == TransType.OUT) toEnd else toStart,
+                animationSpec = tween(transitionDuration),
+                targetOffset = { it / 10 },
+            ) + fadeOut(outNow())
+        }
+    }
+
+    private fun AnimatedContentTransitionScope<NavBackStackEntry>.transitionType() =
+        transitionType(initialState.appDestination(), targetState.appDestination())
+
+    private fun transitionType(from: Destination, to: Destination): TransType {
+        val f = from.asDest().transitionPosition
+        val t = to.asDest().transitionPosition
+
+        return when {
+            f == t -> TransType.FADE
+            t.startsWith(f) -> TransType.IN
+            f.startsWith(t) -> TransType.OUT
+            else -> TransType.FADE
+        }
+    }
+
+    private enum class TransType { IN, OUT, FADE }
 
 }

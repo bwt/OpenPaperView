@@ -24,6 +24,8 @@ sealed class Dest(
     val topDirection: Direction,
     val icon: ImageVector,
     @StringRes val labelRes: Int,
+    // Used to know which transition to use
+    val transitionPosition: String,
 ) {
 
     data object DocList : Dest(
@@ -31,6 +33,7 @@ sealed class Dest(
         DocListScreenDestination,
         icon = Icons.AutoMirrored.Filled.FormatListBulleted,
         labelRes = R.string.screen_docList,
+        transitionPosition = "a",
     )
 
     data object DownloadList : Dest(
@@ -38,6 +41,7 @@ sealed class Dest(
         DownloadListScreenDestination(),
         icon = Icons.Filled.Download,
         labelRes = R.string.screen_downloadList,
+        transitionPosition = "aa",
     )
 
     data object Settings : Dest(
@@ -45,6 +49,7 @@ sealed class Dest(
         SettingsScreenDestination,
         icon = Icons.Filled.Settings,
         labelRes = R.string.screen_settings,
+        transitionPosition = "b",
     )
 
     data object SettingsCheck : Dest(
@@ -52,6 +57,7 @@ sealed class Dest(
         SettingsCheckScreenDestination,
         icon = Icons.Filled.Settings,
         labelRes = R.string.screen_settingsCheck,
+        transitionPosition = "ba",
     )
 
     data object PageList : Dest(
@@ -59,6 +65,7 @@ sealed class Dest(
         PageListScreenDestination(0),
         icon = Icons.Filled.Image,
         labelRes = R.string.screen_pageList,
+        transitionPosition = "aaa",
     )
 
     data object About : Dest(
@@ -66,6 +73,7 @@ sealed class Dest(
         AboutScreenDestination,
         icon = Icons.Filled.Info,
         labelRes = R.string.screen_about,
+        transitionPosition = "c",
     )
 
     companion object {
