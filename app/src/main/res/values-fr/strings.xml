@@ -118,6 +118,6 @@ Optionnel, sinon les certificats racines d\'Android seront utilisés.
         <item quantity="other">, %d fichiers</item>
         <item quantity="many"> %d de fichiers</item>
     </plurals>
-    <string name="dowloads_size">, total : %1$s</string>
+    <string name="dowloads_size">, %1$s</string>
 
 </resources>

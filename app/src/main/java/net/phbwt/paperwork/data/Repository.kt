@@ -221,8 +221,8 @@ fun Context.newDbName() = getDbName(currentDbNumber() + 1)
 
 @Immutable
 sealed interface DbUpdateStatus
-object NoUpdate : DbUpdateStatus
-object UpdateAvailable : DbUpdateStatus
+data object NoUpdate : DbUpdateStatus
+data object UpdateAvailable : DbUpdateStatus
 data class UpdateError(val error: Throwable) : DbUpdateStatus
 
 

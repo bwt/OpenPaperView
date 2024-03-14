@@ -61,7 +61,7 @@ class SettingsVM @Inject constructor(
         .firstThenDebounce(500)
         .map { result ->
             result.mapCatching {
-                LabelsInfo(it, repo.db.downloadDao().countAutoDownloadsImpl(it))
+                LabelsInfo(it, repo.db.downloadDao().countAutoDownloads(it))
             }
         }
 

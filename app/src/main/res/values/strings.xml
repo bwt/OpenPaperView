@@ -115,6 +115,6 @@ If left empty, the systems CAs will be trusted.
         <item quantity="one">, %d file</item>
         <item quantity="other">, %d files</item>
     </plurals>
-    <string name="dowloads_size">, total : %1$s</string>
+    <string name="dowloads_size">, %1$s</string>
 
 </resources>
