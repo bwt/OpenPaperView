@@ -75,7 +75,7 @@ android {
 
     composeOptions {
         // https://developer.android.com/jetpack/androidx/releases/compose-kotlin
-        kotlinCompilerExtensionVersion = "1.5.9"
+        kotlinCompilerExtensionVersion = "1.5.11"
     }
 
     packaging {
@@ -107,7 +107,7 @@ dependencies {
 
     // compose
     // https://developer.android.com/jetpack/compose/bom/bom-mapping
-    implementation(platform("androidx.compose:compose-bom:2024.02.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.03.00"))
 //    api(platform("dev.chrisbanes.compose:compose-bom:2023.02.00-beta01"))
 
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -115,13 +115,14 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 
     // navigation
     implementation("androidx.navigation:navigation-compose:${Versions.navigation}")
     implementation("androidx.hilt:hilt-navigation-compose:${Versions.hiltNavigationCompose}")
 
     // https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
-    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     // Compose Destinations
     implementation("io.github.raamcosta.compose-destinations:core:${Versions.compose_destinations}")
