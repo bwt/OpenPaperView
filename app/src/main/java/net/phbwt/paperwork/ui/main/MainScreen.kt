@@ -250,7 +250,7 @@ private fun <T> outNow() =
     tween<T>(transitionDuration * 8 / 20)
 
 private fun <T> inDelayed() =
-    tween<T>(transitionDuration * 16 / 20, transitionDuration * 4 / 20, LinearOutSlowInEasing)
+    tween<T>(transitionDuration * 16 / 20, transitionDuration * 4 / 20, FastOutLinearInEasing)
 
 object AppTransitions : DestinationStyle.Animated {
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition(): EnterTransition {
@@ -261,7 +261,7 @@ object AppTransitions : DestinationStyle.Animated {
 
             else -> slideIntoContainer(
                 if (tt == TransType.OUT) toEnd else toStart,
-                animationSpec = tween(transitionDuration),
+                animationSpec = tween(transitionDuration, easing = FastOutLinearInEasing),
                 initialOffset = { it / 10 },
             ) + fadeIn(inDelayed())
         }
@@ -275,7 +275,7 @@ object AppTransitions : DestinationStyle.Animated {
 
             else -> slideOutOfContainer(
                 if (tt == TransType.OUT) toEnd else toStart,
-                animationSpec = tween(transitionDuration),
+                animationSpec = tween(transitionDuration, easing = FastOutLinearInEasing),
                 targetOffset = { it / 10 },
             ) + fadeOut(outNow())
         }
