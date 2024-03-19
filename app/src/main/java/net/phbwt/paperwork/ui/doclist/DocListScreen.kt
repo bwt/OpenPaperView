@@ -1,6 +1,5 @@
 @file:OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalComposeUiApi::class,
     ExperimentalAnimationApi::class,
     ExperimentalLayoutApi::class,
 )
@@ -111,6 +110,8 @@ import net.phbwt.paperwork.helper.startActivitySafely
 import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
 import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import net.phbwt.paperwork.ui.main.AppTransitions
+import net.phbwt.paperwork.ui.main.Dest
+import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.theme.AppTheme
 import kotlin.random.Random
 
@@ -120,6 +121,7 @@ import kotlin.random.Random
 fun DocListScreen(
     navigator: DestinationsNavigator,
     snackbarHostState: SnackbarHostState,
+    onNavigationIcon: (Boolean) -> Unit,
     vm: DocListVM = hiltViewModel(),
 ) {
     val search = vm.search
@@ -179,6 +181,8 @@ fun DocListScreen(
                     .startActivitySafely(context)
             }
         },
+        snackbarHostState,
+        onNavigationIcon,
     )
 }
 
@@ -196,20 +200,26 @@ fun DocListContent(
     onDownloadClicked: (DocumentFull) -> Unit = {},
     onShowClicked: (DocumentFull) -> Unit = {},
     onShareClicked: (DocumentFull) -> Unit = {},
-) {
-    val colors = MaterialTheme.colorScheme
-
-    Surface(color = colors.background) {
-        Column {
-            Filters(search, labels, labelTypes, onLabelRemoved, onLabelAdded, onLabelToggled, onSearchChange)
-            // workaround position lost on reconfiguration / navigation
-            // because the list is temporarily empty
-            // https://issuetracker.google.com/issues/179397301
-            if (rows.isNotEmpty()) {
-                DocRows(rows, onDocClicked, onLabelAdded, onDownloadClicked, onShowClicked, onShareClicked)
-            }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onNavigationIcon: (Boolean) -> Unit = {},
+) = WrappedScaffold(
+    snackbarHostState,
+    onNavigationIcon,
+    Dest.DocList.labelRes,
+    topLevel = true,
+) { modifier ->
+    Column(
+        modifier = modifier,
+    ) {
+        Filters(search, labels, labelTypes, onLabelRemoved, onLabelAdded, onLabelToggled, onSearchChange)
+        // workaround position lost on reconfiguration / navigation
+        // because the list is temporarily empty
+        // https://issuetracker.google.com/issues/179397301
+        if (rows.isNotEmpty()) {
+            DocRows(rows, onDocClicked, onLabelAdded, onDownloadClicked, onShowClicked, onShareClicked)
         }
     }
+
 }
 
 
@@ -372,7 +382,8 @@ fun DocRows(
                 }
             }
         }
-        // if we draw behind the navigation bar (IME closed)
+        // edge2edge : bottom
+        // if we draw behind the navigation bar (IME is closed)
         // we add a spacer so that the last item
         // can been scrolled into the visible area
         item {

@@ -102,6 +102,7 @@ fun PageListContentImages(
                     Box(
                         modifier = Modifier
                             .matchParentSize()
+                            // edge2edge : bottom
                             .navigationBarsPadding()
                             .pointerInput(Unit) {
                                 detectTapGestures(

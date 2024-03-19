@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -29,7 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -66,11 +66,13 @@ import net.phbwt.paperwork.helper.fmtDtm
 import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import net.phbwt.paperwork.ui.doclist.makeFakeDocuments
 import net.phbwt.paperwork.ui.main.AppTransitions
+import net.phbwt.paperwork.ui.main.Dest
+import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.theme.AppTheme
 
 
 data class DownloadListScreenArgs(
-    val documentId: Int = -12,
+    val documentId: Int? = null,
 )
 
 @Destination(
@@ -80,6 +82,8 @@ data class DownloadListScreenArgs(
 @Composable
 fun DownloadListScreen(
     navigator: DestinationsNavigator,
+    snackbarHostState: SnackbarHostState,
+    onNavigationIcon: (Boolean) -> Unit,
     vm: DownloadListVM = hiltViewModel(),
 ) {
     val data by vm.screenData().collectAsStateWithLifecycle(DownloadListData())
@@ -96,6 +100,8 @@ fun DownloadListScreen(
                 navigator.navigate(PageListScreenDestination(doc.document.documentId))
             }
         },
+        snackbarHostState,
+        onNavigationIcon,
     )
 }
 
@@ -106,24 +112,35 @@ fun DownloadListContent(
     onPartRestart: (Part) -> Unit = {},
     onDocumentDelete: (DocumentFull) -> Unit = { },
     onDocClicked: (DocumentFull) -> Unit = {},
-) {
-    Surface(color = MaterialTheme.colorScheme.background) {
-        Column {
-            DownloadRows(
-                data.downloads,
-                navArgs.documentId,
-                onPartRestart,
-                onDocumentDelete,
-                onDocClicked,
-                modifier = Modifier.weight(1f),
-            )
-            DownloadStatsRow(
-                data.stats,
-                modifier = Modifier
-                    .padding(top = 12.dp, bottom = 4.dp)
-                    .windowInsetsPadding(WindowInsets.navigationBars),
-            )
-        }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onNavigationIcon: (Boolean) -> Unit = {},
+) = WrappedScaffold(
+    snackbarHostState,
+    onNavigationIcon,
+    Dest.DownloadList.labelRes,
+    topLevel = navArgs.documentId == null,
+) { modifier ->
+    Column(
+        modifier = modifier,
+    ) {
+        DownloadRows(
+            data.downloads,
+            navArgs.documentId,
+            onPartRestart,
+            onDocumentDelete,
+            onDocClicked,
+            modifier = Modifier.weight(1f),
+        )
+        DownloadStatsRow(
+            data.stats,
+            modifier = Modifier
+                .padding(top = 12.dp, bottom = 4.dp)
+        )
+        // edge2edge : bottom
+        // we cant't use Modifier.navigationBarsPadding()
+        // because we only want the bottom (other parts are already accounted for when wrapping the scaffold)
+        // and the navigation bar may be on the left or right (e.g. landscape on older Android)
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
 
@@ -155,7 +172,7 @@ fun DownloadStatsRow(
 @Composable
 fun DownloadRows(
     docs: List<DocumentFull>,
-    documentId: Int,
+    documentId: Int?,
     onPartRestart: (Part) -> Unit,
     onDocumentDelete: (DocumentFull) -> Unit,
     onDocClicked: (DocumentFull) -> Unit,

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
@@ -23,11 +22,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -44,11 +44,15 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.ui.main.AppTransitions
+import net.phbwt.paperwork.ui.main.Dest
+import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.theme.AppTheme
 
 @Destination(style = AppTransitions::class)
 @Composable
 fun SettingsCheckScreen(
+    snackbarHostState: SnackbarHostState,
+    onNavigationIcon: (Boolean) -> Unit,
     vm: SettingsCheckVM = hiltViewModel(),
 ) {
     val data by vm.data.collectAsStateWithLifecycle()
@@ -62,6 +66,8 @@ fun SettingsCheckScreen(
         onStart = vm::startChecks,
         onStop = vm::stopChecks,
         onReset = vm::clearDataAndReloadDb,
+        snackbarHostState,
+        onNavigationIcon,
     )
 }
 
@@ -71,59 +77,62 @@ fun SettingsCheckContent(
     onStart: () -> Unit = {},
     onStop: () -> Unit = {},
     onReset: suspend () -> Unit = {},
-) {
-    val colors = MaterialTheme.colorScheme
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onNavigationIcon: (Boolean) -> Unit = {},
+) = WrappedScaffold(
+    snackbarHostState,
+    onNavigationIcon,
+    Dest.SettingsCheck.labelRes,
+    topLevel = false,
+) { modifier ->
     val scope = rememberCoroutineScope()
 
-    Surface(
-        color = colors.background,
-        modifier = Modifier.fillMaxSize(),
+    Column(
+        modifier = modifier
+            .padding(8.dp),
     ) {
-        Column(
-            modifier = Modifier.padding(8.dp),
+
+        val items = data.items
+        LazyColumn(
+            modifier = Modifier.weight(1f),
         ) {
-
-            val items = data.items
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-            ) {
-                items(items.size, { idx -> idx }) { idx ->
-                    ItemRow(
-                        items[idx],
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement(),
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            ) {
-                Button(
-                    onClick = { scope.launch { onReset() } },
-                    enabled = !data.running && data.paramsOk,
-                ) {
-                    Text(stringResource(R.string.settingsCheck_reset))
-                }
-                Button(
-                    onClick = { if (data.running) onStop() else onStart() },
+            items(items.size, { idx -> idx }) { idx ->
+                ItemRow(
+                    items[idx],
                     modifier = Modifier
-                        .animateContentSize(),
-                ) {
-                    val resId = if (data.running) R.string.settingsCheck_stop else R.string.settingsCheck_restart
-                    Text(stringResource(resId))
-                }
+                        .fillMaxWidth()
+                        .animateItemPlacement(),
+                )
             }
-
-            // handle the navigationbar
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
         }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+        ) {
+            Button(
+                onClick = { scope.launch { onReset() } },
+                enabled = !data.running && data.paramsOk,
+            ) {
+                Text(stringResource(R.string.settingsCheck_reset))
+            }
+            Button(
+                onClick = { if (data.running) onStop() else onStart() },
+                modifier = Modifier
+                    .animateContentSize(),
+            ) {
+                val resId = if (data.running) R.string.settingsCheck_stop else R.string.settingsCheck_restart
+                Text(stringResource(resId))
+            }
+        }
+
+        // edge2edge : bottom
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
+
 
 @Composable
 fun ItemRow(

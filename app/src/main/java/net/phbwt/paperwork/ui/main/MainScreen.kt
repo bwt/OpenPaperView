@@ -5,13 +5,12 @@ package net.phbwt.paperwork.ui.main
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -21,12 +20,13 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -35,6 +35,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -212,49 +213,26 @@ fun MainContent(
         },
 
         content = {
-            Scaffold(
-                // FIXME : there is an additional space when the IME is open (systembar)
-                snackbarHost = { SnackbarHost(snackbarHostState, Modifier.imePadding()) },
-                topBar = {
-                    Box(
-                        modifier = Modifier
-                            .statusBarsPadding()
-                            .animateContentSize(tween(transitionDuration)),
-                    ) {
-                        if (currentDest != Dest.PageList) {
-                            TopAppBar(
-                                title = { Text(stringResource(currentDest.labelRes)) },
-                                navigationIcon = {
-                                    IconToggleButton(
-                                        checked = false,
-                                        onCheckedChange = {
-                                            scope.launch { if (it) drawerState.open() else drawerState.close() }
-                                        }) {
-                                        Icon(Icons.Filled.Menu, contentDescription = null)
-                                    }
-                                }
-                            )
-                        }
-                    }
-                },
-            ) { innerPadding ->
+
+            // prevent transitions fading to then from white when using dark theme
+            // not sure why
+            Surface {
                 DestinationsNavHost(
                     navController = navController,
                     navGraph = NavGraphs.root,
                     modifier = Modifier
                         .fillMaxSize()
-                        // The bottom padding (behind the navigationbar)
-                        // is handled by each screen
-                        // typically by adding as Spacer directly (in a column)
-                        // or as an additional item (lazycolumn)
-                        .padding(
-                            top = innerPadding.calculateTopPadding(),
-                            start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                            end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                        )
+                        .statusBarsPadding()
                         .imePadding(),
                     dependenciesContainerBuilder = {
                         dependency(snackbarHostState)
+                        dependency { topLevel: Boolean ->
+                            if (topLevel) {
+                                scope.launch { drawerState.open() }
+                            } else {
+                                navController.popBackStack()
+                            }
+                        }
                     }
                 )
             }
@@ -321,3 +299,53 @@ object AppTransitions : DestinationStyle.Animated {
     private enum class TransType { IN, OUT, FADE }
 
 }
+
+
+@Composable
+fun EmptyScaffold(
+    snackbarHostState: SnackbarHostState,
+    content: @Composable (PaddingValues) -> Unit,
+) = Scaffold(
+    snackbarHost = { SnackbarHost(snackbarHostState) },
+    content = content,
+)
+
+@Composable
+fun WrappedScaffold(
+    snackbarHostState: SnackbarHostState,
+    onNavigationIcon: (Boolean) -> Unit,
+    titleRes: Int,
+    topLevel: Boolean,
+    modifier: Modifier = Modifier,
+    wrappedContent: @Composable (modifier: Modifier) -> Unit,
+) = Scaffold(
+    modifier = modifier,
+    snackbarHost = { SnackbarHost(snackbarHostState) },
+    topBar = {
+        TopAppBar(
+            title = { Text(stringResource(titleRes)) },
+            navigationIcon = {
+                IconButton(
+                    onClick = { onNavigationIcon(topLevel) },
+                ) {
+                    Icon(if (topLevel) Icons.Filled.Menu else Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                }
+            }
+        )
+    },
+    content = { innerPadding ->
+        wrappedContent(
+            // edge2edge :
+            // The bottom padding (behind the navigationbar)
+            // is handled by each screen
+            // typically by adding as Spacer directly (in a column),
+            // as an additional item (lazycolumn)
+            // or by some insets padding
+            Modifier.padding(
+                top = innerPadding.calculateTopPadding(),
+                start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+                end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+            )
+        )
+    },
+)

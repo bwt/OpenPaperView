@@ -28,10 +28,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -62,6 +60,8 @@ import net.phbwt.paperwork.data.entity.asFilter
 import net.phbwt.paperwork.data.settings.LABELS_SEPARATOR
 import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
 import net.phbwt.paperwork.ui.main.AppTransitions
+import net.phbwt.paperwork.ui.main.Dest
+import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.theme.AppTheme
 
 @Destination(style = AppTransitions::class)
@@ -69,6 +69,7 @@ import net.phbwt.paperwork.ui.theme.AppTheme
 fun SettingsScreen(
     navigator: DestinationsNavigator,
     snackbarHostState: SnackbarHostState,
+    onNavigationIcon: (Boolean) -> Unit,
     vm: SettingsVM = hiltViewModel(),
 ) {
     val scope = rememberCoroutineScope()
@@ -129,7 +130,9 @@ fun SettingsScreen(
                 )
                 snackbarHostState.showSnackbar(toastMessage)
             }
-        }
+        },
+        snackbarHostState,
+        onNavigationIcon,
     )
 }
 
@@ -146,84 +149,87 @@ fun SettingsContent(
     onImportServerCA: () -> Unit = {},
     onCheck: () -> Unit = {},
     onAutoDownload: () -> Unit = {},
-) {
-    val colors = MaterialTheme.colorScheme
-
-    Surface(color = colors.background) {
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onNavigationIcon: (Boolean) -> Unit = {},
+) = WrappedScaffold(
+    snackbarHostState,
+    onNavigationIcon,
+    Dest.Settings.labelRes,
+    topLevel = true,
+) { modifier ->
+    Column(
+        modifier = modifier
+            .padding(8.dp)
+    ) {
         Column(
             modifier = Modifier
                 .padding(8.dp)
+                .weight(1f)
+                .verticalScroll(rememberScrollState()),
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .weight(1f)
-                    .verticalScroll(rememberScrollState()),
-            ) {
 
-                PrefSimpleItem(
-                    SettingItem(
-                        value = baseUrl,
-                        error = data.baseUrlError,
-                    ),
-                    onBaseUrlChanged,
-                    KeyboardType.Uri,
-                    false,
-                    true,
-                    R.string.settings_baseUrl_label,
-                    R.string.settings_baseUrl_hint,
-                )
-                Spacer(modifier = Modifier.height(24.dp))
+            PrefSimpleItem(
+                SettingItem(
+                    value = baseUrl,
+                    error = data.baseUrlError,
+                ),
+                onBaseUrlChanged,
+                KeyboardType.Uri,
+                false,
+                true,
+                R.string.settings_baseUrl_label,
+                R.string.settings_baseUrl_hint,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
 
-                PrefLabelsItem(
-                    value = autoDowloadLabels,
-                    allValues = data.allLabels,
-                    info = data.labelsInfo,
-                    onValueChanged = onAutoDownloadLabelsChanged,
-                )
-                Spacer(modifier = Modifier.height(24.dp))
+            PrefLabelsItem(
+                value = autoDowloadLabels,
+                allValues = data.allLabels,
+                info = data.labelsInfo,
+                onValueChanged = onAutoDownloadLabelsChanged,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
 
-                PrefLoadableTextItem(
-                    data.clientPem,
-                    onClientPemChanged,
-                    onImportClientPEM,
-                    R.string.settings_clientPem_label,
-                    R.string.settings_clientPem_hint,
-                )
-                Spacer(modifier = Modifier.height(24.dp))
+            PrefLoadableTextItem(
+                data.clientPem,
+                onClientPemChanged,
+                onImportClientPEM,
+                R.string.settings_clientPem_label,
+                R.string.settings_clientPem_hint,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
 
-                PrefLoadableTextItem(
-                    data.serverCa,
-                    onServerCaChanged,
-                    onImportServerCA,
-                    R.string.settings_serverCa_label,
-                    R.string.settings_serverCa_hint,
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-            ) {
-                Button(
-                    onClick = onAutoDownload,
-                ) {
-                    Text(stringResource(R.string.settings_auto_download))
-                }
-                Button(
-                    onClick = onCheck,
-                ) {
-                    Text(stringResource(R.string.settings_check))
-                }
-
-            }
-
-            // handle the navigationbar
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
+            PrefLoadableTextItem(
+                data.serverCa,
+                onServerCaChanged,
+                onImportServerCA,
+                R.string.settings_serverCa_label,
+                R.string.settings_serverCa_hint,
+            )
         }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+        ) {
+            Button(
+                onClick = onAutoDownload,
+            ) {
+                Text(stringResource(R.string.settings_auto_download))
+            }
+            Button(
+                onClick = onCheck,
+            ) {
+                Text(stringResource(R.string.settings_check))
+            }
+        }
+
+        // edge2edge : bottom
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
+
 
 @Composable
 fun PrefSimpleItem(

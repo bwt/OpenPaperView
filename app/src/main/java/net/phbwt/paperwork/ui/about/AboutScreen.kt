@@ -18,7 +18,7 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -41,130 +41,140 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import net.phbwt.paperwork.BuildConfig
+import net.phbwt.paperwork.R
 import net.phbwt.paperwork.ui.main.AppTransitions
+import net.phbwt.paperwork.ui.main.Dest
+import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.theme.AppTheme
 
 @Destination(style = AppTransitions::class)
 @Composable
 fun AboutScreen(
+    snackbarHostState: SnackbarHostState,
+    onNavigationIcon: (Boolean) -> Unit,
     vm: AboutVM = hiltViewModel(),
 ) {
     val dbVersion = remember { vm.getDbVersion() }
 
     AboutContent(
         dbVersion,
+        snackbarHostState,
+        onNavigationIcon,
     )
 }
 
 @Composable
 fun AboutContent(
     dbVersion: Int,
-) {
-    val colors = MaterialTheme.colorScheme
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onNavigationIcon: (Boolean) -> Unit = {},
+) = WrappedScaffold(
+    snackbarHostState,
+    onNavigationIcon,
+    Dest.About.labelRes,
+    topLevel = true,
+) { modifier ->
+    Column(
+        modifier = modifier
+            .padding(horizontal = 8.dp)
+            .verticalScroll(rememberScrollState()),
+    ) {
 
-    Surface(color = colors.background) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .verticalScroll(rememberScrollState()),
-        ) {
+        val appName = stringResource(R.string.app_name)
 
-            val appName = stringResource(net.phbwt.paperwork.R.string.app_name)
+        Text(
+            appName,
+            modifier = Modifier.padding(8.dp),
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.bodyLarge,
+        )
 
-            Text(
-                appName,
-                modifier = Modifier.padding(8.dp),
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.bodyLarge,
-            )
+        Text(
+            "Version ${BuildConfig.VERSION_NAME}, database version $dbVersion",
+            modifier = Modifier.padding(8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+        )
 
-            Text(
-                "Version ${BuildConfig.VERSION_NAME}, database version $dbVersion",
-                modifier = Modifier.padding(8.dp),
-                style = MaterialTheme.typography.bodyMedium,
-            )
+        Text(
+            "Copyright 2024 Philippe Banwarth.",
+            modifier = Modifier.padding(8.dp),
+            style = MaterialTheme.typography.bodyMedium,
+        )
 
-            Text(
-                "Copyright 2024 Philippe Banwarth.",
-                modifier = Modifier.padding(8.dp),
-                style = MaterialTheme.typography.bodyMedium,
-            )
+        LinkedText(
+            str = buildAnnotatedString {
+                appendNormal("This program comes with absolutely no warranty. See the ")
+                appendLink(
+                    url = "https://www.gnu.org/licenses/gpl-3.0.html",
+                    text = "GNU General Public License, version 3 or later",
+                )
+                appendNormal(" for details.")
+            },
+            modifier = Modifier.padding(8.dp),
+        )
 
-            LinkedText(
-                str = buildAnnotatedString {
-                    appendNormal("This program comes with absolutely no warranty. See the ")
-                    appendLink(
-                        url = "https://www.gnu.org/licenses/gpl-3.0.html",
-                        text = "GNU General Public License, version 3 or later",
-                    )
-                    appendNormal(" for details.")
-                },
-                modifier = Modifier.padding(8.dp),
-            )
+        LinkedText(
+            str = buildAnnotatedString {
+                appendNormal("$appName uses the following libraries, licensed under the ")
+                appendLink(
+                    url = "https://www.apache.org/licenses/LICENSE-2.0",
+                    text = "Apache License, version 2.0",
+                )
+                appendNormal(" :")
+            },
+            modifier = Modifier.padding(8.dp),
+        )
 
-            LinkedText(
-                str = buildAnnotatedString {
-                    appendNormal("$appName uses the following libraries, licensed under the ")
-                    appendLink(
-                        url = "https://www.apache.org/licenses/LICENSE-2.0",
-                        text = "Apache License, version 2.0",
-                    )
-                    appendNormal(" :")
-                },
-                modifier = Modifier.padding(8.dp),
-            )
+        LibRow(
+            "Accompanist",
+            "https://github.com/google/accompanist",
+            "A collection of extension libraries for Jetpack Compose.",
+        )
 
-            LibRow(
-                "Accompanist",
-                "https://github.com/google/accompanist",
-                "A collection of extension libraries for Jetpack Compose.",
-            )
+        LibRow(
+            "Android Jetpack",
+            "https://github.com/androidx/androidx",
+            "Development environment for Android Jetpack extension libraries under the androidx namespace.",
+        )
 
-            LibRow(
-                "Android Jetpack",
-                "https://github.com/androidx/androidx",
-                "Development environment for Android Jetpack extension libraries under the androidx namespace.",
-            )
+        LibRow(
+            "Coil",
+            "https://github.com/coil-kt/coil",
+            "Image loading for Android and Compose Multiplatform.",
+        )
 
-            LibRow(
-                "Coil",
-                "https://github.com/coil-kt/coil",
-                "Image loading for Android and Compose Multiplatform.",
-            )
+        LibRow(
+            "Compose Destinations",
+            "https://github.com/raamcosta/compose-destinations",
+            "Annotation processing library for type-safe Jetpack Compose navigation with no boilerplate.",
+        )
 
-            LibRow(
-                "Compose Destinations",
-                "https://github.com/raamcosta/compose-destinations",
-                "Annotation processing library for type-safe Jetpack Compose navigation with no boilerplate.",
-            )
+        LibRow(
+            "Dagger",
+            "https://github.com/google/dagger",
+            "A fast dependency injector for Android and Java.",
+        )
 
-            LibRow(
-                "Dagger",
-                "https://github.com/google/dagger",
-                "A fast dependency injector for Android and Java.",
-            )
+        LibRow(
+            "kotlin-coroutines-okhttp",
+            "https://github.com/gildor/kotlin-coroutines-okhttp",
+            "Kotlin Coroutines await() extension for OkHttp Call.",
+        )
 
-            LibRow(
-                "kotlin-coroutines-okhttp",
-                "https://github.com/gildor/kotlin-coroutines-okhttp",
-                "Kotlin Coroutines await() extension for OkHttp Call.",
-            )
+        LibRow(
+            "kotlinx.collections.immutable",
+            "https://github.com/Kotlin/kotlinx.collections.immutable",
+            "Immutable persistent collections for Kotlin.",
+        )
 
-            LibRow(
-                "kotlinx.collections.immutable",
-                "https://github.com/Kotlin/kotlinx.collections.immutable",
-                "Immutable persistent collections for Kotlin.",
-            )
+        LibRow(
+            "OkHttp",
+            "https://github.com/square/okhttp",
+            "Square’s meticulous HTTP client for the JVM, Android, and GraalVM.",
+        )
 
-            LibRow(
-                "OkHttp",
-                "https://github.com/square/okhttp",
-                "Square’s meticulous HTTP client for the JVM, Android, and GraalVM.",
-            )
-
-            // handle the navigationbar
-            Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
-        }
+        // edge2edge : bottom
+        Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
 

@@ -1,9 +1,8 @@
 package net.phbwt.paperwork.ui.pagelist
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -13,6 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import net.phbwt.paperwork.ui.main.AppTransitions
+import net.phbwt.paperwork.ui.main.EmptyScaffold
 
 data class PageListScreenArgs(
     val documentId: Int,
@@ -24,6 +24,8 @@ data class PageListScreenArgs(
 )
 @Composable
 fun PageListScreen(
+    snackbarHostState: SnackbarHostState,
+    onNavigationIcon: (Boolean) -> Unit,
     vm: PageListVM = hiltViewModel(),
 ) {
     val document by vm.document.collectAsStateWithLifecycle()
@@ -32,29 +34,34 @@ fun PageListScreen(
 
     val pdfFile = vm.getPdfLocalPath(document)
 
-    // ensure fillMaxSize, even when the content is not ready
-    // to avoid spurious automatic scaleIn
-    // cf https://issuetracker.google.com/issues/295536728
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-    ) {
-        when {
-            document == null -> {
-                // nothing
-            }
+    // Scaffold is only needed for the snackbar
+    EmptyScaffold(
+        snackbarHostState,
+    ) { innerPadding ->
 
-            document!!.isImagesDoc -> {
-                PageListContentImages(document, selectedIndex)
-            }
+        // ensure fillMaxSize, even when the content is not ready
+        // to avoid spurious automatic scaleIn
+        // cf https://issuetracker.google.com/issues/295536728
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            when {
+                document == null -> {
+                    // nothing
+                }
 
-            pdfFile != null && pdfFile.exists() -> {
-                PageListContentPdf(pdfFile)
-            }
+                document!!.isImagesDoc -> {
+                    PageListContentImages(document, selectedIndex)
+                }
 
-            else -> {
-                throw IllegalStateException("Should not happen : exists : ${pdfFile?.exists()} '${document}'")
+                pdfFile != null && pdfFile.exists() -> {
+                    PageListContentPdf(pdfFile)
+                }
+
+                else -> {
+                    throw IllegalStateException("Should not happen : exists : ${pdfFile?.exists()} '${document}'")
+                }
             }
         }
     }
