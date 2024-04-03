@@ -1,0 +1,4 @@
+OpenPaperview's purpose is to browse, search in, download and display or send OpenPaper.work documents.
+A static HTTPS server is required but the application is designed to be useable offline
+with configurable pre-download and local full-text search.
+

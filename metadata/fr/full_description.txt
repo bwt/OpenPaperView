@@ -1,0 +1,3 @@
+OpenPaperView permet de télécharger, visualiser ou envoyer des documents OpenPaper.work.
+Un serveur HTTPS statique est nécessaire mais l'application est conçue pour fonctionner
+hors ligne avec un pré-téléchargement paramétrable et une recherche en texte intégral locale.

@@ -1,0 +1,2 @@
+- Double tap to (un)zoom in the image and PDF viewer
+- Localization

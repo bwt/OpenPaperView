@@ -1,0 +1,3 @@
+- Minor fixes
+- Removed an unnecessary permission (boot completed)
+- Better edge to edge

@@ -1,0 +1,2 @@
+- New feature : auto download
+- Lot of tweaks and minor fixes
