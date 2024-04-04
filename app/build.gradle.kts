@@ -6,10 +6,6 @@ plugins {
     id("dagger.hilt.android.plugin")
 }
 
-val versionMajor = 1
-val versionMinor = 1
-val versionPatch = 6
-
 android {
     namespace = "net.phbwt.paperwork"
     compileSdk = 34
@@ -19,8 +15,8 @@ android {
         applicationId = "net.phbwt.paperwork"
         minSdk = 24
         targetSdk = 34
-        versionCode = versionMajor * 1_000_000 + versionMinor * 1_000 + versionPatch
-        versionName = "${versionMajor}.${versionMinor}.${versionPatch}"
+        versionCode = 1001006
+        versionName = "1.1.6"
 
         resourceConfigurations += arrayOf("en", "fr")
 
@@ -30,7 +26,7 @@ android {
             useSupportLibrary = true
         }
 
-        setProperty("archivesBaseName", "${applicationId}_${versionMajor}.${versionMinor}.${versionPatch}")
+        setProperty("archivesBaseName", "${applicationId}_${versionName}")
     }
 
     signingConfigs {
@@ -47,6 +43,7 @@ android {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
+            vcsInfo.include  = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
