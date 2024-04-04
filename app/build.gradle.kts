@@ -107,7 +107,7 @@ dependencies {
 
     // compose
     // https://developer.android.com/jetpack/compose/bom/bom-mapping
-    implementation(platform("androidx.compose:compose-bom:2024.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.04.00"))
 //    api(platform("dev.chrisbanes.compose:compose-bom:2023.02.00-beta01"))
 
     implementation("androidx.compose.ui:ui-tooling-preview")
