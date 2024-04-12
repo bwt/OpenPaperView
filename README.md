@@ -1,12 +1,17 @@
-
-
 ## OpenPaperView
 
-an [OpenPaper.work](https://openpaper.work) mobile companion.
+An [OpenPaper.work](https://openpaper.work) mobile companion.
 
-<a href="https://play.google.com/store/apps/details?id=net.phbwt.paperwork" target="_blank">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" height="90"/>
-</a>
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/net.phbwt.paperwork/)
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="80">](https://play.google.com/store/apps/details?id=net.phbwt.paperwork)
+
+Or download the latest APK from the [Releases Section](https://github.com/bwt/OpenPaperView/releases/latest).
+
+-----
 
 Disclaimer 1 : This Android application only work with OpenPaper.work. It also requires a lot of setup.
 If you don't want to spend hours preparing a server (only to be disappointed because the application is not what you expected)
