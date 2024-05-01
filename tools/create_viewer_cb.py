@@ -107,11 +107,11 @@ def scan_doc_dir(dir_path):
             doc.parts.append(name)
             doc.size = stat.st_size
             doc.page_count, doc.pdf_title = get_pdf_info(f.path)
-        elif m := re.fullmatch(r'paper\.(\d+)\.jpg', name):
+        elif m := re.fullmatch(r'paper\.(\d+)\.(jpg|png)', name):
             # original image
             doc.original_images[m.group(1)] = name
             doc.image_sizes[name] = stat.st_size
-        elif m := re.fullmatch(r'paper\.(\d+)\.edited\.jpg', name):
+        elif m := re.fullmatch(r'paper\.(\d+)\.edited\.(jpg|png)', name):
             # edited image
             doc.edited_images[m.group(1)] = name
             doc.image_sizes[name] = stat.st_size
@@ -143,7 +143,7 @@ def scan_doc_dir(dir_path):
         warn("missing_title", f"Missing title : '{dir_path}'")
 
     if not doc.parts:
-        raise Exception("No parts ???")
+        raise Exception(f"Document {dir_path} has no parts ???")
 
 
 def add_meta_data():
