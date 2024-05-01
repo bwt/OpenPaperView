@@ -196,7 +196,10 @@ def define_index_level():
 
 def create_db():
     print(f"Saving in {result_db}")
-    os.remove(result_db)
+    try:
+        os.remove(result_db)
+    except FileNotFoundError:
+        pass
     con = sqlite3.connect(result_db)
     cur = con.cursor()
 
