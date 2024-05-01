@@ -90,9 +90,9 @@ def scan_doc_dir(dir_path):
         stat = f.stat()
         name = os.fsdecode(f.name)
         if name == 'labels':
-            # one label per line
-            # only the label, not the color
-            doc.labels = read_text(f.path).splitlines()
+            # one label per line, except empty lines
+            # lines are of the form "name,color"
+            doc.labels = [label for label in read_text(f.path).splitlines() if label]
         elif name == 'extra.txt':
             # optional title (firstline beginning with #)
             # and extra keywords
@@ -272,6 +272,9 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (idx, part))
 
             for label in doc.labels:
+                if "," not in label:
+                    warn("bad_label", f"unexpected label {label!r} for document {doc.name}")
+                    continue
                 label_name, label_color = label.split(',', 1)
                 cur.execute("""
         INSERT INTO Label(documentId, name, color) VALUES (?, ?, ?)
