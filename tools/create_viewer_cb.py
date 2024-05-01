@@ -7,10 +7,24 @@ import re
 import configparser
 import warnings
 import collections
-# Fedora package : python3-PyPDF2
-from PyPDF2 import PdfFileReader
-from PyPDF2.utils import PdfReadError
 
+try:
+    # older versions of pypdf
+    # Fedora package : python3-PyPDF2
+    from PyPDF2 import PdfFileReader
+    from PyPDF2.utils import PdfReadError
+    def getNumPages(pdf: PdfFileReader) -> int:
+        return pdf.getNumPages()
+    def getDocumentInfo(pdf: PdfFileReader):
+        return pdf.getDocumentInfo()
+except ImportError:
+    # recent versions of pypdf
+    from pypdf import PdfReader as PdfFileReader
+    from pypdf.errors import PyPdfError as PdfReadError
+    def getNumPages(pdf: PdfFileReader) -> int:
+        return len(pdf.pages)
+    def getDocumentInfo(pdf: PdfFileReader):
+        return pdf.metadata
 
 class Document:
     def __init__(self, name):
@@ -293,9 +307,9 @@ def get_pdf_info(path):
         try:
             pdf = PdfFileReader(f)
             title = None
-            page_count = pdf.getNumPages()
+            page_count = getNumPages(pdf)
 
-            info = pdf.getDocumentInfo()
+            info = getDocumentInfo(pdf)
             if info:
                 title = info.title
                 if title in (None, '', 'Title', 'title'):
