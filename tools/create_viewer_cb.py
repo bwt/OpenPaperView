@@ -7,10 +7,24 @@ import re
 import configparser
 import warnings
 import collections
-# Fedora package : python3-PyPDF2
-from PyPDF2 import PdfFileReader
-from PyPDF2.utils import PdfReadError
 
+try:
+    # older versions of pypdf
+    # Fedora package : python3-PyPDF2
+    from PyPDF2 import PdfFileReader
+    from PyPDF2.utils import PdfReadError
+    def getNumPages(pdf: PdfFileReader) -> int:
+        return pdf.getNumPages()
+    def getDocumentInfo(pdf: PdfFileReader):
+        return pdf.getDocumentInfo()
+except ImportError:
+    # recent versions of pypdf
+    from pypdf import PdfReader as PdfFileReader
+    from pypdf.errors import PyPdfError as PdfReadError
+    def getNumPages(pdf: PdfFileReader) -> int:
+        return len(pdf.pages)
+    def getDocumentInfo(pdf: PdfFileReader):
+        return pdf.metadata
 
 class Document:
     def __init__(self, name):
@@ -76,9 +90,9 @@ def scan_doc_dir(dir_path):
         stat = f.stat()
         name = os.fsdecode(f.name)
         if name == 'labels':
-            # one label per line
-            # only the label, not the color
-            doc.labels = read_text(f.path).splitlines()
+            # one label per line, except empty lines
+            # lines are of the form "name,color"
+            doc.labels = [label for label in read_text(f.path).splitlines() if label]
         elif name == 'extra.txt':
             # optional title (firstline beginning with #)
             # and extra keywords
@@ -93,11 +107,11 @@ def scan_doc_dir(dir_path):
             doc.parts.append(name)
             doc.size = stat.st_size
             doc.page_count, doc.pdf_title = get_pdf_info(f.path)
-        elif m := re.fullmatch(r'paper\.(\d+)\.jpg', name):
+        elif m := re.fullmatch(r'paper\.(\d+)\.(jpg|png)', name):
             # original image
             doc.original_images[m.group(1)] = name
             doc.image_sizes[name] = stat.st_size
-        elif m := re.fullmatch(r'paper\.(\d+)\.edited\.jpg', name):
+        elif m := re.fullmatch(r'paper\.(\d+)\.edited\.(jpg|png)', name):
             # edited image
             doc.edited_images[m.group(1)] = name
             doc.image_sizes[name] = stat.st_size
@@ -129,7 +143,7 @@ def scan_doc_dir(dir_path):
         warn("missing_title", f"Missing title : '{dir_path}'")
 
     if not doc.parts:
-        raise Exception("No parts ???")
+        raise Exception(f"Document {dir_path} has no parts ???")
 
 
 def add_meta_data():
@@ -182,7 +196,10 @@ def define_index_level():
 
 def create_db():
     print(f"Saving in {result_db}")
-    os.remove(result_db)
+    try:
+        os.remove(result_db)
+    except FileNotFoundError:
+        pass
     con = sqlite3.connect(result_db)
     cur = con.cursor()
 
@@ -255,6 +272,9 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """, (idx, part))
 
             for label in doc.labels:
+                if "," not in label:
+                    warn("bad_label", f"unexpected label {label!r} for document {doc.name}")
+                    continue
                 label_name, label_color = label.split(',', 1)
                 cur.execute("""
         INSERT INTO Label(documentId, name, color) VALUES (?, ?, ?)
@@ -293,9 +313,9 @@ def get_pdf_info(path):
         try:
             pdf = PdfFileReader(f)
             title = None
-            page_count = pdf.getNumPages()
+            page_count = getNumPages(pdf)
 
-            info = pdf.getDocumentInfo()
+            info = getDocumentInfo(pdf)
             if info:
                 title = info.title
                 if title in (None, '', 'Title', 'title'):
