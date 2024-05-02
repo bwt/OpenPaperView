@@ -1,4 +1,5 @@
 OpenPaperview's purpose is to browse, search in, download and display or send OpenPaper.work documents.
 A static HTTPS server is required but the application is designed to be useable offline
 with configurable pre-download and local full-text search.
+See <a href="https://github.com/bwt/OpenPaperView?tab=readme-ov-file#openpaperview">full setup instructions</a>.
 

@@ -1,6 +1,4 @@
 
-# https://github.com/google/accompanist/releases
-
 [versions]
 agp = "8.4.0"
 kotlin = "1.9.23"

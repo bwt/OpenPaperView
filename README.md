@@ -60,7 +60,7 @@ and serve that database (and the actual scans) to the viewer over HTTPS.
 - Modifications on PDFs (done with Paperwork) are ignored. Only the original PDF is used.
 
 - The internal PDF viewer is quite crude, *e.g.* there is no re-rendering when the zoom level changes.
-  As a workaround a *Show in external app* button is provided.
+  You can alternatively visualize the pdf with an external app.
 
 
 ### Known bugs
@@ -268,9 +268,10 @@ more Base64 content
 ```
 
 You can optionaly add a certificate for a custom certification authority.
-This is used to authenticate the *server* and is only necessary if the server's certificate is not signed by a well known CA.
+This is used to authenticate the *server* and is only necessary if the server's certificate is not signed by a well known CA.<br>
 If provided, it will be the only CA trusted by the viewer.
-If not, the system's built-in CAs will be trusted, but not any CA the user may have imported.
+If not, Android's system (built-in) CAs will be trusted.<br>
+In any case Android's *user* CAs (i.e. manually imported on the device) are **not** trusted.
 
 
 ### Extension

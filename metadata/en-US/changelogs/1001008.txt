@@ -1,0 +1,2 @@
+png support added ( Thanks to symphorien )
+This requires the Python helper script to be updated

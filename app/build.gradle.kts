@@ -15,8 +15,8 @@ android {
         applicationId = "net.phbwt.paperwork"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1001007
-        versionName = "1.1.7"
+        versionCode = 1001008
+        versionName = "1.1.8"
 
         resourceConfigurations += arrayOf("en", "fr")
 
