@@ -2,11 +2,11 @@
 # https://github.com/google/accompanist/releases
 
 [versions]
-agp = "8.3.2"
+agp = "8.4.0"
 kotlin = "1.9.23"
 
 # https://github.com/google/ksp/releases
-ksp = "1.9.23-1.0.19"
+ksp = "1.9.23-1.0.20"
 
 #https://github.com/google/dagger/releases
 dagger = "2.51.1"
@@ -19,10 +19,10 @@ hilt = "1.2.0"
 kotlinxImmutable = "0.3.7"
 
 # https://developer.android.com/jetpack/androidx/versions
-activityCompose = "1.8.2"
-core = "1.12.0"
+activityCompose = "1.9.0"
+core = "1.13.1"
 coreSplashscreen = "1.0.1"
-datastorePreference = "1.0.0"
+datastorePreference = "1.1.1"
 
 # https://developer.android.com/jetpack/androidx/releases/lifecycle#kts
 lifecycle = "2.7.0"
@@ -46,9 +46,9 @@ okhttpBom = "4.12.0"
 gildorCoroutinesOkhttp = "1.0"
 
 # https://developer.android.com/jetpack/compose/bom/bom-mapping
-composeBom = "2024.04.01"
+composeBom = "2024.05.00"
 # https://developer.android.com/jetpack/androidx/releases/compose-kotlin#pre-release_kotlin_compatibility
-composeCompiler = "1.5.11"
+composeCompiler = "1.5.13"
 # https://github.com/google/accompanist/releases
 accompanist = "0.34.0"
 # https://github.com/raamcosta/compose-destinations/releases
