@@ -32,6 +32,7 @@
 
     <string name="doclist_local_pdf_toast">Les PDF doivent être téléchargés</string>
     <string name="doclist_local_pdf_action">Télécharger</string>
+    <string name="doclist_unknown_document_type">Type de document inconnu</string>
 
     <string name="pages_page_1">Page %1$d</string>
 

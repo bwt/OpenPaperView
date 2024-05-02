@@ -32,6 +32,7 @@
 
     <string name="doclist_local_pdf_toast">PDF must be downloaded first</string>
     <string name="doclist_local_pdf_action">Download</string>
+    <string name="doclist_unknown_document_type">Unknown document type</string>
 
     <string name="pages_page_1">Page %1$d</string>
 

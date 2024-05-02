@@ -39,11 +39,11 @@ data class Part(
     val isFailed get() = downloadStatus == DNL_ERROR
 
     val isIn get() = downloadStatus != DNL_NONE && downloadStatus != DNL_DONE
+
+    val isPdfPart: Boolean get() = name.endsWith(".pdf")
+
+    val isImagePart: Boolean get() = IMAGE_EXTENSIONS.contains(name.substringAfterLast('.'))
 }
-
-val String.isPdfPart: Boolean get() = this.endsWith(".pdf")
-
-val String.isImagePart: Boolean get() = this.endsWith(".jpg")
 
 const val DNL_NONE = 100
 const val DNL_QUEUED = 1
@@ -51,4 +51,4 @@ const val DNL_DOWNLOADING = 2
 const val DNL_DONE = 3
 const val DNL_ERROR = 4
 
-
+private val IMAGE_EXTENSIONS = listOf("png", "jpg")

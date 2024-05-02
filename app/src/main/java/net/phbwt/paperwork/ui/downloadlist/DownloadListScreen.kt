@@ -96,7 +96,7 @@ fun DownloadListScreen(
         onPartRestart = { scope.launch { vm.restart(it) } },
         onDocumentDelete = { scope.launch { vm.clear(it) } },
         onDocClicked = { doc ->
-            if (doc.downloadStatus == DownloadState.LOCAL || doc.isImagesDoc) {
+            if (doc.canBeViewed) {
                 navigator.navigate(PageListScreenDestination(doc.document.documentId))
             }
         },

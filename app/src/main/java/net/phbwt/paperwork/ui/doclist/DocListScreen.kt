@@ -140,6 +140,7 @@ fun DocListScreen(
 
     val pdfToast = stringResource(id = R.string.doclist_local_pdf_toast)
     val pdfAction = stringResource(id = R.string.doclist_local_pdf_action)
+    val unknownDocType = stringResource(id = R.string.doclist_unknown_document_type)
 
     DocListContent(
         search,
@@ -148,18 +149,32 @@ fun DocListScreen(
         labelTypes,
         onSearchChange = { vm.updateSearch(it) },
         onDocClicked = { doc ->
-            if (doc.downloadStatus == DownloadState.LOCAL || doc.isImagesDoc) {
-                navigator.navigate(PageListScreenDestination(doc.document.documentId))
-            } else {
-                // only local PDF can be shown
-                scope.launch {
-                    val r = snackbarHostState.showSnackbar(
-                        pdfToast, pdfAction,
-                        withDismissAction = true,
-                        duration = SnackbarDuration.Short,
-                    )
-                    if (r == SnackbarResult.ActionPerformed) {
-                        vm.queueDownload(doc.document.documentId)
+            when {
+                doc.canBeViewed -> {
+                    navigator.navigate(PageListScreenDestination(doc.document.documentId))
+                }
+
+                doc.isPdfDoc -> {
+                    // only local PDF can be shown
+                    scope.launch {
+                        val r = snackbarHostState.showSnackbar(
+                            pdfToast, pdfAction,
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Short,
+                        )
+                        if (r == SnackbarResult.ActionPerformed) {
+                            vm.queueDownload(doc.document.documentId)
+                        }
+                    }
+                }
+
+                else -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            unknownDocType,
+                            withDismissAction = true,
+                            duration = SnackbarDuration.Short,
+                        )
                     }
                 }
             }
@@ -240,9 +255,9 @@ fun Filters(
         if (search.length >= 2) {
             val filter = search.asFilter()
             labelTypes.filter { it.normalizedName.contains(filter) }
-                // workaround an annoying bug since material3 1.2.0 :
-                // the dropdown menu is moved up and overlap the textfield
-                // when the IME is open
+            // workaround an annoying bug since material3 1.2.0 :
+            // the dropdown menu is moved up and overlap the textfield
+            // when the IME is open
                 .take(4)
         } else {
             listOf()
@@ -513,7 +528,7 @@ fun DocRow(
                     when {
                         doc.isPdfDoc -> icons.PictureAsPdf
                         doc.isImagesDoc -> icons.Image
-                        else -> icons.QuestionAnswer
+                        else -> icons.Error
                     },
                     contentDescription = null,
                 )

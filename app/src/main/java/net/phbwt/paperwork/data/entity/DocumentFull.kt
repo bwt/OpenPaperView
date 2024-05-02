@@ -32,9 +32,16 @@ data class DocumentFull(
 
     fun partPath(part: Part) = part.path(docPath)
 
-    val isPdfDoc get() = parts.size == 1 && parts.first().name.isPdfPart
+    val isPdfDoc get() = parts.size == 1 && parts.first().isPdfPart
 
-    val isImagesDoc get() = parts.isNotEmpty() && parts.first().name.isImagePart
+    val isImagesDoc get() = parts.isNotEmpty() && parts.first().isImagePart
+
+    val canBeViewed
+        get() = when {
+            isImagesDoc -> true
+            isPdfDoc && downloadStatus == DownloadState.LOCAL -> true
+            else -> false
+        }
 
     val downloadStatus
         get() = when {
@@ -47,3 +54,4 @@ data class DocumentFull(
 }
 
 enum class DownloadState { LOCAL, FAILED, QUEUED, IN_PROGRESS, DOWNLOADABLE }
+
