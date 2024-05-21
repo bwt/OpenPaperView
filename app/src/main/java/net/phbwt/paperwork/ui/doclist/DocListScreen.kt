@@ -222,6 +222,7 @@ fun DocListContent(
     onNavigationIcon,
     Dest.DocList.labelRes,
     topLevel = true,
+    collapsingTop = true,
 ) { modifier ->
     Column(
         modifier = modifier,
@@ -255,9 +256,9 @@ fun Filters(
         if (search.length >= 2) {
             val filter = search.asFilter()
             labelTypes.filter { it.normalizedName.contains(filter) }
-            // workaround an annoying bug since material3 1.2.0 :
-            // the dropdown menu is moved up and overlap the textfield
-            // when the IME is open
+                // workaround an annoying bug since material3 1.2.0 :
+                // the dropdown menu is moved up and overlap the textfield
+                // when the IME is open
                 .take(4)
         } else {
             listOf()
@@ -268,7 +269,7 @@ fun Filters(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = Modifier.padding(horizontal = 5.dp),
+        modifier = Modifier.padding(start = 5.dp, end = 5.dp, top = 5.dp),
     ) {
 
         // filter textfield
