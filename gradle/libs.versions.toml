@@ -1,10 +1,10 @@
 
 [versions]
 agp = "8.4.0"
-kotlin = "1.9.23"
+kotlin = "2.0.0"
 
 # https://github.com/google/ksp/releases
-ksp = "1.9.23-1.0.20"
+ksp = "2.0.0-1.0.22"
 
 #https://github.com/google/dagger/releases
 dagger = "2.51.1"
@@ -45,8 +45,6 @@ gildorCoroutinesOkhttp = "1.0"
 
 # https://developer.android.com/jetpack/compose/bom/bom-mapping
 composeBom = "2024.05.00"
-# https://developer.android.com/jetpack/androidx/releases/compose-kotlin#pre-release_kotlin_compatibility
-composeCompiler = "1.5.13"
 # https://github.com/google/accompanist/releases
 accompanist = "0.34.0"
 # https://github.com/raamcosta/compose-destinations/releases
@@ -126,3 +124,4 @@ jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "k
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref = "kotlin"  }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

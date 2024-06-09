@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.parcelize)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -61,17 +62,12 @@ android {
     }
 
     buildFeatures {
-        compose = true
         buildConfig = true
     }
 
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
         arg("room.generateKotlin", "true")
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
 
     packaging {
