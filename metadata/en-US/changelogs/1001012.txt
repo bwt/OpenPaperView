@@ -1,0 +1,2 @@
+collapsible appbar (saves some space in the documents screen)
+
