@@ -44,6 +44,7 @@ jobs:
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
+        queries: +security-extended
         build-mode: ${{ matrix.build-mode }}
 
     - name: Build
