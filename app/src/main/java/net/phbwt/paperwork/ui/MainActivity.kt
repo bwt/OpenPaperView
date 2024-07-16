@@ -13,8 +13,8 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import net.phbwt.paperwork.ui.main.MainScreen
 import net.phbwt.paperwork.ui.theme.AppTheme
-import net.phbwt.paperwork.ui.theme.DarkColors
-import net.phbwt.paperwork.ui.theme.LightColors
+import net.phbwt.paperwork.ui.theme.darkScheme
+import net.phbwt.paperwork.ui.theme.lightScheme
 
 
 @AndroidEntryPoint
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val isDark = isSystemInDarkTheme()
             ChangeSystemBarsTheme(isDark)
-            AppTheme(isDark) {
+            AppTheme(isDark, false) {
                 MainScreen()
             }
         }
@@ -35,12 +35,13 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     private fun ChangeSystemBarsTheme(isDark: Boolean) {
+
         LaunchedEffect(isDark) {
-            val statusbarDark = DarkColors.primaryContainer.toArgb()
-            val statusbarLight = LightColors.primaryContainer.toArgb()
+            val statusbarDark = darkScheme.primaryContainer.toArgb()
+            val statusbarLight = lightScheme.primaryContainer.toArgb()
             // ignored on 29+
-            val navbarLight = LightColors.primaryContainer.copy(alpha = .6f).toArgb()
-            val navbarDark = DarkColors.primaryContainer.copy(alpha = .6f).toArgb()
+            val navbarLight = lightScheme.primaryContainer.copy(alpha = .6f).toArgb()
+            val navbarDark = darkScheme.primaryContainer.copy(alpha = .6f).toArgb()
             if (isDark) {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.dark(statusbarDark),
