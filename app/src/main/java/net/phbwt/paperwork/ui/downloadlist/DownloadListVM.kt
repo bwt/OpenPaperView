@@ -28,10 +28,13 @@ class DownloadListVM @Inject constructor(
 
     val navArgs = DownloadListScreenDestination.argsFrom(savedStateHandle)
 
+    private val enterAnimDone = savedStateHandle.getStateFlow(ENTER_ANIM_DONE, false)
+
     fun screenData() = combine(
         repo.db.docDao().withDownloads(),
         repo.db.downloadDao().stats(),
-    ) { d, s -> DownloadListData(d.toComposeImmutable(), s) }
+        enterAnimDone,
+    ) { d, s, e -> DownloadListData(d.toComposeImmutable(), s, e) }
 
     suspend fun restart(part: Part) {
         repo.db.downloadDao().restartPart(part.partId)
@@ -42,9 +45,16 @@ class DownloadListVM @Inject constructor(
         repo.db.downloadDao().setDocumentCleared(doc.document.documentId)
         File(settings.localPartsDir, doc.docPath).deleteRecursively()
     }
+
+    fun setEnterFlashDone() {
+        savedStateHandle[ENTER_ANIM_DONE] = true
+    }
 }
+
+private const val ENTER_ANIM_DONE = "enter_anim_done"
 
 data class DownloadListData(
     val downloads: List<DocumentFull> = listOf(),
     val stats: DownloadStats? = null,
+    val enterFlashDone: Boolean = false,
 )

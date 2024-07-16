@@ -3,7 +3,13 @@ package net.phbwt.paperwork.ui.downloadlist
 import android.text.format.Formatter
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationConstants
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -68,7 +75,9 @@ import net.phbwt.paperwork.ui.doclist.makeFakeDocuments
 import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.main.Dest
 import net.phbwt.paperwork.ui.main.WrappedScaffold
+import net.phbwt.paperwork.ui.main.transitionDuration
 import net.phbwt.paperwork.ui.theme.AppTheme
+import kotlin.math.max
 
 
 data class DownloadListScreenArgs(
@@ -100,6 +109,7 @@ fun DownloadListScreen(
                 navigator.navigate(PageListScreenDestination(doc.document.documentId))
             }
         },
+        onFlashFinished = { vm.setEnterFlashDone() },
         snackbarHostState,
         onNavigationIcon,
     )
@@ -112,6 +122,7 @@ fun DownloadListContent(
     onPartRestart: (Part) -> Unit = {},
     onDocumentDelete: (DocumentFull) -> Unit = { },
     onDocClicked: (DocumentFull) -> Unit = {},
+    onFlashFinished: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onNavigationIcon: (Boolean) -> Unit = {},
 ) = WrappedScaffold(
@@ -126,9 +137,11 @@ fun DownloadListContent(
         DownloadRows(
             data.downloads,
             navArgs.documentId,
+            data.enterFlashDone,
             onPartRestart,
             onDocumentDelete,
             onDocClicked,
+            onFlashFinished,
             modifier = Modifier.weight(1f),
         )
         DownloadStatsRow(
@@ -173,9 +186,11 @@ fun DownloadStatsRow(
 fun DownloadRows(
     docs: List<DocumentFull>,
     documentId: Int?,
+    enterFlashDone: Boolean,
     onPartRestart: (Part) -> Unit,
     onDocumentDelete: (DocumentFull) -> Unit,
     onDocClicked: (DocumentFull) -> Unit,
+    onFlashFinished: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -184,12 +199,38 @@ fun DownloadRows(
     var scrollDone by remember { mutableStateOf(false) }
 
     LaunchedEffect(documentIndex) {
-        if (documentIndex >= 0 && !scrollDone) {
+        if (!enterFlashDone && documentIndex >= 0 && !scrollDone) {
             Log.d(TAG, "Scrolling to $documentIndex")
-            listState.scrollToItem(documentIndex)
+            listState.scrollToItem(max(0, documentIndex - 1))
             scrollDone = true
         }
     }
+
+    // flash animation on the selected item when entering
+    val normal = MaterialTheme.colorScheme.background
+    val highlight = MaterialTheme.colorScheme.secondaryContainer
+    val duration = AnimationConstants.DefaultDurationMillis * 3 / 2
+
+    val flashingBackground by animateColorAsState(
+        // When using transparent : animation with an intermediate gray color
+        if (!scrollDone) highlight else normal,
+        animationSpec = keyframes {
+            durationMillis = duration
+            delayMillis = transitionDuration / 4
+            // override the start color
+            normal at 0 using LinearOutSlowInEasing
+            highlight at duration / 2 using FastOutLinearInEasing
+            normal at duration
+        },
+        label = "color_flash"
+    ) {
+        onFlashFinished()
+    }
+
+    val flashingModifier = Modifier.drawBehind { drawRect(flashingBackground) }
+
+    // When not setting background on not animated items : glitch with the top divider when the animation ends
+    val notFlashingModifier = Modifier.background(MaterialTheme.colorScheme.background)
 
     LazyColumn(
         state = listState,
@@ -199,22 +240,31 @@ fun DownloadRows(
 
         docs.forEach { doc ->
 
-            item(key = -doc.document.documentId, contentType = "header") {
-                HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.onBackground)
-                DownloadHeader(doc, Modifier.animateItemPlacement(), onDocumentDelete, onDocClicked)
+            val isSelected = doc.document.documentId == documentId
+            val isFlashing = isSelected && !enterFlashDone
+
+            if (isSelected) {
+                documentIndex = currentIndex
             }
 
-            if (doc.document.documentId == documentId) {
-                documentIndex = currentIndex
+            // will add the scoped part later
+            val baseModifier = if (isFlashing) flashingModifier else notFlashingModifier
+
+            // main item for the document infos
+            item(key = -doc.document.documentId, contentType = "header") {
+                HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.onBackground)
+                DownloadHeader(doc, baseModifier.animateItemPlacement(), onDocumentDelete, onDocClicked)
             }
             currentIndex++
 
+            // optional items for each part not yet downloaded
             doc.parts.filter { it.isIn }.forEach { part ->
                 item(key = part.partId, contentType = "part") {
+
                     DownloadRow(
                         part,
                         onPartRestart,
-                        Modifier.animateItemPlacement(),
+                        baseModifier.animateItemPlacement(),
                     )
                 }
                 currentIndex++
