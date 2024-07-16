@@ -5,8 +5,21 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- pulled in by work manager, but we don't need jobs when the application is not started -->
-    <uses-permission tools:node="remove" android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Pulled in by work manager,
+     but we don't need jobs when the application is not started -->
+    <uses-permission
+        android:name="android.permission.RECEIVE_BOOT_COMPLETED"
+        tools:node="remove" />
+
+    <!-- Pulled in by androidx.core to emulate RECEIVER_NOT_EXPORTED on older devices,
+     but we don't register dynamic receiver -->
+    <uses-permission
+        android:name="${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        tools:node="remove" />
+    <permission
+        android:name="net.phbwt.paperwork.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        tools:node="remove" />
 
     <application
         android:name=".OpenPaperViewApplication"
