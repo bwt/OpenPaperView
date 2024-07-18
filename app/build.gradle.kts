@@ -103,8 +103,9 @@ dependencies {
     implementation(libs.compose.material.icons.extended)
 
     // navigation
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.hilt.navigation.compose)
+    // Provided by Compose Destinations
+    // implementation(libs.androidx.navigation.compose)
 
     // Coil
     implementation(libs.coil.compose)
