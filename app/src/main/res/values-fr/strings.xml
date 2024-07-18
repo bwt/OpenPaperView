@@ -52,7 +52,7 @@
     </plurals>
     <string name="settings_clientPem_label">Certificat et clé privée du client</string>
     <string name="settings_clientPem_hint">Texte encodé en PEM contenant un certificat et une clé privée.
-Optionnel, mais fortemement recommandé</string>
+Optionnel, mais fortement recommandé</string>
     <string name="settings_serverCa_label">Certificat racine</string>
     <string name="settings_serverCa_hint">Texte encodé en PEM contenant un certificat.
 Le serveur doit fournir une chaîne de certificat remontant à ce certificat.

@@ -13,7 +13,7 @@ Or download the latest APK from the [Releases Section](https://github.com/bwt/Op
 
 -----
 
-Disclaimer 1 : This Android application only work with OpenPaper.work. It also requires a lot of setup.
+Disclaimer 1 : This Android application only works with OpenPaper.work. It also requires a lot of setup.
 If you don't want to spend hours preparing a server (only to be disappointed because the application is not what you expected)
 you can use the demo mode of the application (and be disappointed right away)
 
@@ -85,6 +85,8 @@ This is probably the easiest part. You need to locate :
 
 The `tools/create_viewer_cb.py` script must be executed periodically.
 It scans the papers directory, adds the OCRed text from the Paperwork database and create an SQLite database.
+It would be nice to be able to integrate it into OpenPaper.work.
+If you have the required skills, please help with [this feature request](https://gitlab.gnome.org/World/OpenPaperwork/paperwork/-/issues/1062)
 
 The only dependency I remember is PyPDF2 1.x (Fedora package `python3-PyPDF2`)
 
