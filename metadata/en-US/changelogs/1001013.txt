@@ -1,0 +1,3 @@
+- One less permission
+- A few cosmetic changes
+
