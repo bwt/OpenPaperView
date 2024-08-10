@@ -7,6 +7,7 @@ import re
 import configparser
 import warnings
 import collections
+import dataclasses
 
 try:
     # older versions of pypdf
@@ -26,39 +27,39 @@ except ImportError:
     def getDocumentInfo(pdf: PdfFileReader):
         return pdf.metadata
 
+@dataclasses.dataclass
 class Document:
-    def __init__(self, name):
-        self.name = name
-        self.title = None
-        self.pdf_title = None
-        self.thumb = None
-        self.parts = []
-        self.original_images = {}
-        self.edited_images = {}
-        self.image_sizes = {}
-        self.labels = []
-        self.date = 0
-        self.mtime = 0
-        self.page_count = 0
-        self.size = 0
-        self.text = ""
-        self.extra_keywords = None
-        self.original_extra = None
-        self.index_level = 999
+    name: str
+    title: str | None = None
+    pdf_title: str | None = None
+    thumb: str | None = None
+    parts: list[str] = dataclasses.field(default_factory=list)
+    original_images: dict[str, str] = dataclasses.field(default_factory=dict)
+    edited_images: dict[str, str] = dataclasses.field(default_factory=dict)
+    image_sizes: dict[str, int] = dataclasses.field(default_factory=dict)
+    labels: list[str] = dataclasses.field(default_factory=list)
+    date: int = 0
+    mtime: int = 0
+    page_count: int = 0
+    size: int = 0
+    text: str = ""
+    extra_keywords: str | None = None
+    original_extra: str | None  = None
+    index_level: int = 999
 
 
 # documents by id
 # the id being the directory name
 # and documents.doc_id in paperwork's doc_tracking.db
-documents = dict()
+documents: dict[str, Document] = dict()
 
 
-def warn(code, message):
+def warn(code: str, message: str)-> None:
     if config.getboolean('warnings', code):
         print(message)
 
 
-def scan_data_dir():
+def scan_data_dir() -> None:
     # Add all documents
     print(f"Scanning {data_base_dir}")
     for d in os.scandir(data_base_dir):
@@ -67,7 +68,7 @@ def scan_data_dir():
     print(f'Found {len(documents)} documents')
 
 
-def scan_doc_dir(dir_path):
+def scan_doc_dir(dir_path: str) -> None:
     # Add a document from the files in this directory
 
     doc_id = os.path.split(dir_path)[-1]
@@ -75,7 +76,11 @@ def scan_doc_dir(dir_path):
     documents[doc_id] = doc
 
     # extract the datetime from the dir name
-    date_str = re.fullmatch(r'(\d{8}_\d{4})(?:_.*)?', doc_id).group(1)
+    m = re.fullmatch(r'(\d{8}_\d{4})(?:_.*)?', doc_id)
+    if m is None:
+        warn("unexpected_directory", doc_id)
+        return
+    date_str = m.group(1)
     date_tuple = time.strptime(date_str, '%Y%m%d_%H%M')
     date_epoch = time.mktime(date_tuple)
     date_ms = int(date_epoch * 1000)
@@ -306,7 +311,7 @@ INSERT INTO DocumentFts(rowid, main, additional) VALUES (?, ?, ?)
     con.close()
 
 
-def get_pdf_info(path):
+def get_pdf_info(path: str) -> tuple[int, str | None]:
     # Count page number, 0 if error
 
     with open(path, 'rb') as f:
@@ -329,14 +334,14 @@ def get_pdf_info(path):
             return 0, None
 
 
-def read_text(path):
+def read_text(path: str) -> str:
     # Read file as text
 
     with open(path) as file:
         return file.read()
 
 
-def clean_text(txt):
+def clean_text(txt: str) -> str:
    # remove repeated chars (like ...., ----)
    txt = re.sub(r"(.)\1{4,99999}", " ", txt).strip()
     # compact spaces
