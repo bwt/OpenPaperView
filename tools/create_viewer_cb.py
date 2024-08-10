@@ -34,8 +34,8 @@ class Document:
     pdf_title: str | None = None
     thumb: str | None = None
     parts: list[str] = dataclasses.field(default_factory=list)
-    original_images: dict[str, str] = dataclasses.field(default_factory=dict)
-    edited_images: dict[str, str] = dataclasses.field(default_factory=dict)
+    original_images: dict[int, str] = dataclasses.field(default_factory=dict)
+    edited_images: dict[int, str] = dataclasses.field(default_factory=dict)
     image_sizes: dict[str, int] = dataclasses.field(default_factory=dict)
     labels: list[str] = dataclasses.field(default_factory=list)
     date: int = 0
@@ -86,7 +86,8 @@ def scan_doc_dir(dir_path: str) -> None:
     date_ms = int(date_epoch * 1000)
     doc.date = date_ms
 
-    thumbs = []
+    # index -> filename
+    thumbs: list[tuple[int, str]] = []
 
     for f in os.scandir(dir_path):
         if not f.is_file():
@@ -114,15 +115,15 @@ def scan_doc_dir(dir_path: str) -> None:
             doc.page_count, doc.pdf_title = get_pdf_info(f.path)
         elif m := re.fullmatch(r'paper\.(\d+)\.(jpg|png)', name):
             # original image
-            doc.original_images[m.group(1)] = name
+            doc.original_images[int(m.group(1))] = name
             doc.image_sizes[name] = stat.st_size
         elif m := re.fullmatch(r'paper\.(\d+)\.edited\.(jpg|png)', name):
             # edited image
-            doc.edited_images[m.group(1)] = name
+            doc.edited_images[int(m.group(1))] = name
             doc.image_sizes[name] = stat.st_size
-        elif re.fullmatch(r'paper\.\d+\.thumb\.jpg', name):
+        elif m:= re.fullmatch(r'paper\.(\d+)\.thumb\.jpg', name):
             # thumbnail, only one ?
-            thumbs.append(name)
+            thumbs.append((int(m.group(1)), name))
         elif re.fullmatch(r'paper\.\d+\.words', name):
             pass
         else:
@@ -137,12 +138,12 @@ def scan_doc_dir(dir_path: str) -> None:
             warn("pdf_with_edited_images", f"Ignoring {len(doc.edited_images)} edited images for PDF '{dir_path}'")
     else:
         # Images, take the edited one
-        doc.parts.extend((doc.original_images | doc.edited_images).values())
+        doc.parts.extend((name for index, name in sorted((doc.original_images | doc.edited_images).items())))
         doc.size = sum([doc.image_sizes[i] for i in doc.parts])
         doc.page_count = len(doc.parts)
 
     if thumbs:
-        doc.thumb = sorted(thumbs)[0]
+        doc.thumb = sorted(thumbs)[0][1]
 
     if not doc.title:
         warn("missing_title", f"Missing title : '{dir_path}'")
