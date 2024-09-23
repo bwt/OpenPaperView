@@ -227,7 +227,7 @@ CREATE TABLE Part (
   name TEXT NOT NULL,
   downloadStatus INTEGER NOT NULL DEFAULT 100,
   downloadError TEXT NULL,
-  CONSTRAINT fkDocument FOREIGN KEY (documentId) REFERENCES Document(documentId)
+  CONSTRAINT fkDocument FOREIGN KEY (documentId) REFERENCES Document(documentId) ON DELETE CASCADE
 );
 CREATE INDEX Part_documentId on Part(documentId);
 CREATE INDEX Part_downloadStatus on Part(downloadStatus);
@@ -237,7 +237,7 @@ CREATE TABLE Label (
   documentId INTEGER NOT NULL,
   name TEXT NOT NULL,
   color TEXT,
-  CONSTRAINT fkDocument FOREIGN KEY (documentId) REFERENCES Document(documentId)
+  CONSTRAINT fkDocument FOREIGN KEY (documentId) REFERENCES Document(documentId) ON DELETE CASCADE
 );
 CREATE INDEX Label_documentId on Label(documentId);
 CREATE INDEX Label_name on Label(name);
@@ -246,7 +246,7 @@ CREATE TABLE DocumentText (
   documentId INTEGER NOT NULL PRIMARY KEY,
   main TEXT NOT NULL,
   additional TEXT NULL,
-  CONSTRAINT fkDocument FOREIGN KEY (documentId) REFERENCES Document(documentId)
+  CONSTRAINT fkDocument FOREIGN KEY (documentId) REFERENCES Document(documentId) ON DELETE CASCADE
 );
 
 CREATE VIRTUAL TABLE DocumentFts USING FTS4(

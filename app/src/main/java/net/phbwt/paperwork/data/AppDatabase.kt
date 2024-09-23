@@ -8,7 +8,7 @@ import net.phbwt.paperwork.data.dao.LabelDao
 import net.phbwt.paperwork.data.entity.*
 
 @Database(
-    version = 1,
+    version = 2,
     entities = [
         Document::class,
         Part::class,
