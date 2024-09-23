@@ -220,6 +220,7 @@ CREATE TABLE Document (
   mtime INTEGER NOT NULL,
   size INTEGER NOT NULL
 );
+CREATE INDEX IF NOT EXISTS Document_date on Document(date);
 
 CREATE TABLE Part (
   partId INTEGER NOT NULL PRIMARY KEY,

@@ -71,7 +71,7 @@ select ${selects.joinToString(", ")}
 from Document d
 ${joins.joinToString("\n")}
 ${if (wheres.isNotEmpty()) wheres.joinToString(" and ", " where ") else ""}
-order by d.documentId
+order by d.date DESC
 limit 150
 """
 
