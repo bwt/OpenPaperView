@@ -38,7 +38,7 @@
 
     <string name="settings_baseUrl_label">URL de base</string>
     <string name="settings_baseUrl_hint">Une URL HTTPS (sans /papers/)</string>
-    <string name="settings_autoDownloadLabels_label">Étiquettes téléchargées automatiquement</string>
+    <string name="settings_autoDownloadLabels_label">Étiquettes téléchargées automatiquement ("*" pour toutes)</string>
     <string name="settings_autoDownloadLabels_hint">Séparées par des ,</string>
     <plurals name="settings_auto_dowload_count">
         <item quantity="one">%d document correspond</item>

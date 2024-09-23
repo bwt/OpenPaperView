@@ -111,8 +111,19 @@ and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
 
     suspend fun queueAutoDownloads(labels: List<String>): Int = when {
         labels.isEmpty() -> 0
+        (labels[0] == "*") -> queueAutoDownloadsAllImpl()
         else -> queueAutoDownloadsImpl(labels)
     }
+
+    @Query(
+        """
+update Part
+set downloadStatus = $DNL_QUEUED
+, downloadError = null
+where downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
+"""
+    )
+    suspend fun queueAutoDownloadsAllImpl(): Int
 
     @Query(
         """
