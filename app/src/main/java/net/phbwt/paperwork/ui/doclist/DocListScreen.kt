@@ -43,7 +43,6 @@ import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.Flip
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.PictureAsPdf
-import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.Visibility
@@ -56,6 +55,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -71,6 +71,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -258,10 +259,6 @@ fun Filters(
         if (search.length >= 2) {
             val filter = search.asFilter()
             labelTypes.filter { it.normalizedName.contains(filter) }
-                // workaround an annoying bug since material3 1.2.0 :
-                // the dropdown menu is moved up and overlap the textfield
-                // when the IME is open
-                .take(4)
         } else {
             listOf()
         }
@@ -280,7 +277,7 @@ fun Filters(
             onValueChange = onSearchChange,
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(),
+                .menuAnchor(MenuAnchorType.PrimaryEditable),
             trailingIcon = {
                 TrailingClose(visible = search.isNotEmpty()) {
                     onSearchChange("")
@@ -361,7 +358,9 @@ fun DocRows(
     val colors = MaterialTheme.colorScheme
 
     LazyColumn(
-        modifier = Modifier.padding(top = 5.dp),
+        modifier = Modifier
+            .padding(top = 5.dp)
+            .clipToBounds(),
     ) {
 
         rows.forEach { row ->
@@ -394,7 +393,7 @@ fun DocRows(
                         DocRow(
                             row,
                             onDocClicked, onLabelClicked, onDownloadClicked, onShowClicked, onShareClicked,
-                            Modifier.animateItemPlacement(),
+                            Modifier.animateItem(),
                         )
                     }
                 }

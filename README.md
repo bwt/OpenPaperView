@@ -63,12 +63,6 @@ and serve that database (and the actual scans) to the viewer over HTTPS.
   You can alternatively visualize the pdf with an external app.
 
 
-### Known bugs
-
-- Since material design 3 v 1.2.0, the label autocompletion menu is sometimes annoyingly positioned over the text field.
-  You just have to select an option or continue to type.
-
-
 ### Installation
 
 

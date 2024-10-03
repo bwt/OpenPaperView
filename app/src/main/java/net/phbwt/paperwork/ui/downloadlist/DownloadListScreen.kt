@@ -253,7 +253,7 @@ fun DownloadRows(
             // main item for the document infos
             item(key = -doc.document.documentId, contentType = "header") {
                 HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.onBackground)
-                DownloadHeader(doc, baseModifier.animateItemPlacement(), onDocumentDelete, onDocClicked)
+                DownloadHeader(doc, baseModifier.animateItem(), onDocumentDelete, onDocClicked)
             }
             currentIndex++
 
@@ -264,7 +264,7 @@ fun DownloadRows(
                     DownloadRow(
                         part,
                         onPartRestart,
-                        baseModifier.animateItemPlacement(),
+                        baseModifier.animateItem(),
                     )
                 }
                 currentIndex++

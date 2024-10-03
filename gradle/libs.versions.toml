@@ -1,23 +1,23 @@
 
 [versions]
-agp = "8.5.1"
-kotlin = "2.0.0"
+agp = "8.7.1"
+kotlin = "2.0.21"
 
 # https://github.com/google/ksp/releases
-ksp = "2.0.0-1.0.23"
+ksp = "2.0.21-1.0.25"
 
 #https://github.com/google/dagger/releases
-dagger = "2.51.1"
+dagger = "2.52"
 
 # https://developer.android.com/jetpack/androidx/releases/hilt
 hilt = "1.2.0"
 
 # kotlinx
 # https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/CHANGELOG.md
-kotlinxImmutable = "0.3.7"
+kotlinxImmutable = "0.3.8"
 
 # https://developer.android.com/jetpack/androidx/versions
-activityCompose = "1.9.0"
+activityCompose = "1.9.3"
 core = "1.13.1"
 coreSplashscreen = "1.0.1"
 datastorePreference = "1.1.1"
@@ -25,13 +25,14 @@ datastorePreference = "1.1.1"
 # https://developer.android.com/jetpack/androidx/releases/lifecycle#kts
 # see https://stackoverflow.com/a/78490417/1283554
 # and https://issuetracker.google.com/issues/336842920#comment8
-lifecycle = "2.7.0"
+lifecycle = "2.8.6"
 
 # https://developer.android.com/jetpack/androidx/releases/navigation
 navigation = "2.7.7"
 
 # Workmanager
-workmanager = "2.9.0"
+# https://developer.android.com/jetpack/androidx/releases/work
+workmanager = "2.9.1"
 
 # https://developer.android.com/jetpack/androidx/releases/room
 room = "2.6.1"
@@ -46,11 +47,11 @@ okhttpBom = "4.12.0"
 gildorCoroutinesOkhttp = "1.0"
 
 # https://developer.android.com/jetpack/compose/bom/bom-mapping
-composeBom = "2024.06.00"
+composeBom = "2024.10.00"
 # https://github.com/google/accompanist/releases
 accompanist = "0.34.0"
 # https://github.com/raamcosta/compose-destinations/releases
-composeDestinations = "1.10.2"
+composeDestinations = "1.11.7"
 
 junit = "4.13.2"
 junitVersion = "1.2.1"

@@ -56,12 +56,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
-import com.ramcosta.composedestinations.navigation.navigate
 import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.DbUpdateStatus
@@ -101,6 +100,7 @@ fun MainContent(
     setDemoServer: suspend () -> Unit,
 ) {
     val navController = rememberNavController()
+    val destinationNav = navController.rememberDestinationsNavigator()
     val snackbarHostState = remember { SnackbarHostState() }
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -195,9 +195,9 @@ fun MainContent(
                         onClick = {
                             scope.launch { drawerState.close() }
 
-                            navController.navigate(dest.topDirection) {
+                            destinationNav.navigate(dest.topDirection) {
 
-                                popUpTo(navController.graph.findStartDestination().id) {
+                                popUpTo(Dest.DocList.destination) {
                                     // XXX : if true and restoreState is false, the VM are kept
                                     // but not reused (possibly with coroutines in the viewModelScope)
                                     saveState = false
@@ -318,7 +318,7 @@ fun WrappedScaffold(
     onNavigationIcon: (Boolean) -> Unit,
     titleRes: Int,
     topLevel: Boolean,
-    collapsingTop : Boolean = false,
+    collapsingTop: Boolean = false,
     modifier: Modifier = Modifier,
     wrappedContent: @Composable (modifier: Modifier) -> Unit,
 ) {

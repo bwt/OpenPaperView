@@ -101,7 +101,7 @@ fun SettingsCheckContent(
                     items[idx],
                     modifier = Modifier
                         .fillMaxWidth()
-                        .animateItemPlacement(),
+                        .animateItem(),
                 )
             }
         }

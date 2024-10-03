@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -29,12 +28,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.UrlAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -206,13 +205,11 @@ fun LinkedText(
     str: AnnotatedString,
     modifier: Modifier = Modifier,
     context: Context = LocalContext.current,
-) = ClickableText(
+) = Text(
     str,
     modifier = modifier,
     style = MaterialTheme.typography.bodyMedium,
-) {
-    context.showUrl(str.getUrlAnnotations(it, it).firstOrNull()?.item?.url)
-}
+)
 
 
 @Composable
@@ -220,7 +217,7 @@ fun AnnotatedString.Builder.appendLink(
     url: String,
     text: String,
     color: Color = MaterialTheme.colorScheme.primary,
-) = withAnnotation(UrlAnnotation(url)) {
+) = withLink(LinkAnnotation.Url(url)) {
     withStyle(
         style = SpanStyle(
             color = color,

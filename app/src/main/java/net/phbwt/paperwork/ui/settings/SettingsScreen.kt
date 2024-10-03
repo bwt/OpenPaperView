@@ -28,6 +28,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -254,7 +255,7 @@ fun PrefSimpleItem(
         modifier = modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(
             keyboardType = type,
-            autoCorrect = false,
+            autoCorrectEnabled = false,
             imeAction = ImeAction.Next,
         ),
         readOnly = readOnly,
@@ -306,11 +307,11 @@ fun PrefLabelsItem(
             value = value,
             onValueChange = { onValueChanged(it, false) },
             modifier = Modifier
-                .menuAnchor()
+                .menuAnchor(MenuAnchorType.PrimaryEditable)
                 .fillMaxWidth(),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
-                autoCorrect = false,
+                autoCorrectEnabled = false,
                 imeAction = ImeAction.Next,
             ),
             singleLine = true,
