@@ -38,7 +38,7 @@
 
     <string name="settings_baseUrl_label">Base URL</string>
     <string name="settings_baseUrl_hint">An HTTPS URL (without /papers/)</string>
-    <string name="settings_autoDownloadLabels_label">Auto downloaded labels</string>
+    <string name="settings_autoDownloadLabels_label">Auto downloaded labels ("*" for all)</string>
     <string name="settings_autoDownloadLabels_hint">Comma separated labels</string>
     <plurals name="settings_auto_dowload_count">
         <item quantity="one">%d document matches</item>
