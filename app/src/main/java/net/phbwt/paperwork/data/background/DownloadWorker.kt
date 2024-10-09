@@ -241,13 +241,6 @@ class DownloadWorker @AssistedInject constructor(
         Log.d(TAG, "Downloading ${dnl.partPath()}")
 
         var url = "$baseUrl/${dnl.partPath()}"
-        if (BuildConfig.DEBUG) {
-            // error injection
-            if (Random.Default.nextInt() % 3 == 0) {
-                Log.e(TAG, "Injecting an error")
-                url += "error"
-            }
-        }
 
         val request = Request.Builder()
             .url(url)

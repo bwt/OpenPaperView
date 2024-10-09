@@ -10,6 +10,7 @@ import androidx.room.*
             entity = Document::class,
             parentColumns = arrayOf("documentId"),
             childColumns = arrayOf("documentId"),
+            onDelete = ForeignKey.CASCADE,
         ),
     ],
     indices = [

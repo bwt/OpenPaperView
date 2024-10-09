@@ -190,7 +190,7 @@ fun OkHttpClient.withHttpCache(
     Log.d(TAG, "Adding cache to OkHttpClient")
     cacheDir.mkdirs()
     return newBuilder()
-        .cache(Cache(cacheDir, 32 * 1024 * 1024L))
+        .cache(Cache(cacheDir, 256 * 1024 * 1024L))
         .build()
 }
 

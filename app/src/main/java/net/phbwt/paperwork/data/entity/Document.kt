@@ -2,9 +2,15 @@ package net.phbwt.paperwork.data.entity
 
 import androidx.compose.runtime.Immutable
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(
+    indices = [
+        Index("date", name = "Document_date"),
+    ]
+)
 @Immutable
 data class Document(
     @PrimaryKey
