@@ -258,7 +258,7 @@ CREATE VIRTUAL TABLE DocumentFts USING FTS4(
 );
 
 -- used by Room
-PRAGMA user_version = 1;
+PRAGMA user_version = 2;
 
 ''')
 
