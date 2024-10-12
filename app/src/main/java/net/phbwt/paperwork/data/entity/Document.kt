@@ -30,6 +30,7 @@ data class Document(
 
     val size: Long,
 ) {
-    val thumbPath: String get() = "$name/$thumb"
     val titleOrName: String get() = title ?: name
 }
+
+fun makeDocumentThumbPathAndKey(documentName: String, thumb: String?) = "$documentName/$thumb"

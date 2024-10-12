@@ -14,7 +14,7 @@ interface DownloadDao {
     @RewriteQueriesToDropUnusedColumns
     @Query(
         """
-select p.*, d.name as documentName, d.title as documentTitle
+select p.*, d.name as documentName, d.thumb as documentThumb
 from Part p
 join Document d
   on d.documentId = p.documentId

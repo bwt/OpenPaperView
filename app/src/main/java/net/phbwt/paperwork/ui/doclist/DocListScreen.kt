@@ -91,6 +91,7 @@ import androidx.core.app.ShareCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -104,6 +105,7 @@ import net.phbwt.paperwork.data.entity.DownloadState
 import net.phbwt.paperwork.data.entity.LabelType
 import net.phbwt.paperwork.data.entity.Part
 import net.phbwt.paperwork.data.entity.asFilter
+import net.phbwt.paperwork.data.entity.makeDocumentThumbPathAndKey
 import net.phbwt.paperwork.helper.TrailingClose
 import net.phbwt.paperwork.helper.fmtDtm
 import net.phbwt.paperwork.helper.startActivitySafely
@@ -445,8 +447,12 @@ fun DocRow(
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        val thumbPathAndKey = makeDocumentThumbPathAndKey(doc.document.name, doc.document.thumb)
         AsyncImage(
-            model = doc.document.thumbPath,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(thumbPathAndKey)
+                .diskCacheKey(thumbPathAndKey)
+                .build(),
             contentDescription = null,
             modifier = Modifier
                 // A4 ratio

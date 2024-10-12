@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.util.Log
+import androidx.collection.mutableIntSetOf
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFERRED
 import androidx.hilt.work.HiltWorker
@@ -22,7 +23,8 @@ import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.BuildConfig
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.Repository
-import net.phbwt.paperwork.data.entity.Download
+import net.phbwt.paperwork.data.entity.isThumb
+import net.phbwt.paperwork.data.entity.makeDocumentThumbPathAndKey
 import net.phbwt.paperwork.data.newDbName
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.desc
@@ -142,16 +144,20 @@ class DownloadWorker @AssistedInject constructor(
             if (depth != 2 && f.isFile) {
                 Log.e(TAG, "Structure problem : $f, $depth")
             }
-            if (f.isFile) {
+            if (f.isThumb()) {
+                // OK, keep it
+            } else if (f.isFile) {
                 val count = newDb.downloadDao().setPartDone(f.parentFile!!.name, f.name)
                 when (count) {
                     1 -> {
                         // OK
                     }
+
                     0 -> {
                         Log.i(TAG, "Deleting disappeared part $f")
                         f.delete()
                     }
+
                     else -> {
                         Log.e(TAG, "Db inconsistency for file $f : $count")
                     }
@@ -181,49 +187,81 @@ class DownloadWorker @AssistedInject constructor(
             Log.w(TAG, "Cleared $clearedCount stuck downloads")
         }
 
-        var downloadCount = 0
+        val doneDocuments = mutableIntSetOf()
+        var downloadPartCount = 0
+        var downloadThumbCount = 0
         var errorCount = 0
 
         while (true) {
             val dnl = repo.db.downloadDao().loadFirstDownloadable()
                 ?: break
 
+            val partId = dnl.part.partId
+
             if (BuildConfig.DEBUG) {
                 Log.e(TAG, "Adding pre download delay")
                 delay(510 + (Random.Default.nextLong() % 490))
             }
 
-            val dest = File(settings.localPartsDir, dnl.partPath())
-            try {
-                downloadPart(dnl, dest)
-                val setAsDone = dao.setPartDone(dnl.part.partId)
+            // the documents thumb
+            val thumbPathAndKey = makeDocumentThumbPathAndKey(dnl.documentName, dnl.documentThumb)
+            val thumbDest = File(settings.localPartsDir, thumbPathAndKey)
+            val docId = dnl.part.documentId
+            var thumbAvailable = true
+            if (!doneDocuments.add(docId)) {
+                // retry only once per document per run
+                Log.d(TAG, "Document $docId already processed for thumb : $thumbPathAndKey")
+            } else if (thumbDest.exists()) {
+                Log.d(TAG, "Thumb already exists : $thumbPathAndKey")
+            } else {
+                try {
+                    downloadPartOrThumbnail(thumbPathAndKey, thumbDest)
+                    downloadThumbCount++
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Failed to download thumb $thumbPathAndKey", ex)
 
-                if (!setAsDone) {
-                    // e.g. canceled by the user while in progress
-                    dest.delete()
+                    // fails the part, so that both will be retried
+                    dao.setPartFailed(partId, "Thumb failed : ${ex.desc()}")
+
+                    thumbAvailable = false
+                    errorCount++
                 }
+            }
 
-                downloadCount++
-            } catch (ex: Exception) {
-                Log.e(TAG, "Failed to download ${dnl.partPath()}", ex)
-                dao.setPartFailed(dnl.part.partId, ex.desc())
-                dest.delete()
-                errorCount++
+            // the pdf / image
+            if (thumbAvailable) {
+                val partPathAndKey = dnl.partPathAndKey()
+                val partDest = File(settings.localPartsDir, partPathAndKey)
+                try {
+                    downloadPartOrThumbnail(partPathAndKey, partDest)
+                    val setAsDone = dao.setPartDone(partId)
+
+                    if (!setAsDone) {
+                        // e.g. canceled by the user while in progress
+                        partDest.delete()
+                    }
+
+                    downloadPartCount++
+                } catch (ex: Exception) {
+                    Log.e(TAG, "Failed to download part $partPathAndKey", ex)
+                    dao.setPartFailed(partId, ex.desc())
+                    partDest.delete()
+                    errorCount++
+                }
             }
         }
 
-        Log.i(TAG, "Parts downloads : $downloadCount ok, $errorCount errors")
+        Log.i(TAG, "Parts downloads : $downloadPartCount parts, $downloadThumbCount thumbs, $errorCount errors")
     }
 
     @OptIn(ExperimentalCoilApi::class)
-    private suspend fun downloadPart(dnl: Download, dest: File) {
+    private suspend fun downloadPartOrThumbnail(pathAndKey: String, dest: File) {
         dest.parentFile?.mkdirs()
 
         // Try first to find the image in Coil's cache
 
-        val cacheKey = dnl.partPath()
-        Coil.imageLoader(applicationContext).diskCache?.openSnapshot(cacheKey)?.use {
-            Log.d(TAG, "Copying ${dnl.partPath()} from cache")
+        Coil.imageLoader(applicationContext).diskCache?.openSnapshot(pathAndKey)?.use {
+            Log.d(TAG, "Copying ${pathAndKey} from cache")
             withContext(Dispatchers.IO) {
                 FileSystem.SYSTEM.copy(it.data, dest.toOkioPath())
 //                it.data.toNioPath().source().use { a ->
@@ -238,9 +276,9 @@ class DownloadWorker @AssistedInject constructor(
         val httpClient = repo.contentHttpClient.first().getOrNull() ?: return
         val baseUrl = settings.contentBaseUrl.first().getOrNull() ?: return
 
-        Log.d(TAG, "Downloading ${dnl.partPath()}")
+        Log.d(TAG, "Downloading ${pathAndKey}")
 
-        var url = "$baseUrl/${dnl.partPath()}"
+        var url = "$baseUrl/${pathAndKey}"
 
         val request = Request.Builder()
             .url(url)
