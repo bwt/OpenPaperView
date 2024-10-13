@@ -66,7 +66,7 @@ class DownloadWorker @AssistedInject constructor(
 
 //        setForeground(getForegroundInfo())
 
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG && DEBUG_NETWORK) {
             Log.e(TAG, "Adding work delay")
             delay(500 + (Random.Default.nextLong() % 500))
         }
@@ -198,7 +198,7 @@ class DownloadWorker @AssistedInject constructor(
 
             val partId = dnl.part.partId
 
-            if (BuildConfig.DEBUG) {
+            if (BuildConfig.DEBUG && DEBUG_NETWORK) {
                 Log.e(TAG, "Adding pre download delay")
                 delay(510 + (Random.Default.nextLong() % 490))
             }
@@ -279,6 +279,14 @@ class DownloadWorker @AssistedInject constructor(
         Log.d(TAG, "Downloading ${pathAndKey}")
 
         var url = "$baseUrl/${pathAndKey}"
+        
+        if (BuildConfig.DEBUG && DEBUG_NETWORK) {
+            // error injection
+            if (Random.Default.nextInt() % 3 == 0) {
+                Log.e(TAG, "Injecting an error")
+                url += "_injected_error"
+            }
+        }
 
         val request = Request.Builder()
             .url(url)
@@ -301,7 +309,7 @@ class DownloadWorker @AssistedInject constructor(
                 // see https://github.com/square/okio/issues/501
                 dest.sink().buffer().use { sink ->
 
-                    if (BuildConfig.DEBUG) {
+                    if (BuildConfig.DEBUG && DEBUG_NETWORK) {
                         Log.e(TAG, "Adding copy delay")
                         delay(520 + (Random.Default.nextLong() % 480))
                     }
@@ -317,6 +325,9 @@ class DownloadWorker @AssistedInject constructor(
         private const val CHANNEL_ID = TAG
         private const val NOTIFICATION_ID = 352
         private const val WORKER_NAME = "downloadPartsWorker"
+
+        // add delay and inject errors
+        private const val DEBUG_NETWORK = false
 
         fun createNotificationChannel(context: Context) {
             if (Build.VERSION.SDK_INT >= 26) {
