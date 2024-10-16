@@ -7,6 +7,8 @@ import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -260,21 +262,19 @@ private val toStart = AnimatedContentTransitionScope.SlideDirection.Start
 private val toEnd = AnimatedContentTransitionScope.SlideDirection.End
 
 private fun <T> outNow() =
-    tween<T>(transitionDuration * 8 / 20)
+    tween<T>(transitionDuration * 8 / 20, easing = FastOutLinearInEasing)
 
 private fun <T> inDelayed() =
-    tween<T>(transitionDuration * 16 / 20, transitionDuration * 4 / 20, FastOutLinearInEasing)
+    tween<T>(transitionDuration * 16 / 20, transitionDuration * 4 / 20, LinearOutSlowInEasing)
 
 object AppTransitions : DestinationStyle.Animated {
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition(): EnterTransition {
         return when (val tt = transitionType()) {
-            TransType.FADE -> fadeIn(
-                inDelayed()
-            ) + scaleIn(inDelayed(), .92f)
+            TransType.FADE -> fadeIn(inDelayed()) + scaleIn(inDelayed(), .92f)
 
             else -> slideIntoContainer(
                 if (tt == TransType.OUT) toEnd else toStart,
-                animationSpec = tween(transitionDuration, easing = FastOutLinearInEasing),
+                animationSpec = tween(transitionDuration, easing = FastOutSlowInEasing),
                 initialOffset = { it / 10 },
             ) + fadeIn(inDelayed())
         }
@@ -282,13 +282,11 @@ object AppTransitions : DestinationStyle.Animated {
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition(): ExitTransition {
         return when (val tt = transitionType()) {
-            TransType.FADE -> fadeOut(
-                outNow()
-            )
+            TransType.FADE -> fadeOut(outNow())
 
             else -> slideOutOfContainer(
                 if (tt == TransType.OUT) toEnd else toStart,
-                animationSpec = tween(transitionDuration, easing = FastOutLinearInEasing),
+                animationSpec = tween(transitionDuration, easing = FastOutSlowInEasing),
                 targetOffset = { it / 10 },
             ) + fadeOut(outNow())
         }
