@@ -1,12 +1,12 @@
 package net.phbwt.paperwork.ui.main
 
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
@@ -31,6 +31,8 @@ class MainVM @Inject constructor(
     suspend fun setDemoServer() {
         settings.updateBaseUrl("https://bwtdev.eu/OpenPaperViewDemo")
         settings.updateAutoDownloadLabels("label 2, some_other_label")
+        // just in case of race condition
+        delay(500)
         DownloadWorker.enqueueLoad(getApplication())
     }
 
@@ -49,5 +51,4 @@ class MainVM @Inject constructor(
         getApplication<Application>().contentResolver,
         "firebase.test.lab",
     ).toBoolean()
-
 }

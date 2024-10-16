@@ -2,6 +2,7 @@
 
 package net.phbwt.paperwork.ui.main
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -61,6 +62,7 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.DbUpdateStatus
@@ -124,6 +126,7 @@ fun MainContent(
             val actionLabel = stringResource(R.string.db_update_restart)
 
             if (runningInTestLab) {
+                Log.i(TAG, "TestLab : restarting application")
                 restartApplication()
             }
 
@@ -149,13 +152,21 @@ fun MainContent(
 
     // 'check the demo' dialog
     var showDialog by remember { mutableStateOf(true) }
+    var startForTestLab by remember { mutableStateOf(false) }
+
+    // avoid cancellation when isConfigured changes
+    LaunchedEffect(startForTestLab) {
+        if (startForTestLab) {
+            delay(1000)
+            Log.i(TAG, "TestLab : setting default server")
+            setDemoServer()
+        }
+    }
 
     if (showDialog && !isConfigured) {
 
         if (runningInTestLab) {
-            LaunchedEffect(Unit) {
-                setDemoServer()
-            }
+            startForTestLab = true
         }
 
         AlertDialog(
@@ -356,3 +367,5 @@ fun WrappedScaffold(
         },
     )
 }
+
+private const val TAG = "MainScreen"
