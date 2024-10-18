@@ -1,0 +1,4 @@
+- Add autodownload for all documents (Thanks to Jérôme Flesch)
+- Add predictive back support (Android 15)
+- Fixes label autocomplete misplacement
+
