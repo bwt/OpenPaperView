@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
 import net.phbwt.paperwork.data.entity.LabelType
+import net.phbwt.paperwork.data.settings.MAX_VALUE_SIZE
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.desc
 import net.phbwt.paperwork.helper.firstThenDebounce
@@ -32,6 +33,7 @@ import net.phbwt.paperwork.helper.msg
 import okio.buffer
 import okio.source
 import javax.inject.Inject
+import kotlin.math.min
 
 @HiltViewModel
 class SettingsVM @Inject constructor(
@@ -116,7 +118,7 @@ class SettingsVM @Inject constructor(
         }
     }
 
-    suspend fun startAutoDownloads(info: LabelsInfo) : Int {
+    suspend fun startAutoDownloads(info: LabelsInfo): Int {
         val count = repo.db.downloadDao().queueAutoDownloads(info.counted)
         Log.i(TAG, "Requested $count new downloads for ${info.documentCount} documents")
         DownloadWorker.enqueueLoad(getApplication())
@@ -142,7 +144,22 @@ class SettingsVM @Inject constructor(
     private suspend fun loadFromUri(newVal: Uri): String = withContext(Dispatchers.IO) {
         try {
             getApplication<Application>().contentResolver.openInputStream(newVal).use {
-                it?.source()?.buffer()?.readUtf8() ?: "No content ???"
+                // FIXME this seems quite complicated
+                // There is probably a simpler way to read min(content_size, a_reasonable_value)
+
+                val source = it?.source()?.buffer() ?: return@withContext "No content ???"
+
+                val maxLen = MAX_VALUE_SIZE.toLong()
+
+                source.request(maxLen + 1)
+
+                val readLen = source.buffer.size
+
+                if (readLen > maxLen) {
+                    "Error : too long (max size : $maxLen)"
+                } else {
+                    source.readUtf8(min(readLen, maxLen))
+                }
             }
         } catch (ex: Exception) {
             Log.w(TAG, "Failed to read the client certificate and key", ex)

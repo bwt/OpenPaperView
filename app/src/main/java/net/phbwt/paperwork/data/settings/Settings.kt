@@ -120,10 +120,10 @@ class Settings @Inject constructor(
     // also shared, @see xml/file_provider_paths.xml
     val localPartsDir: File = ctxt.filesDir.resolve("local_files/parts")
 
-    suspend fun updateBaseUrl(newVal: String) = update(BASE_URL, newVal)
-    suspend fun updateAutoDownloadLabels(newVal: String) = update(AUTO_DOWNLOAD_LABELS, newVal)
-    suspend fun updateClientPem(newVal: String) = update(CLIENT_PEM, newVal)
-    suspend fun updateServerCa(newVal: String) = update(SERVER_CA, newVal)
+    suspend fun updateBaseUrl(newVal: String) = update(BASE_URL, newVal.take(MAX_VALUE_SIZE))
+    suspend fun updateAutoDownloadLabels(newVal: String) = update(AUTO_DOWNLOAD_LABELS, newVal.take(MAX_VALUE_SIZE))
+    suspend fun updateClientPem(newVal: String) = update(CLIENT_PEM, newVal.take(MAX_VALUE_SIZE))
+    suspend fun updateServerCa(newVal: String) = update(SERVER_CA, newVal.take(MAX_VALUE_SIZE))
 
     private suspend fun update(key: Preferences.Key<String>, newVal: String) =
         ctxt.dataStore.edit { settings ->
@@ -131,3 +131,5 @@ class Settings @Inject constructor(
         }
 
 }
+
+const val MAX_VALUE_SIZE = 65536
