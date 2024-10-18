@@ -18,7 +18,7 @@ android {
     defaultConfig {
         applicationId = "net.phbwt.paperwork"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1001013
         versionName = "1.1.13"
 
