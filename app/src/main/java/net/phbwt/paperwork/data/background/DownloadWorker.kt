@@ -12,8 +12,8 @@ import androidx.hilt.work.HiltWorker
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.work.*
-import coil.Coil
-import coil.annotation.ExperimentalCoilApi
+import coil3.SingletonImageLoader
+import coil3.annotation.ExperimentalCoilApi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -260,7 +260,7 @@ class DownloadWorker @AssistedInject constructor(
 
         // Try first to find the image in Coil's cache
 
-        Coil.imageLoader(applicationContext).diskCache?.openSnapshot(pathAndKey)?.use {
+        SingletonImageLoader.get(applicationContext).diskCache?.openSnapshot(pathAndKey)?.use {
             Log.d(TAG, "Copying ${pathAndKey} from cache")
             withContext(Dispatchers.IO) {
                 FileSystem.SYSTEM.copy(it.data, dest.toOkioPath())
@@ -279,7 +279,7 @@ class DownloadWorker @AssistedInject constructor(
         Log.d(TAG, "Downloading ${pathAndKey}")
 
         var url = "$baseUrl/${pathAndKey}"
-        
+
         if (BuildConfig.DEBUG && DEBUG_NETWORK) {
             // error injection
             if (Random.Default.nextInt() % 3 == 0) {

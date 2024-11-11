@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalCoilApi::class)
+@file:OptIn(DelicateCoilApi::class)
 
 package net.phbwt.paperwork.data
 
@@ -6,12 +6,15 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Immutable
 import androidx.room.Room
-import coil.Coil
-import coil.ImageLoader
-import coil.annotation.ExperimentalCoilApi
-import coil.disk.DiskCache
-import coil.map.Mapper
-import coil.util.DebugLogger
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.Uri
+import coil3.annotation.DelicateCoilApi
+import coil3.disk.DiskCache
+import coil3.map.Mapper
+import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import coil3.toUri
+import coil3.util.DebugLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,6 +33,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.tls.HandshakeCertificates
 import okhttp3.tls.HeldCertificate
+import okio.Path.Companion.toOkioPath
 import java.io.File
 import java.security.cert.X509Certificate
 import javax.inject.Inject
@@ -94,7 +98,10 @@ class Repository @Inject constructor(
             ) { client, baseUrl ->
                 buildImageLoader(client, baseUrl)
             }.collect { ilr ->
-                ilr.onSuccess(Coil::setImageLoader).onFailure { ex ->
+                ilr.onSuccess {
+                    SingletonImageLoader.setUnsafe(it)
+                    Log.d(TAG, "Coil init done")
+                }.onFailure { ex ->
                     Log.w(TAG, "Cannot init Coil", ex)
                 }
             }
@@ -104,7 +111,7 @@ class Repository @Inject constructor(
     // reuse the same cache when rebuilding
     private val coilDiskCache: DiskCache by lazy {
         DiskCache.Builder()
-            .directory(settings.imageCacheDir)
+            .directory(settings.imageCacheDir.toOkioPath())
             .build()
     }
 
@@ -117,11 +124,13 @@ class Repository @Inject constructor(
             .diskCache(coilDiskCache)
             .components {
                 // data is a relative path, to which we add the base URL
-                add(Mapper<String, HttpUrl> { data, _ -> baseUrl.newBuilder().addEncodedPathSegments(data).build() })
+                add(Mapper<String, Uri> { data, _ -> baseUrl.newBuilder().addEncodedPathSegments(data).build().toString().toUri() })
                 // try to load from the local documents
                 add(LocalFetcher.Factory(settings.localPartsDir))
+                add(OkHttpNetworkFetcherFactory(
+                    callFactory = { okhttp }
+                ))
             }
-            .okHttpClient(okhttp)
 //            .crossfade(true)
 
         if (BuildConfig.DEBUG) {
@@ -134,7 +143,7 @@ class Repository @Inject constructor(
     suspend fun purgeCache() = withContext(Dispatchers.IO) {
 
         // image caches
-        Coil.imageLoader(applicationContext).run {
+        SingletonImageLoader.get(applicationContext).run {
             memoryCache?.clear()
             diskCache?.clear()
         }
@@ -215,6 +224,7 @@ private fun Context.currentDbNumber() = currentDbName()
     .removePrefix(DB_PREFIX)
     .removeSuffix(DB_SUFFIX)
     .toInt()
+
 private fun getDbName(count: Int) = "%1\$s%2\$05d%3\$s".format(DB_PREFIX, count, DB_SUFFIX)
 fun Context.newDbName() = getDbName(currentDbNumber() + 1)
 

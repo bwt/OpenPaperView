@@ -38,7 +38,7 @@ workmanager = "2.9.1"
 room = "2.6.1"
 
 #  https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
-coil = "2.7.0"
+coil = "3.0.4"
 
 # https://github.com/square/okhttp/blob/master/docs/changelogs/changelog_4x.md
 okhttpBom = "4.12.0"
@@ -100,7 +100,8 @@ compose-destinations-core = { group = "io.github.raamcosta.compose-destinations"
 compose-destinations-compiler = { group = "io.github.raamcosta.compose-destinations", name = "ksp", version.ref = "composeDestinations" }
 
 # Coil
-coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 
 # Hilt
 # both hilt-compiler are required

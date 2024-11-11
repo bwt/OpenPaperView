@@ -116,6 +116,7 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.okhttp)
 
     // Compose Destinations
     implementation(libs.compose.destinations.core)

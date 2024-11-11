@@ -1,15 +1,16 @@
 package net.phbwt.paperwork.data.helper
 
-import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
-import coil.ImageLoader
-import coil.decode.DataSource
-import coil.decode.ImageSource
-import coil.fetch.FetchResult
-import coil.fetch.Fetcher
-import coil.fetch.SourceResult
-import coil.request.Options
+import coil3.ImageLoader
+import coil3.Uri
+import coil3.decode.DataSource
+import coil3.decode.ImageSource
+import coil3.fetch.FetchResult
+import coil3.fetch.Fetcher
+import coil3.fetch.SourceFetchResult
+import coil3.request.Options
+import okio.FileSystem
 import okio.Path.Companion.toOkioPath
 import java.io.File
 
@@ -19,8 +20,8 @@ import java.io.File
 class LocalFetcher(private val data: File) : Fetcher {
 
     override suspend fun fetch(): FetchResult {
-        return SourceResult(
-            source = ImageSource(file = data.toOkioPath()),
+        return SourceFetchResult(
+            source = ImageSource(file = data.toOkioPath(), FileSystem.SYSTEM),
             mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(data.extension),
             dataSource = DataSource.DISK
         )
@@ -35,7 +36,11 @@ class LocalFetcher(private val data: File) : Fetcher {
                 // FIXME what if the document is currently being downloaded ?
                 // currently we only check if the file has not modified recently
                 val p = File(baseDir, k)
-                if (p.exists() && p.lastModified() < System.currentTimeMillis() - CACHE_DELAY_MILLIS) {
+
+                // 0 is the file does not exists
+                val lastModified = p.lastModified()
+
+                if (0 < lastModified && lastModified < System.currentTimeMillis() - CACHE_DELAY_MILLIS) {
                     Log.d(TAG, "Found '$k' in local data")
                     LocalFetcher(p)
                 } else {

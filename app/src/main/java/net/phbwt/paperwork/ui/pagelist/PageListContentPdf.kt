@@ -43,10 +43,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.imageLoader
-import coil.memory.MemoryCache
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.imageLoader
+import coil3.memory.MemoryCache
+import coil3.request.ImageRequest
+import coil3.toBitmap
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.helper.animateBy
@@ -157,7 +158,7 @@ fun PageListContentPdf(
                             },
                     ) {
                         val cacheKey = MemoryCache.Key("$pdfFile-$index}")
-                        var bitmap by remember { mutableStateOf(imageCache[cacheKey]?.bitmap) }
+                        var bitmap by remember { mutableStateOf(imageCache[cacheKey]?.image?.toBitmap()) }
                         if (bitmap == null) {
                             LaunchedEffect(pdfFile, index) {
                                 Log.w(TAG, "> $index")

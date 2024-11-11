@@ -9,7 +9,8 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import coil.memory.MemoryCache
+import coil3.asImage
+import coil3.memory.MemoryCache
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -83,7 +84,7 @@ class PdfRendererWrapper {
 
         // If the page was cancelled during the rendering, the bitmap will not be used
         // so we put it in cache ourself
-        imageCache[cacheKey] = MemoryCache.Value(bm)
+        imageCache[cacheKey] = MemoryCache.Value(bm.asImage())
 
         Log.e(TAG, "<< $pageIndex in ${System.currentTimeMillis() - ts} ms")
         bm
