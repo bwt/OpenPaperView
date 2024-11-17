@@ -36,14 +36,15 @@
 
     <string name="pages_page_1">Page %1$d</string>
 
+    <string name="settings_value_empty">No value</string>
+    <string name="settings_value_ok">OK</string>
+    <string name="settings_value_error">Error</string>
+    <string name="settings_dialog_ok">OK</string>
     <string name="settings_baseUrl_label">Base URL</string>
     <string name="settings_baseUrl_hint">An HTTPS URL (without /papers/)</string>
     <string name="settings_autoDownloadLabels_label">Auto downloaded labels ("*" for all)</string>
     <string name="settings_autoDownloadLabels_hint">Comma separated labels</string>
-    <plurals name="settings_auto_dowload_count">
-        <item quantity="one">%d document matches</item>
-        <item quantity="other">%d documents match</item>
-    </plurals>
+    <string name="settings_autoDownloadLabels_info">Matching documents : %1$d, to be downloaded : %2$d</string>
     <plurals name="settings_auto_dowload_started">
         <item quantity="one">Added %d download</item>
         <item quantity="other">Added %d downloads</item>
@@ -54,11 +55,11 @@ PEM encoded text containing one certificate and one private key.
     </string>
     <string name="settings_serverCa_label">Trusted root CA</string>
     <string name="settings_serverCa_hint">An optional PEM encoded text containing one certificate.
-The server must provide a chain of certificates whose root is this certificate.
-If left empty, the systems CAs will be trusted.
+\nThe server must provide a chain of certificates whose root is this certificate.
+\nIf left empty, the systems CAs will be trusted.
     </string>
     <string name="settings_check">Test</string>
-    <string name="settings_auto_download">Force auto download</string>
+    <string name="settings_auto_download">Start</string>
 
     <string name="settingsCheck_stop">Stop</string>
     <string name="settingsCheck_restart">Test again</string>

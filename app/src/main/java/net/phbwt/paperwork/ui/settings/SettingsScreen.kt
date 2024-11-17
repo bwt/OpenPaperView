@@ -5,6 +5,12 @@ package net.phbwt.paperwork.ui.settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,19 +25,25 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Help
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Download
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,8 +55,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -160,34 +172,33 @@ fun SettingsContent(
 ) { modifier ->
     Column(
         modifier = modifier
-            .padding(8.dp)
+            .padding(horizontal = 8.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(8.dp)
                 .weight(1f)
                 .verticalScroll(rememberScrollState()),
         ) {
-
-            PrefSimpleItem(
-                SettingItem(
-                    value = baseUrl,
-                    error = data.baseUrlError,
-                ),
-                onBaseUrlChanged,
-                KeyboardType.Uri,
-                false,
-                true,
-                R.string.settings_baseUrl_label,
-                R.string.settings_baseUrl_hint,
-            )
-            Spacer(modifier = Modifier.height(24.dp))
+            // otherwise the label may be truncated vertically
+            // when wrapped
+            Spacer(modifier = Modifier.height(8.dp))
 
             PrefLabelsItem(
                 value = autoDowloadLabels,
                 allValues = data.allLabels,
                 info = data.labelsInfo,
                 onValueChanged = onAutoDownloadLabelsChanged,
+                onAutoDownload = onAutoDownload,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            PrefSimpleItem(
+                value = baseUrl,
+                error = data.baseUrlError,
+                onBaseUrlChanged,
+                KeyboardType.Uri,
+                R.string.settings_baseUrl_label,
+                R.string.settings_baseUrl_hint,
             )
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -215,11 +226,6 @@ fun SettingsContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
         ) {
             Button(
-                onClick = onAutoDownload,
-            ) {
-                Text(stringResource(R.string.settings_auto_download))
-            }
-            Button(
                 onClick = onCheck,
             ) {
                 Text(stringResource(R.string.settings_check))
@@ -234,23 +240,17 @@ fun SettingsContent(
 
 @Composable
 fun PrefSimpleItem(
-    data: SettingItem,
+    value: String,
+    error: String?,
     onValueChanged: (String) -> Unit,
     type: KeyboardType,
-    readOnly: Boolean,
-    singleLine: Boolean,
     @StringRes labelRes: Int,
     @StringRes hintRes: Int,
     modifier: Modifier = Modifier,
 ) {
-    val txt = when {
-        data.value.isNotBlank() -> data.value
-        !readOnly -> ""
-        else -> stringResource(hintRes)
-    }
-
+    val isError = !error.isNullOrEmpty()
     OutlinedTextField(
-        value = txt,
+        value = value,
         onValueChange = onValueChanged,
         modifier = modifier.fillMaxWidth(),
         keyboardOptions = KeyboardOptions(
@@ -258,15 +258,13 @@ fun PrefSimpleItem(
             autoCorrectEnabled = false,
             imeAction = ImeAction.Next,
         ),
-        readOnly = readOnly,
-        singleLine = singleLine,
-        maxLines = if (singleLine) 1 else 6,
+        singleLine = true,
         placeholder = { Text(stringResource(hintRes)) },
         label = { Text(stringResource(labelRes)) },
-        isError = data.hasError,
+        isError = isError,
         supportingText = {
-            if (data.hasError) {
-                Text(data.error)
+            if (isError) {
+                Text(error)
             }
         }
     )
@@ -278,6 +276,7 @@ fun PrefLabelsItem(
     allValues: List<LabelType>,
     info: LabelsInfo,
     onValueChanged: (TextFieldValue, Boolean) -> Unit,
+    onAutoDownload: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -320,12 +319,25 @@ fun PrefLabelsItem(
             label = { Text(stringResource(R.string.settings_autoDownloadLabels_label)) },
             supportingText = {
                 Text(
-                    pluralStringResource(
-                        id = R.plurals.settings_auto_dowload_count,
-                        count = info.documentCount,
-                        info.documentCount,
+                    stringResource(
+                        id = R.string.settings_autoDownloadLabels_info,
+                        info.autoDownloads.total,
+                        info.autoDownloads.todo,
                     )
                 )
+            },
+            trailingIcon = {
+                AnimatedVisibility(
+                    visible = info.autoDownloads.todo > 0,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    IconButton(
+                        onClick = onAutoDownload,
+                    ) {
+                        Icon(Icons.Outlined.Download, null)
+                    }
+                }
             }
         )
 
@@ -349,7 +361,6 @@ fun PrefLabelsItem(
                 }
             }
         }
-
     }
 }
 
@@ -362,31 +373,123 @@ fun PrefLoadableTextItem(
     @StringRes hintRes: Int,
 ) {
     val clipboardManager = LocalClipboardManager.current
+    var showDialog by remember { mutableStateOf(false) }
 
-    PrefSimpleItem(data, onValueChanged, KeyboardType.Ascii, true, false, labelRes, hintRes)
-    Row {
-        IconButton(onClick = onImport) {
-            Icon(Icons.Outlined.Download, null)
+    val isError = !data.error.isNullOrEmpty()
+    val isEmpty = data.inputValue.isEmpty()
+    val mayShowHelp = isEmpty || isError
+
+    val txt = stringResource(
+        when {
+            isError -> R.string.settings_value_error
+            isEmpty -> R.string.settings_value_empty
+            else -> R.string.settings_value_ok
         }
-        IconButton(
-            onClick = {
-                val t = clipboardManager.getText()?.text
-                if (t != null) {
-                    onValueChanged(t)
+    )
+
+    var colors = OutlinedTextFieldDefaults.colors()
+
+    val txtColor = when {
+        isEmpty -> colors.disabledTextColor
+        else -> colors.focusedTextColor
+    }
+
+    colors = colors.copy(
+        errorTextColor = colors.errorLabelColor,
+        errorTrailingIconColor = colors.focusedTrailingIconColor,
+        focusedTextColor = txtColor,
+        unfocusedTextColor = txtColor,
+    )
+
+    OutlinedTextField(
+        value = txt,
+        onValueChange = onValueChanged,
+        modifier = Modifier.fillMaxWidth(),
+        readOnly = true,
+        singleLine = true,
+        maxLines = 1,
+        label = {
+            Text(stringResource(labelRes))
+        },
+        isError = isError,
+        supportingText = {
+            if (isError) {
+                Text(data.error)
+            }
+        },
+        trailingIcon = {
+            Row {
+                AnimatedVisibility(
+                    isEmpty || isError,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    Row {
+                        IconButton(onClick = onImport) {
+                            Icon(Icons.Outlined.Download, null)
+                        }
+                        IconButton(
+                            onClick = {
+                                val t = clipboardManager.getText()?.text
+                                if (t != null) {
+                                    onValueChanged(t)
+                                }
+                            },
+                        ) {
+                            Icon(Icons.Outlined.ContentPaste, null)
+                        }
+                    }
+                }
+
+                AnimatedVisibility(
+                    !isEmpty,
+                    enter = fadeIn() + expandHorizontally(),
+                    exit = shrinkHorizontally() + fadeOut(),
+                ) {
+                    IconButton(onClick = { onValueChanged("") }) {
+                        Icon(Icons.Outlined.Clear, null)
+                    }
+                }
+
+                IconButton(
+                    onClick = { showDialog = true },
+                ) {
+                    Icon(if (mayShowHelp) Icons.AutoMirrored.Outlined.Help else Icons.Outlined.Visibility, null)
+                }
+            }
+
+        },
+        colors = colors,
+    )
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            text = {
+                if (mayShowHelp) {
+                    Text(
+                        stringResource(hintRes),
+                        style = MaterialTheme.typography.bodyMedium.copy(),
+                    )
+                } else {
+                    Text(
+                        data.value ?: "",
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                            .horizontalScroll(rememberScrollState()),
+                        fontFamily = FontFamily.Monospace,
+                        style = MaterialTheme.typography.labelSmall,
+                    )
                 }
             },
-        ) {
-            Icon(Icons.Outlined.ContentPaste, null)
-        }
-        IconButton(
-            onClick = { onValueChanged("") },
-        ) {
-            Icon(Icons.Outlined.Clear, null)
-        }
-
+            confirmButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text(stringResource(id = R.string.settings_dialog_ok))
+                }
+            },
+        )
     }
 }
-
 
 //region preview
 

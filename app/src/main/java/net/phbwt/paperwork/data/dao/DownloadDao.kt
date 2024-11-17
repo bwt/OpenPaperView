@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import net.phbwt.paperwork.data.entity.*
 
 @Dao
@@ -111,7 +112,7 @@ and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
 
     suspend fun queueAutoDownloads(labels: List<String>): Int = when {
         labels.isEmpty() -> 0
-        (labels[0] == "*") -> queueAutoDownloadsAllImpl()
+        labels.any { it == "*" } -> queueAutoDownloadsAllImpl()
         else -> queueAutoDownloadsImpl(labels)
     }
 
@@ -136,18 +137,30 @@ and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
     )
     suspend fun queueAutoDownloadsImpl(labels: List<String>): Int
 
-    suspend fun countAutoDownloads(labels: List<String>): Int = when {
-        labels.isEmpty() -> 0
+    fun countAutoDownloads(labels: List<String>): Flow<AutoDownloadInfo> = when {
+        labels.isEmpty() -> flowOf(AutoDownloadInfo(0, 0))
+        labels.any { it == "*" } -> countAutoDownloadsAllImpl()
         else -> countAutoDownloadsImpl(labels)
     }
 
     @Query(
         """
-select count(distinct documentId)
-from Label where name in (:labels)
+select count(distinct documentId) as total
+, count(distinct case downloadStatus when $DNL_DONE then null else documentId end) as todo
+from Part
+where documentId in (select distinct documentId from Label where name in (:labels))
 """
     )
-    suspend fun countAutoDownloadsImpl(labels: List<String>): Int
+    fun countAutoDownloadsImpl(labels: List<String>): Flow<AutoDownloadInfo>
+
+    @Query(
+        """
+select count(distinct documentId) as total
+, count(distinct case downloadStatus when $DNL_DONE then null else documentId end) as todo
+from Part
+"""
+    )
+    fun countAutoDownloadsAllImpl(): Flow<AutoDownloadInfo>
 
     @Query(
         """
@@ -175,5 +188,11 @@ data class DownloadStats(
     val parts: Int,
     val size: Long,
 )
+
+data class AutoDownloadInfo(
+    val total: Int,
+    val todo: Int,
+)
+
 
 private const val TAG = "DownloadDao"

@@ -1,4 +1,4 @@
-@file:OptIn(SavedStateHandleSaveableApi::class)
+@file:OptIn(SavedStateHandleSaveableApi::class, ExperimentalCoroutinesApi::class)
 
 package net.phbwt.paperwork.ui.settings
 
@@ -16,14 +16,18 @@ import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
+import net.phbwt.paperwork.data.dao.AutoDownloadInfo
 import net.phbwt.paperwork.data.entity.LabelType
 import net.phbwt.paperwork.data.settings.MAX_VALUE_SIZE
 import net.phbwt.paperwork.data.settings.Settings
@@ -59,11 +63,17 @@ class SettingsVM @Inject constructor(
 
     private val allLabels: Flow<List<LabelType>> = repo.db.labelDao().loadLabelTypes()
 
-    private val labelInfo = settings.autoDownloadLabels
+    private val labelInfo: Flow<LabelsInfo> = settings.autoDownloadLabels
         .firstThenDebounce(500)
-        .map { result ->
-            result.mapCatching {
-                LabelsInfo(it, repo.db.downloadDao().countAutoDownloads(it))
+        .flatMapLatest { result ->
+            if (result.isFailure) {
+                // this should not happen
+                Log.e(TAG, "Failed to get the label list setting ???")
+                flowOf(LabelsInfo(listOf("*bug*", result.exceptionOrNull()?.msg() ?: "")))
+            } else {
+                val labels = result.getOrThrow()
+                repo.db.downloadDao().countAutoDownloads(labels)
+                    .map { info -> LabelsInfo(labels, info) }
             }
         }
 
@@ -74,13 +84,19 @@ class SettingsVM @Inject constructor(
         settings.baseUrl,
         allLabels,
         labelInfo,
-        combineWithError(settings.clientPemStr, settings.clientPem),
-        combineWithError(settings.serverCaStr, settings.serverCa),
+        combine(settings.clientPemStr, settings.clientPem) { txt, certResult ->
+            val certInfo = certResult.mapCatching { it?.certificate.toString() }
+            SettingItem(txt, certInfo.getOrNull(), certInfo.exceptionOrNull()?.msg())
+        },
+        combine(settings.serverCaStr, settings.serverCa) { txt, certResult ->
+            val certInfo = certResult.mapCatching { it?.toString() }
+            SettingItem(txt, certInfo.getOrNull(), certInfo.exceptionOrNull()?.msg())
+        },
     ) { url, all, info, client, server ->
         SettingsData(
             url.exceptionOrNull().msg(),
             all,
-            info.getOrThrow(),
+            info,
             client,
             server,
         )
@@ -119,8 +135,8 @@ class SettingsVM @Inject constructor(
     }
 
     suspend fun startAutoDownloads(info: LabelsInfo): Int {
-        val count = repo.db.downloadDao().queueAutoDownloads(info.counted)
-        Log.i(TAG, "Requested $count new downloads for ${info.documentCount} documents")
+        val count = repo.db.downloadDao().queueAutoDownloads(info.labels)
+        Log.i(TAG, "Requested $count new downloads for ${info.autoDownloads} documents")
         DownloadWorker.enqueueLoad(getApplication())
         return count
     }
@@ -167,13 +183,6 @@ class SettingsVM @Inject constructor(
         }
     }
 
-    private fun combineWithError(
-        valueFlow: Flow<String>,
-        errorFlow: Flow<Result<Any?>>,
-    ): Flow<SettingItem> = combine(valueFlow, errorFlow) { v, e ->
-        SettingItem(v, e.exceptionOrNull().msg())
-    }
-
     companion object {
         private const val TAG = "SettingsVM"
     }
@@ -182,16 +191,15 @@ class SettingsVM @Inject constructor(
 
 @Immutable
 data class SettingItem(
-    val value: String = "",
-    val error: String = "",
-) {
-    val hasError get() = error.isNotEmpty()
-}
+    val inputValue: String = "",
+    val value: String? = null,
+    val error: String? = null,
+)
 
 @Immutable
 data class LabelsInfo(
-    val counted: List<String> = listOf(),
-    val documentCount: Int = 0,
+    val labels: List<String> = listOf(),
+    val autoDownloads: AutoDownloadInfo = AutoDownloadInfo(0, 0),
 )
 
 @Immutable

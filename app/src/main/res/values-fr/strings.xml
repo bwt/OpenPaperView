@@ -36,15 +36,15 @@
 
     <string name="pages_page_1">Page %1$d</string>
 
+    <string name="settings_value_empty">Pas de valeur</string>
+    <string name="settings_value_ok">OK</string>
+    <string name="settings_value_error">Erreur</string>
+    <string name="settings_dialog_ok">OK</string>
     <string name="settings_baseUrl_label">URL de base</string>
     <string name="settings_baseUrl_hint">Une URL HTTPS (sans /papers/)</string>
     <string name="settings_autoDownloadLabels_label">Étiquettes téléchargées automatiquement ("*" pour toutes)</string>
     <string name="settings_autoDownloadLabels_hint">Séparées par des ,</string>
-    <plurals name="settings_auto_dowload_count">
-        <item quantity="one">%d document correspond</item>
-        <item quantity="other">%d documents correspondent</item>
-        <item quantity="many">%d de documents correspondent</item>
-    </plurals>
+    <string name="settings_autoDownloadLabels_info">Documents : %1$d, à télécharger : %2$d</string>
     <plurals name="settings_auto_dowload_started">
         <item quantity="one">Ajout de %d téléchargement</item>
         <item quantity="other">Ajout de %d téléchargements</item>
@@ -52,14 +52,14 @@
     </plurals>
     <string name="settings_clientPem_label">Certificat et clé privée du client</string>
     <string name="settings_clientPem_hint">Texte encodé en PEM contenant un certificat et une clé privée.
-Optionnel, mais fortement recommandé</string>
+\nOptionnel, mais fortement recommandé</string>
     <string name="settings_serverCa_label">Certificat racine</string>
     <string name="settings_serverCa_hint">Texte encodé en PEM contenant un certificat.
-Le serveur doit fournir une chaîne de certificat remontant à ce certificat.
-Optionnel, sinon les certificats racines d\'Android seront utilisés.
+\nLe serveur doit fournir une chaîne de certificat remontant à ce certificat.
+\nOptionnel, sinon les certificats racines d\'Android seront utilisés.
     </string>
     <string name="settings_check">Test</string>
-    <string name="settings_auto_download">Forcer les téléchargements auto</string>
+    <string name="settings_auto_download">Démarrer</string>
 
     <string name="settingsCheck_stop">Stop</string>
     <string name="settingsCheck_restart">Réessayer</string>
