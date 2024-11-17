@@ -12,8 +12,10 @@
                 android:name="group"
                 android:scaleX=".5"
                 android:scaleY=".5"
-                android:translateX="6"
-                android:translateY="6">
+                android:pivotX="12"
+                android:pivotY="12"
+                android:translateX="0"
+                android:translateY="0">
                 <path
                     android:name="path"
                     android:fillColor="#ffabcdef"
@@ -25,18 +27,38 @@
         <aapt:attr name="android:animation">
             <set>
                 <objectAnimator
-                    android:duration="1000"
-                    android:interpolator="@android:anim/anticipate_interpolator"
-                    android:propertyName="translateX"
-                    android:valueFrom="6"
-                    android:valueTo="22"
+                    android:duration="500"
+                    android:interpolator="@android:anim/overshoot_interpolator"
+                    android:propertyName="rotation"
+                    android:valueFrom="90"
+                    android:valueTo="360"
                     android:valueType="floatType" />
                 <objectAnimator
-                    android:duration="1000"
+                    android:duration="500"
+                    android:interpolator="@android:anim/overshoot_interpolator"
+                    android:propertyName="scaleX"
+                    android:valueFrom=".1"
+                    android:valueTo=".5"
+                    android:valueType="floatType" />
+                <objectAnimator
+                    android:duration="500"
+                    android:interpolator="@android:anim/overshoot_interpolator"
+                    android:propertyName="scaleY"
+                    android:valueFrom=".1"
+                    android:valueTo=".5"
+                    android:valueType="floatType" />
+            </set>
+        </aapt:attr>
+    </target>
+    <target android:name="path">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="100"
                     android:interpolator="@android:anim/accelerate_interpolator"
-                    android:propertyName="translateY"
-                    android:valueFrom="6"
-                    android:valueTo="-5.54"
+                    android:propertyName="fillAlpha"
+                    android:valueFrom="0"
+                    android:valueTo="1"
                     android:valueType="floatType" />
             </set>
         </aapt:attr>
