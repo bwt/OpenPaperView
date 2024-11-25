@@ -38,7 +38,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
-import net.phbwt.paperwork.data.entity.DocumentFull
+import net.phbwt.paperwork.data.entity.db.DocumentFull
 import net.phbwt.paperwork.helper.animateBy
 import net.phbwt.paperwork.helper.appDetectTransformGestures
 

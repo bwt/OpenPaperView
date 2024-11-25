@@ -66,9 +66,9 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.dao.DownloadStats
-import net.phbwt.paperwork.data.entity.DocumentFull
-import net.phbwt.paperwork.data.entity.DownloadState
-import net.phbwt.paperwork.data.entity.Part
+import net.phbwt.paperwork.data.entity.db.DocumentFull
+import net.phbwt.paperwork.data.entity.db.DownloadState
+import net.phbwt.paperwork.data.entity.db.Part
 import net.phbwt.paperwork.helper.fmtDtm
 import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import net.phbwt.paperwork.ui.doclist.makeFakeDocuments

@@ -1,4 +1,4 @@
-package net.phbwt.paperwork.data.entity
+package net.phbwt.paperwork.data.entity.db
 
 import androidx.compose.runtime.Immutable
 import androidx.room.*

@@ -7,7 +7,7 @@ import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import net.phbwt.paperwork.data.entity.*
+import net.phbwt.paperwork.data.entity.db.*
 
 @Dao
 interface DownloadDao {

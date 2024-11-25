@@ -33,9 +33,9 @@ import net.phbwt.paperwork.BuildConfig
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
-import net.phbwt.paperwork.data.entity.Document
-import net.phbwt.paperwork.data.entity.DocumentFull
-import net.phbwt.paperwork.data.entity.Part
+import net.phbwt.paperwork.data.entity.db.Document
+import net.phbwt.paperwork.data.entity.db.DocumentFull
+import net.phbwt.paperwork.data.entity.db.Part
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.latestRelease
 import net.phbwt.paperwork.helper.toComposeImmutable

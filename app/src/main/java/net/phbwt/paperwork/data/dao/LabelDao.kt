@@ -3,7 +3,7 @@ package net.phbwt.paperwork.data.dao
 import androidx.room.Dao
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import net.phbwt.paperwork.data.entity.LabelType
+import net.phbwt.paperwork.data.entity.db.LabelType
 
 @Dao
 abstract class LabelDao {

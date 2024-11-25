@@ -23,8 +23,8 @@ import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.BuildConfig
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.Repository
-import net.phbwt.paperwork.data.entity.isThumb
-import net.phbwt.paperwork.data.entity.makeDocumentThumbPathAndKey
+import net.phbwt.paperwork.data.entity.db.isThumb
+import net.phbwt.paperwork.data.entity.db.makeDocumentThumbPathAndKey
 import net.phbwt.paperwork.data.newDbName
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.desc

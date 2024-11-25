@@ -68,8 +68,8 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
-import net.phbwt.paperwork.data.entity.LabelType
-import net.phbwt.paperwork.data.entity.asFilter
+import net.phbwt.paperwork.data.entity.db.LabelType
+import net.phbwt.paperwork.data.entity.db.asFilter
 import net.phbwt.paperwork.data.settings.LABELS_SEPARATOR
 import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
 import net.phbwt.paperwork.ui.main.AppTransitions

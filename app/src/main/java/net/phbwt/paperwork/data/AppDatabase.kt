@@ -6,11 +6,11 @@ import androidx.room.RoomDatabase
 import net.phbwt.paperwork.data.dao.DocumentDao
 import net.phbwt.paperwork.data.dao.DownloadDao
 import net.phbwt.paperwork.data.dao.LabelDao
-import net.phbwt.paperwork.data.entity.Document
-import net.phbwt.paperwork.data.entity.DocumentFts
-import net.phbwt.paperwork.data.entity.DocumentText
-import net.phbwt.paperwork.data.entity.Label
-import net.phbwt.paperwork.data.entity.Part
+import net.phbwt.paperwork.data.entity.db.Document
+import net.phbwt.paperwork.data.entity.db.DocumentFts
+import net.phbwt.paperwork.data.entity.db.DocumentText
+import net.phbwt.paperwork.data.entity.db.Label
+import net.phbwt.paperwork.data.entity.db.Part
 
 @Database(
     version = 2,

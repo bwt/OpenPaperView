@@ -1,12 +1,11 @@
 package net.phbwt.paperwork.data.dao
 
-import android.util.Log
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import kotlinx.coroutines.flow.Flow
-import net.phbwt.paperwork.data.entity.DNL_NONE
-import net.phbwt.paperwork.data.entity.DocumentFull
-import net.phbwt.paperwork.data.entity.Part
+import net.phbwt.paperwork.data.entity.db.DNL_NONE
+import net.phbwt.paperwork.data.entity.db.DocumentFull
+import net.phbwt.paperwork.data.entity.db.Part
 
 @Dao
 interface DocumentDao {

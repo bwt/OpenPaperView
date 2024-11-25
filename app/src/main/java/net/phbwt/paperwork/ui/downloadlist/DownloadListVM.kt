@@ -10,8 +10,8 @@ import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
 import net.phbwt.paperwork.data.dao.DownloadStats
-import net.phbwt.paperwork.data.entity.DocumentFull
-import net.phbwt.paperwork.data.entity.Part
+import net.phbwt.paperwork.data.entity.db.DocumentFull
+import net.phbwt.paperwork.data.entity.db.Part
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.toComposeImmutable
 import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination

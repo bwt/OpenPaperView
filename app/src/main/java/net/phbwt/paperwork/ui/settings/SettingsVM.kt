@@ -28,7 +28,7 @@ import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
 import net.phbwt.paperwork.data.dao.AutoDownloadInfo
-import net.phbwt.paperwork.data.entity.LabelType
+import net.phbwt.paperwork.data.entity.db.LabelType
 import net.phbwt.paperwork.data.settings.MAX_VALUE_SIZE
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.desc

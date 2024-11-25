@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import net.phbwt.paperwork.data.Repository
-import net.phbwt.paperwork.data.entity.DocumentFull
+import net.phbwt.paperwork.data.entity.db.DocumentFull
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.latestRelease
 import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
