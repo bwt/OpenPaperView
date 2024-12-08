@@ -5,12 +5,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.map
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
 import net.phbwt.paperwork.data.settings.Settings
+import net.phbwt.paperwork.helper.latestRelease
 import javax.inject.Inject
 
 
@@ -24,7 +26,9 @@ class MainVM @Inject constructor(
 
     val dbUpdates = repo.dbUpdateStatus
 
-    val isConfigured = settings.baseUrlStr.map { it.isNotBlank() }
+    val isConfigured = settings.baseUrlStr
+        .map { it.isNotBlank() }
+        .latestRelease(viewModelScope, true)
 
     fun clearDbUpdate() = repo.dbUpdateAcknowledged()
 

@@ -128,9 +128,9 @@ fun DocListScreen(
     vm: DocListVM = hiltViewModel(),
 ) {
     val search = vm.search
-    val labels by vm.labelFilters.collectAsStateWithLifecycle(listOf())
-    val labelTypes by vm.labelTypes.collectAsStateWithLifecycle(listOf())
-    val rows by vm.documentsWithHeaders.collectAsStateWithLifecycle(listOf())
+    val labels by vm.labelFilters.collectAsStateWithLifecycle()
+    val labelTypes by vm.labelTypes.collectAsStateWithLifecycle()
+    val rows by vm.documentsWithHeaders.collectAsStateWithLifecycle()
 
     val hasFilter = search.isNotBlank() || labels.isNotEmpty()
 

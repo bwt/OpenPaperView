@@ -95,7 +95,7 @@ fun DownloadListScreen(
     onNavigationIcon: (Boolean) -> Unit,
     vm: DownloadListVM = hiltViewModel(),
 ) {
-    val data by vm.screenData().collectAsStateWithLifecycle(DownloadListData())
+    val data by vm.screenData.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
 

@@ -3,6 +3,7 @@ package net.phbwt.paperwork.ui.downloadlist
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.combine
@@ -13,6 +14,7 @@ import net.phbwt.paperwork.data.dao.DownloadStats
 import net.phbwt.paperwork.data.entity.db.DocumentFull
 import net.phbwt.paperwork.data.entity.db.Part
 import net.phbwt.paperwork.data.settings.Settings
+import net.phbwt.paperwork.helper.latestRelease
 import net.phbwt.paperwork.helper.toComposeImmutable
 import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
 import java.io.File
@@ -30,11 +32,12 @@ class DownloadListVM @Inject constructor(
 
     private val enterAnimDone = savedStateHandle.getStateFlow(ENTER_ANIM_DONE, false)
 
-    fun screenData() = combine(
+    val screenData = combine(
         repo.db.docDao().withDownloads(),
         repo.db.downloadDao().stats(),
         enterAnimDone,
     ) { d, s, e -> DownloadListData(d.toComposeImmutable(), s, e) }
+        .latestRelease(viewModelScope, DownloadListData())
 
     suspend fun restart(part: Part) {
         repo.db.downloadDao().restartPart(part.partId)

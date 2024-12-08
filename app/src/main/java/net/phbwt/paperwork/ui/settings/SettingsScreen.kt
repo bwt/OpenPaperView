@@ -90,20 +90,16 @@ fun SettingsScreen(
 
     val baseUrl = vm.baseUrl
     val autoDowloadLabels = vm.autoDownloadLabels
-    val data by vm.data.collectAsStateWithLifecycle(SettingsData())
+    val data by vm.data.collectAsStateWithLifecycle()
 
     // start activity for client certificate
     val launcherC = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-        it?.let {
-            vm.updateClientPem(it)
-        }
+        it?.let { vm.updateClientPem(it) }
     }
 
     // start activity for server CA
     val launcherS = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-        it?.let {
-            vm.updateServerCa(it)
-        }
+        it?.let { vm.updateServerCa(it) }
     }
 
     SettingsContent(
@@ -482,6 +478,7 @@ fun PrefLoadableTextItem(
                     )
                 }
             },
+            modifier = Modifier.fillMaxWidth(),
             confirmButton = {
                 TextButton(onClick = { showDialog = false }) {
                     Text(stringResource(id = R.string.settings_dialog_ok))

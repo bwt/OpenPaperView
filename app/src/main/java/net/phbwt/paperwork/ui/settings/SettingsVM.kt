@@ -33,6 +33,7 @@ import net.phbwt.paperwork.data.settings.MAX_VALUE_SIZE
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.desc
 import net.phbwt.paperwork.helper.firstThenDebounce
+import net.phbwt.paperwork.helper.latestRelease
 import net.phbwt.paperwork.helper.msg
 import okio.buffer
 import okio.source
@@ -100,7 +101,7 @@ class SettingsVM @Inject constructor(
             client,
             server,
         )
-    }
+    }.latestRelease(viewModelScope, SettingsData())
 
     init {
         viewModelScope.launch {

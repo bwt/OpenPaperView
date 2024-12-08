@@ -50,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -82,7 +83,7 @@ fun MainScreen(
     vm: MainVM = hiltViewModel(),
 ) {
     val updateState by vm.dbUpdates.collectAsStateWithLifecycle()
-    val isConfigured by vm.isConfigured.collectAsStateWithLifecycle(true)
+    val isConfigured by vm.isConfigured.collectAsStateWithLifecycle()
     val runningInTestLab = remember { vm.isRunningInTestLab() }
     MainContent(
         updateState,
@@ -123,7 +124,7 @@ fun MainContent(
             }
         }
 
-        UpdateAvailable -> {
+        is UpdateAvailable -> {
             val msg = stringResource(R.string.db_update_available)
             val actionLabel = stringResource(R.string.db_update_restart)
 
@@ -153,7 +154,7 @@ fun MainContent(
     }
 
     // 'check the demo' dialog
-    var showDialog by remember { mutableStateOf(true) }
+    var showDialog by rememberSaveable { mutableStateOf(true) }
     var startForTestLab by remember { mutableStateOf(false) }
 
     // avoid cancellation when isConfigured changes

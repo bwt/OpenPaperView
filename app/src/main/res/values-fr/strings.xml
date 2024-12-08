@@ -8,7 +8,7 @@
 \nCette application nécessite un serveur HTTPS hébergeant les documents d\'OpenPaper.work
 \nVoulez vous utiliser un serveur de démo ?
 \n(Vous pourrez changer la configuration dans les paramètres)
-\nLe téléchargment de la BD peut prendre quelques secondes.</string>
+\nLe téléchargement de la BD peut prendre quelques secondes.</string>
     <string name="main_dialog_yes">OK, essayer la demo</string>
     <string name="main_dialog_no">Non merci</string>
 

@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
@@ -154,7 +155,7 @@ class DocListVM @Inject constructor(
         setChooserTitle(getApplication<Application>().getString(R.string.send_title, doc.document.titleOrName))
     }.createChooserIntent()
 
-    val documentsWithHeaders: Flow<List<Any>> = snapshotFlow { search }
+    val documentsWithHeaders: StateFlow<List<Any>> = snapshotFlow { search }
         .combine(labelFilters, ::Filters)
         .debounce(300)
         .flatMapLatest { filters ->
@@ -196,7 +197,9 @@ class DocListVM @Inject constructor(
         .flowOn(Dispatchers.Default)
         .latestRelease(viewModelScope, listOf())
 
-    val labelTypes = repo.db.labelDao().loadLabelTypes()
+    val labelTypes = repo.db.labelDao()
+        .loadLabelTypes()
+        .latestRelease(viewModelScope, listOf())
 
     suspend fun queueDownload(docId: Int) {
         repo.db.downloadDao().queueDownloadForDocument(docId)
