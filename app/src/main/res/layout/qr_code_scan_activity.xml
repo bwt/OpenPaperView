@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?><!-- https://github.com/journeyapps/zxing-android-embedded/blob/master/sample/src/main/res/layout/continuous_scan.xml -->
+<com.journeyapps.barcodescanner.DecoratedBarcodeView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/barcode_scanner"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_alignParentTop="true"
+    android:keepScreenOn="true"
+    app:zxing_scanner_layout="@layout/qr_code_scan_view" />
+
+

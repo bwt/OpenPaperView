@@ -58,12 +58,24 @@ PEM encoded text containing one certificate and one private key.
 \nThe server must provide a chain of certificates whose root is this certificate.
 \nIf left empty, the systems CAs will be trusted.
     </string>
+    <string name="settings_start_pairing">Start pairing</string>
     <string name="settings_check">Test</string>
-    <string name="settings_auto_download">Start</string>
+    <string name="settings_pairing_title">Pairing</string>
+    <string name="settings_pairing_starting">Starting</string>
+    <string name="settings_pairing_trying">Trying %1$s</string>
+    <string name="settings_pairing_failed">Pairing failed, none of the addresses worked</string>
+    <string name="settings_pairing_success">Successfully paired with %1$s.\n\nThe database will be downloaded and the app restarted.\n\nIf it doesn\'t work, the test procedure may be helpful.</string>
+    <string name="settings_pairing_dialog_cancel">Cancel</string>
+    <string name="settings_pairing_dialog_sync">Download database</string>
+    <string name="settings_pairing_dialog_fullsync">Download database and documents</string>
+    <string name="settings_pairing_dialog_done">OK</string>
 
     <string name="settingsCheck_stop">Stop</string>
     <string name="settingsCheck_restart">Test again</string>
     <string name="settingsCheck_reset">Clear Data</string>
+
+    <string name="pairing_scan">Please scan Paperwork\'s QrCode(s)</string>
+    <string name="pairing_bad_qrcode">Bad QR Code : %1$s</string>
 
     <string name="check_stopped">Stopped</string>
     <string name="check_checking_parameters">Checking parameters</string>

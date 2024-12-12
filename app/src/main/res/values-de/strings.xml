@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OpenPaperView</string>
+
+    <string name="main_search">Suchen</string>
+
+    <string name="main_dialog_title">Demo überprüfen?</string>
+    <string name="main_dialog_text">Die Basis-URL ist nicht festgelegt.
+\nDiese Anwendung ist ohne einen HTTP-Server, der OpenPaperwork-Dokumente hostet, nicht verwendbar.
+\nMöchten Sie sie mit einem Demo-Server testen?
+(Sie können später in den Einstellungen einen echten konfigurieren)
+\nBitte beachten Sie, dass das Herunterladen der Datenbank einige Sekunden dauern kann</string>
+    <string name="main_dialog_yes">OK, Demo überprüfen</string>
+    <string name="main_dialog_no">Nein</string>
+
+    <string name="download_channel_name">Downloader</string>
+    <string name="download_channel_desc">Dokumente herunterladen</string>
+    <string name="download_title">Herunterladen</string>
+    <string name="download_body">Offline-Dokumente herunterladen</string>
+
+    <string name="db_update_available">Eine neue Datenbank ist verfügbar</string>
+    <string name="db_update_restart">Anwendung neu starten</string>
+    <string name="db_update_error">Etwas ist bei einer Datenbankaktualisierung schiefgelaufen:\n%1$s</string>
+
+    <string name="screen_docList">Dokumente</string>
+    <string name="screen_settings">Einstellungen</string>
+    <string name="screen_settingsCheck">Einstellungen überprüfen</string>
+    <string name="screen_downloadList">Downloads</string>
+    <string name="screen_pageList">Seiten</string>
+    <string name="screen_about">Über</string>
+
+    <string name="send_title">%1$s senden</string>
+
+    <string name="doclist_local_pdf_toast">PDF müssen zuerst heruntergeladen werden</string>
+    <string name="doclist_local_pdf_action">Herunterladen</string>
+    <string name="doclist_unknown_document_type">Unbekannter Dokumenttyp</string>
+
+    <string name="pages_page_1">Seite %1$d</string>
+
+    <string name="settings_value_empty">Kein Wert</string>
+    <string name="settings_value_ok">OK</string>
+    <string name="settings_value_error">Fehler</string>
+    <string name="settings_dialog_ok">OK</string>
+    <string name="settings_baseUrl_label">Basis-URL</string>
+    <string name="settings_baseUrl_hint">Eine HTTPS-URL (ohne /papers/)</string>
+    <string name="settings_autoDownloadLabels_label">Automatisch heruntergeladene Labels ("*" für alle)</string>
+    <string name="settings_autoDownloadLabels_hint">Kommagetrennte Labels</string>
+    <string name="settings_autoDownloadLabels_info">Übereinstimmende Dokumente: %1$d, herunterzuladen: %2$d</string>
+    <plurals name="settings_auto_dowload_started">
+        <item quantity="one">%d Download hinzugefügt</item>
+        <item quantity="other">%d Downloads hinzugefügt</item>
+    </plurals>
+    <string name="settings_clientPem_label">Client-Zertifikat und privater Schlüssel</string>
+    <string name="settings_clientPem_hint">Ein optionaler (aber dringend empfohlener!)
+PEM-codierter Text, der ein Zertifikat und einen privaten Schlüssel enthält.
+    </string>
+    <string name="settings_serverCa_label">Vertrauenswürdige Root-CA</string>
+    <string name="settings_serverCa_hint">Ein optionaler PEM-codierter Text, der ein Zertifikat enthält.
+\nDer Server muss eine Kette von Zertifikaten bereitstellen, deren Root dieses Zertifikat ist.
+\nWenn leer gelassen, werden die System-CAs als vertrauenswürdig eingestuft.
+    </string>
+    <string name="settings_check">Testen</string>
+
+    <string name="settingsCheck_stop">Stoppen</string>
+    <string name="settingsCheck_restart">Erneut testen</string>
+    <string name="settingsCheck_reset">Daten löschen</string>
+
+    <string name="check_stopped">Gestoppt</string>
+    <string name="check_checking_parameters">Parameter werden überprüft</string>
+    <string name="check_failure">Fehler</string>
+    <string name="check_base_url">Basis-URL</string>
+    <string name="check_base_url_is_not_https">Basis-URL ist nicht HTTPS</string>
+    <string name="check_client_certificate">Client-Zertifikat</string>
+    <string name="check_no_client_certificate">Kein Client-Zertifikat</string>
+    <string name="check_client_certificate_over_http">Client-Zertifikat über HTTP</string>
+    <string name="check_server_root_ca">Server-Zertifizierungsstelle</string>
+    <string name="check_no_server_root_ca">Keine Server-Zertifizierungsstelle</string>
+    <string name="check_server_ca_over_http">Server-Zertifizierungsstelle über HTTP</string>
+    <string name="check_no_network_connectivity">Keine Netzwerkverbindung</string>
+    <string name="check_dnl_db_without_certificate">Versuch, die Datenbank ohne Zertifikat herunterzuladen</string>
+    <string name="check_trying_to_download_the_db">Versuch, die Datenbank herunterzuladen</string>
+    <string name="check_empty_response">Leere Antwort</string>
+    <string name="check_response_was_cached_desc">Antwort kam aus dem Cache</string>
+    <string name="check_response_was_cached_msg">Dies ist wahrscheinlich ein Fehler</string>
+    <string name="check_response_was_not_compressed_desc">Antwort wurde nicht komprimiert</string>
+    <string name="check_response_was_not_compressed_msg">Erwägen Sie, den Server so zu konfigurieren, dass er den Inhalt von \'%1$s\' komprimiert</string>
+    <string name="check_compressed_response">Komprimierte Antwort: %1$s (%2$s Bytes)</string>
+    <string name="check_http_error">HTTP-Fehler</string>
+    <string name="check_trying_to_download_again_the_db">Versuch, die Datenbank erneut herunterzuladen</string>
+    <string name="check_no_network_response">Keine Netzwerkantwort</string>
+    <string name="check_db_received_again">Datenbank erneut empfangen</string>
+    <string name="check_this_is_not_secure">Dies ist nicht sicher</string>
+    <string name="check_looks_good">Sieht gut aus</string>
+    <string name="check_this_is_inconsistent">Dies ist inkonsistent</string>
+    <string name="check_the_systems_ca_will_be_trusted">Die CA des Systems wird als vertrauenswürdig eingestuft</string>
+    <string name="check_the_server_should_deny_the_request">Der Server sollte die Anfrage ablehnen</string>
+    <string name="check_denied_as_expected">Verweigert, wie erwartet</string>
+    <string name="check_access_not_denied_server_not_secure">Zugriff nicht verweigert, der Server ist NICHT ordnungsgemäß geschützt</string>
+    <string name="check_unexpected_error_expected_401_or_403">Unerwarteter Fehler (erwartet 401 oder 403)</string>
+    <string name="check_the_server_should_repond_no_necessary">Der Server sollte antworten, dass dies nicht erforderlich ist</string>
+    <string name="check_not_modified_as_expected">\'Nicht geändert\', wie erwartet</string>
+    <string name="check_the_cache_control_does_not_work_properly">Die Cache-Steuerung funktioniert nicht ordnungsgemäß</string>
+
+    <string name="check_response_code_1">Antwortcode %1$s</string>
+    <string name="check_response_code_expected_401_or_403_1">Antwortcode %1$s (erwartet 401 oder 403)</string>
+    <string name="check_response_code_without_body_1">Response code %1$s without body ???</string>
+    <string name="check_exception_1">%1$s</string>
+
+    <string name="check_received_size_bytes_2">%1$s (%2$s bytes) gelesen</string>
+    <string name="check_no_network_response_2">No network response ?? %1$s, \'%2$s\'</string>
+
+    <plurals name="dowloads_documents">
+        <item quantity="one">%d document</item>
+        <item quantity="other">%d documents</item>
+    </plurals>
+    <plurals name="dowloads_parts">
+        <item quantity="one">, %d file</item>
+        <item quantity="other">, %d files</item>
+    </plurals>
+    <string name="dowloads_size">, %1$s</string>
+
+</resources>
