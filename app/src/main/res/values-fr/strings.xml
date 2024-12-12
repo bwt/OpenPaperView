@@ -58,12 +58,24 @@
 \nLe serveur doit fournir une chaîne de certificat remontant à ce certificat.
 \nOptionnel, sinon les certificats racines d\'Android seront utilisés.
     </string>
+    <string name="settings_start_pairing">Appairage</string>
     <string name="settings_check">Test</string>
-    <string name="settings_auto_download">Démarrer</string>
+    <string name="settings_pairing_title">Appairage</string>
+    <string name="settings_pairing_starting">Demmarrage</string>
+    <string name="settings_pairing_trying">Essai avec %1$s</string>
+    <string name="settings_pairing_failed">Échec de l\'appairage, aucune des adresses n\'a pu être utilisée</string>
+    <string name="settings_pairing_success">Appairage réussi avec %1$s.\n\nLa base de données va être téléchargée et l\'application va redémarrer.\n\nSi cela ne fonctionne pas utilisez la fonction de test des paramètres.</string>
+    <string name="settings_pairing_dialog_cancel">Annuler</string>
+    <string name="settings_pairing_dialog_sync">Télécharger la base de données</string>
+    <string name="settings_pairing_dialog_fullsync">Télécharger la base de données et tous les documents</string>
+    <string name="settings_pairing_dialog_done">OK</string>
 
     <string name="settingsCheck_stop">Stop</string>
     <string name="settingsCheck_restart">Réessayer</string>
     <string name="settingsCheck_reset">Effacer les données</string>
+
+    <string name="pairing_scan">Scannez un QRCode de Paperwork</string>
+    <string name="pairing_bad_qrcode">QR Code inutilisable : %1$s</string>
 
     <string name="check_stopped">Arrêté</string>
     <string name="check_checking_parameters">Vérification des paramètres</string>

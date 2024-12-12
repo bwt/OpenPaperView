@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.parcelize)
+    alias(libs.plugins.serialization)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -87,6 +88,7 @@ android {
 dependencies {
 
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
@@ -108,6 +110,9 @@ dependencies {
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     implementation(libs.compose.material.icons.extended)
+
+    // accompanist
+    implementation(libs.accompanist.permissions)
 
     // navigation
     implementation(libs.hilt.navigation.compose)
@@ -146,6 +151,9 @@ dependencies {
 
     // https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/CHANGELOG.md
     implementation(libs.gildor.coroutines.okhttp)
+
+    implementation(libs.zxing.journeyapps)
+    implementation(libs.zxing.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

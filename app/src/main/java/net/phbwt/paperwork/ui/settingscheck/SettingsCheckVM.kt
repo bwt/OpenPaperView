@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -61,10 +62,12 @@ class SettingsCheckVM @Inject constructor(
             try {
                 runChecks()
             } catch (ex: Exception) {
+                ensureActive()
                 // e.g. network error
                 addItem(Msg(R.string.check_failure), Level.Error, Msg(ex))
+            } finally {
+                setRunning(false)
             }
-            setRunning(false)
         }
     }
 
@@ -87,7 +90,7 @@ class SettingsCheckVM @Inject constructor(
 
         setParamsOk(true)
 
-        delay(300)
+        delay(900)
 
         checkConnectivity()
         checkDbDownloadWithoutCertificate(p)

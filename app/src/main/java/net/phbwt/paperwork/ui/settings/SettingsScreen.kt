@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 
 package net.phbwt.paperwork.ui.settings
 
@@ -20,18 +20,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Help
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.ContentPaste
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -64,18 +67,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.entity.db.LabelType
 import net.phbwt.paperwork.data.entity.db.asFilter
+import net.phbwt.paperwork.data.helper.PairingRunner
+import net.phbwt.paperwork.data.helper.PairingRunner.PairingStatus
 import net.phbwt.paperwork.data.settings.LABELS_SEPARATOR
 import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
 import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.main.Dest
 import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.theme.AppTheme
+import net.phbwt.paperwork.ui.pairing.ScanContract
 
 @Destination(style = AppTransitions::class)
 @Composable
@@ -91,6 +100,12 @@ fun SettingsScreen(
     val baseUrl = vm.baseUrl
     val autoDowloadLabels = vm.autoDownloadLabels
     val data by vm.data.collectAsStateWithLifecycle()
+
+    // start activity to get the QR Codes
+    val launcherQR = rememberLauncherForActivityResult(ScanContract()) {
+        // then start the pairing
+        it?.let { vm.startPairing(it) }
+    }
 
     // start activity for client certificate
     val launcherC = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
@@ -126,6 +141,9 @@ fun SettingsScreen(
         onImportServerCA = {
             launcherS.launch("application/*")
         },
+        onQrCodeInit = {
+            launcherQR.launch(null)
+        },
         onCheck = {
             navigator.navigate(SettingsCheckScreenDestination())
         },
@@ -139,6 +157,12 @@ fun SettingsScreen(
                 )
                 snackbarHostState.showSnackbar(toastMessage)
             }
+        },
+        onEndPairing = {
+            vm.endPairing()
+        },
+        onStartSync = { full ->
+            vm.startSync(full)
         },
         snackbarHostState,
         onNavigationIcon,
@@ -156,8 +180,11 @@ fun SettingsContent(
     onAutoDownloadLabelsChanged: (TextFieldValue, Boolean) -> Unit = { _, _ -> },
     onImportClientPEM: () -> Unit = {},
     onImportServerCA: () -> Unit = {},
+    onQrCodeInit: () -> Unit = {},
     onCheck: () -> Unit = {},
     onAutoDownload: () -> Unit = {},
+    onEndPairing: () -> Unit = {},
+    onStartSync: (Boolean) -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onNavigationIcon: (Boolean) -> Unit = {},
 ) = WrappedScaffold(
@@ -221,6 +248,8 @@ fun SettingsContent(
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
         ) {
+            ScanButton(onQrCodeInit)
+
             Button(
                 onClick = onCheck,
             ) {
@@ -231,6 +260,95 @@ fun SettingsContent(
         // edge2edge : bottom
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
+
+    PairingDialog(
+        data.pairingStatus,
+        onEndPairing,
+        onStartSync,
+    )
+}
+
+
+@Composable
+fun PairingDialog(
+    status: PairingStatus?,
+    onFinish: () -> Unit,
+//    onClear: () -> Unit,
+    onStartSync: (Boolean) -> Unit,
+) {
+    if (status != null) {
+
+        AlertDialog(
+            onDismissRequest = { /* not dismissible */ },
+            title = { Text(stringResource(id = R.string.settings_pairing_title)) },
+            text = { Text(status.message, minLines = 7) },
+            confirmButton = {
+                if (status is PairingRunner.Succeeded) {
+                    TextButton(
+                        onClick = {
+                            onFinish()
+                            onStartSync(false)
+                        }
+                    ) { Text(stringResource(id = R.string.settings_pairing_dialog_sync)) }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            dismissButton = {
+                when (status) {
+                    is PairingRunner.Ongoing -> TextButton(
+                        onClick = { onFinish() }
+                    ) { Text(stringResource(id = R.string.settings_pairing_dialog_cancel)) }
+
+                    is PairingRunner.Succeeded -> TextButton(
+                        onClick = {
+                            onFinish()
+                            onStartSync(true)
+                        }
+                    ) { Text(stringResource(id = R.string.settings_pairing_dialog_fullsync)) }
+
+                    is PairingRunner.Failed -> TextButton(
+                        onClick = { onFinish() }
+                    ) { Text(stringResource(id = R.string.settings_pairing_dialog_done)) }
+                }
+            },
+        )
+    }
+
+}
+
+
+@Composable
+fun ScanButton(
+    onQrCodeInit: () -> Unit,
+) {
+
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    var deferredStart by remember { mutableStateOf(false) }
+
+    if (deferredStart && cameraPermissionState.status.isGranted) {
+        onQrCodeInit()
+        deferredStart = false
+    }
+
+    Button(
+        onClick = {
+            if (cameraPermissionState.status.isGranted) {
+                onQrCodeInit()
+            } else {
+                cameraPermissionState.launchPermissionRequest()
+                deferredStart = true
+            }
+        }
+    ) {
+        Icon(
+            Icons.Filled.QrCode,
+            null,
+            modifier = Modifier.size(ButtonDefaults.IconSize),
+        )
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Text(stringResource(R.string.settings_start_pairing))
+    }
+
 }
 
 
@@ -499,6 +617,7 @@ fun DefaultPreview() {
             "http://",
             TextFieldValue("aaa, dddd"),
             SettingsData(
+                null,
                 "URL error",
                 listOf(),
                 LabelsInfo(),

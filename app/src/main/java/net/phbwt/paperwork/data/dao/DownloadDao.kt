@@ -19,7 +19,7 @@ select p.*, d.name as documentName, d.thumb as documentThumb
 from Part p
 join Document d
   on d.documentId = p.documentId
-where p.downloadStatus in ($DNL_QUEUED) order by p.partId limit 1
+where p.downloadStatus in ($DNL_QUEUED) order by d.date desc limit 1
 """
     )
     suspend fun loadFirstDownloadableImpl(): Download?

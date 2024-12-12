@@ -172,6 +172,12 @@ fun AboutContent(
             "Square’s meticulous HTTP client for the JVM, Android, and GraalVM.",
         )
 
+        LibRow(
+            "ZXing Android Embedded",
+            "https://github.com/journeyapps/zxing-android-embedded",
+            "Barcode scanner library for Android, based on the ZXing decoder.",
+        )
+
         // edge2edge : bottom
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }

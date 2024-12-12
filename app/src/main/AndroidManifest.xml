@@ -44,6 +44,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="net.phbwt.paperwork.ui.pairing.QrCodeScanActivity" />
+
         <provider
             android:name=".helper.FileProvider"
             android:authorities="${applicationId}.fileprovider"

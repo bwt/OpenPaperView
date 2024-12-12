@@ -19,3 +19,8 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# needed by the okhttp3.tls.internal.InsecureAndroidTrustManager
+# during the pairing with openpaperwork
+-keep class * implements javax.net.ssl.X509TrustManager { *; }
+

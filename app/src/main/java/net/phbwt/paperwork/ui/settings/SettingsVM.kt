@@ -17,23 +17,29 @@ import androidx.lifecycle.viewmodel.compose.saveable
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
 import net.phbwt.paperwork.data.dao.AutoDownloadInfo
 import net.phbwt.paperwork.data.entity.db.LabelType
+import net.phbwt.paperwork.data.entity.pairing.QrCodeContent
+import net.phbwt.paperwork.data.helper.PairingRunner
 import net.phbwt.paperwork.data.settings.MAX_VALUE_SIZE
 import net.phbwt.paperwork.data.settings.Settings
+import net.phbwt.paperwork.helper.combine6
 import net.phbwt.paperwork.helper.desc
 import net.phbwt.paperwork.helper.firstThenDebounce
-import net.phbwt.paperwork.helper.latestRelease
 import net.phbwt.paperwork.helper.msg
 import okio.buffer
 import okio.source
@@ -47,6 +53,9 @@ class SettingsVM @Inject constructor(
     private val repo: Repository,
     private val settings: Settings,
 ) : AndroidViewModel(application) {
+
+    private var currentPairingJob: Job? = null
+    val pairingRunner = PairingRunner(application)
 
     //region editable fields hoisting
 
@@ -81,7 +90,8 @@ class SettingsVM @Inject constructor(
     // Editable text fields states are hoisted directly :
     // base URL and auto download labels
     // here we only use the URL validation error and the downloadable count
-    val data = combine(
+    val data = combine6(
+        pairingRunner.pairingStatus,
         settings.baseUrl,
         allLabels,
         labelInfo,
@@ -93,18 +103,25 @@ class SettingsVM @Inject constructor(
             val certInfo = certResult.mapCatching { it?.toString() }
             SettingItem(txt, certInfo.getOrNull(), certInfo.exceptionOrNull()?.msg())
         },
-    ) { url, all, info, client, server ->
+    ) { pairing, url, all, info, client, server ->
         SettingsData(
+            pairing,
             url.exceptionOrNull().msg(),
             all,
             info,
             client,
             server,
         )
-    }.latestRelease(viewModelScope, SettingsData())
+    }.stateIn(
+        viewModelScope,
+        // restarting after the QR-Code capture is slow
+        SharingStarted.Lazily,
+        SettingsData(),
+    )
 
     init {
         viewModelScope.launch {
+            // init hoisted fields
             baseUrl = settings.baseUrlStr.first()
             autoDownloadLabels = TextFieldValue(settings.autoDownloadLabelsStr.first())
         }
@@ -165,11 +182,8 @@ class SettingsVM @Inject constructor(
                 // There is probably a simpler way to read min(content_size, a_reasonable_value)
 
                 val source = it?.source()?.buffer() ?: return@withContext "No content ???"
-
                 val maxLen = MAX_VALUE_SIZE.toLong()
-
                 source.request(maxLen + 1)
-
                 val readLen = source.buffer.size
 
                 if (readLen > maxLen) {
@@ -184,10 +198,47 @@ class SettingsVM @Inject constructor(
         }
     }
 
-    companion object {
-        private const val TAG = "SettingsVM"
+    /** Try to connect to one of the addresses */
+    fun startPairing(config: QrCodeContent) {
+        Log.d(TAG, "Starting pairing")
+        currentPairingJob?.cancel("Restarted")
+        currentPairingJob = viewModelScope.launch {
+            val result = pairingRunner.runPairing(config)
+
+            if (result != null) {
+                settings.updateServerCa(result.config.server.certificate)
+                settings.updateClientPem(result.config.client.certificate)
+                settings.updateBaseUrl(result.address)
+                // also the hoisted field
+                baseUrl = result.address
+            }
+        }
     }
+
+    fun endPairing() {
+        currentPairingJob?.cancel("Cancelled")
+        currentPairingJob = null
+        pairingRunner.pairingCanceled()
+    }
+
+    fun startSync(full: Boolean) {
+        val labels = if (full) listOf("*") else listOf("")
+
+        autoDownloadLabels = TextFieldValue(labels.joinToString())
+
+        viewModelScope.launch {
+            settings.updateAutoDownloadLabels(labels.joinToString())
+//            repo.db.downloadDao().queueAutoDownloads(labels)
+            repo.purgeCache()
+            repo.purgeDownloaded()
+            DownloadWorker.enqueueLoad(getApplication())
+        }
+    }
+
+
 }
+
+private const val TAG = "SettingsVM"
 
 
 @Immutable
@@ -203,11 +254,15 @@ data class LabelsInfo(
     val autoDownloads: AutoDownloadInfo = AutoDownloadInfo(0, 0),
 )
 
+
 @Immutable
 data class SettingsData(
+    val pairingStatus: PairingRunner.PairingStatus? = null,
     val baseUrlError: String = "",
     val allLabels: List<LabelType> = listOf(),
     val labelsInfo: LabelsInfo = LabelsInfo(),
     val clientPem: SettingItem = SettingItem(),
     val serverCa: SettingItem = SettingItem(),
 )
+
+
