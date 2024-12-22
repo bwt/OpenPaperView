@@ -1,45 +1,43 @@
 [versions]
-agp = "8.7.1"
-kotlin = "2.0.21"
+agp = "8.10.1"
+kotlin = "2.1.21"
 
 # https://github.com/google/ksp/releases
-ksp = "2.0.21-1.0.25"
+ksp = "2.1.21-2.0.2"
 
 #https://github.com/google/dagger/releases
-dagger = "2.52"
+dagger = "2.56.2"
 
 # https://developer.android.com/jetpack/androidx/releases/hilt
 hilt = "1.2.0"
 
 # kotlinx
 # https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/CHANGELOG.md
-kotlinxImmutable = "0.3.8"
+kotlinxImmutable = "0.4.0"
 # https://github.com/Kotlin/kotlinx.serialization/releases
-kotlinxSerialization = "1.7.3"
+kotlinxSerialization = "1.8.1"
 
 # https://developer.android.com/jetpack/androidx/versions
-activityCompose = "1.9.3"
-core = "1.13.1"
+activityCompose = "1.10.1"
+core = "1.16.0"
 coreSplashscreen = "1.0.1"
-datastorePreference = "1.1.1"
+datastorePreference = "1.1.7"
 
 # https://developer.android.com/jetpack/androidx/releases/lifecycle#kts
-# see https://stackoverflow.com/a/78490417/1283554
-# and https://issuetracker.google.com/issues/336842920#comment8
-lifecycle = "2.8.6"
+lifecycle = "2.9.1"
 
 # https://developer.android.com/jetpack/androidx/releases/navigation
 navigation = "2.7.7"
 
 # Workmanager
 # https://developer.android.com/jetpack/androidx/releases/work
-workmanager = "2.9.1"
+workmanager = "2.10.1"
 
 # https://developer.android.com/jetpack/androidx/releases/room
-room = "2.6.1"
+room = "2.7.1"
 
 #  https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
-coil = "3.0.4"
+coil = "3.2.0"
 
 # https://github.com/square/okhttp/blob/master/docs/changelogs/changelog_4x.md
 okhttpBom = "4.12.0"
@@ -48,11 +46,11 @@ okhttpBom = "4.12.0"
 gildorCoroutinesOkhttp = "1.0"
 
 # https://developer.android.com/jetpack/compose/bom/bom-mapping
-composeBom = "2024.10.00"
+composeBom = "2025.06.00"
 # https://github.com/google/accompanist/releases
-accompanist = "0.34.0"
+accompanist = "0.37.3"
 # https://github.com/raamcosta/compose-destinations/releases
-composeDestinations = "1.11.7"
+composeDestinations = "1.11.9"
 
 # https://github.com/journeyapps/zxing-android-embedded/releases
 zxingJourneyapps = "4.3.0"

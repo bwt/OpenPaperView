@@ -31,7 +31,7 @@ interface DocumentDao {
 
     fun notFullyDownloaded(): Flow<List<DocumentFull>> = havingAPartNotInState(DNL_DONE)
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     @Transaction
     @Query("""
 select *
@@ -47,7 +47,7 @@ order by date desc limit 500
 
 
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     @Transaction
     @Query("select * from Document where documentId = :id")
     fun loadDocument(id: Int): Flow<DocumentFull>

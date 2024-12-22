@@ -10,18 +10,19 @@ plugins {
 
 android {
     namespace = "net.phbwt.paperwork"
-    compileSdk = 35
+    compileSdk = 36
     // FDroid can not verify APK produced with build-tools 35
     // https://f-droid.org/docs/Reproducible_Builds/#apksigner-from-build-tools--3500-rc1-outputs-unverifiable-apks
     // https://gitlab.com/fdroid/fdroiddata/-/issues/3299
-    buildToolsVersion = "34.0.0"
+    // but AGP requires at least 35
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "net.phbwt.paperwork"
-        minSdk = 24
-        targetSdk = 35
-        versionCode = 1002000
-        versionName = "1.2.0"
+        minSdk = 26
+        targetSdk = 36
+        versionCode = 1002017
+        versionName = "1.2.17"
 
         resourceConfigurations += arrayOf("en", "fr")
 
