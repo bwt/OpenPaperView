@@ -155,8 +155,8 @@ fun PageListContentImages(
                                     transformOrigin = TransformOrigin(0f, 0f)
                                 },
                             contentScale = ContentScale.Fit,
-                            placeholder = painterResource(R.drawable.ic_cloud_queue_24),
-                            error = painterResource(R.drawable.ic_error_outline_24),
+                            placeholder = painterResource(R.drawable.ic_cloud_queue),
+                            error = painterResource(R.drawable.ic_error_outline),
                         )
                     }
                 }

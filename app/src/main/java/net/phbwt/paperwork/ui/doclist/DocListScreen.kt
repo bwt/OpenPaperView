@@ -460,7 +460,7 @@ fun DocRow(
                 .clickable { onDocClicked(doc) },
             // makes the image too small at first
 //            placeholder = painterResource(R.drawable.ic_cloud_queue_24),
-            error = painterResource(R.drawable.ic_error_outline_24),
+            error = painterResource(R.drawable.ic_error_outline),
             contentScale = ContentScale.Fit
         )
 

@@ -52,7 +52,7 @@ class DownloadWorker @AssistedInject constructor(
     override suspend fun getForegroundInfo(): ForegroundInfo = ForegroundInfo(
         NOTIFICATION_ID,
         NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_download_24)
+            .setSmallIcon(R.drawable.ic_download)
             .setContentTitle(applicationContext.getString(R.string.download_title))
             .setContentText(applicationContext.getString(R.string.download_body))
             .setForegroundServiceBehavior(FOREGROUND_SERVICE_DEFERRED)

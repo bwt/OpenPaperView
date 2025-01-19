@@ -198,7 +198,7 @@ fun PageListContentPdf(
                                         transformOrigin = TransformOrigin(0f, 0f)
                                     },
                                 contentScale = ContentScale.Fit,
-                                error = painterResource(R.drawable.ic_error_outline_24),
+                                error = painterResource(R.drawable.ic_error_outline),
                             )
                         }
                     }
