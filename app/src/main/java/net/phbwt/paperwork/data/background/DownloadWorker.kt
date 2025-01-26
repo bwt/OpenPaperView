@@ -1,13 +1,16 @@
 package net.phbwt.paperwork.data.background
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.os.Build
 import android.util.Log
 import androidx.collection.mutableIntSetOf
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationCompat.FOREGROUND_SERVICE_DEFERRED
+import androidx.core.content.getSystemService
 import androidx.hilt.work.HiltWorker
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -49,22 +52,36 @@ class DownloadWorker @AssistedInject constructor(
     private val repo: Repository,
 ) : CoroutineWorker(context, workerParameters) {
 
+    val notificationBuilder = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+        .setSmallIcon(R.drawable.ic_download)
+        .setContentTitle(applicationContext.getString(R.string.download_title))
+        .setContentText(applicationContext.getString(R.string.download_body))
+        .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFERRED)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setOngoing(true)
+        .setAutoCancel(false)
+        .addAction(
+            R.drawable.ic_cancel,
+            applicationContext.getString(R.string.download_cancel),
+            WorkManager.getInstance(applicationContext).createCancelPendingIntent(id),
+        )
+        .setOnlyAlertOnce(true)
+        .setLocalOnly(true)
+
+    // A long running worker (> 10mn) requires a ForegroundService,
+    // which in turn requires a notification
+    // but it will be visible on modern devices (> 33)
+    // only if we have the POST_NOTIFICATIONS permission
     override suspend fun getForegroundInfo(): ForegroundInfo = ForegroundInfo(
         NOTIFICATION_ID,
-        NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_download)
-            .setContentTitle(applicationContext.getString(R.string.download_title))
-            .setContentText(applicationContext.getString(R.string.download_body))
-            .setForegroundServiceBehavior(FOREGROUND_SERVICE_DEFERRED)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-//            .setOngoing(true)
-            .build()
+        notificationBuilder.build(),
+        ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
     )
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         Log.i(TAG, "Working")
 
-//        setForeground(getForegroundInfo())
+        setForeground(getForegroundInfo())
 
         if (BuildConfig.DEBUG && DEBUG_NETWORK) {
             Log.e(TAG, "Adding work delay")
@@ -180,6 +197,9 @@ class DownloadWorker @AssistedInject constructor(
 
     private suspend fun downloadParts() {
         val dao = repo.db.downloadDao()
+        val notificationManager = applicationContext.getSystemService<NotificationManager>() ?: throw IllegalStateException()
+        val canNotify = Build.VERSION.SDK_INT < 33
+                || applicationContext.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
         val clearedCount = dao.retryStuckDownloads()
 
@@ -188,12 +208,26 @@ class DownloadWorker @AssistedInject constructor(
         }
 
         val doneDocuments = mutableIntSetOf()
+        val initialCount = dao.countRemainingDownloads()
         var downloadPartCount = 0
         var downloadThumbCount = 0
         var errorCount = 0
 
         while (true) {
-            val dnl = repo.db.downloadDao().loadFirstDownloadable()
+
+            if (canNotify && initialCount > 5 && (downloadPartCount + errorCount > 1)) {
+                val remaining = dao.countRemainingDownloads()
+                Log.e(TAG, "Notify $downloadPartCount, $remaining")
+
+                notificationManager.notify(
+                    NOTIFICATION_ID,
+                    notificationBuilder
+                        .setProgress(downloadPartCount + remaining, downloadPartCount, false)
+                        .build(),
+                )
+            }
+
+            val dnl = dao.loadFirstDownloadable()
                 ?: break
 
             val partId = dnl.part.partId
@@ -358,8 +392,7 @@ class DownloadWorker @AssistedInject constructor(
                         Constraints.Builder()
                             .setRequiredNetworkType(NetworkType.CONNECTED)
                             .build()
-                    )
-                    .build()
+                    ).build()
             )
         }
     }

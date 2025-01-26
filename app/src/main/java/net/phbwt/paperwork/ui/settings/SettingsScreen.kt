@@ -2,6 +2,11 @@
 
 package net.phbwt.paperwork.ui.settings
 
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import android.util.Log
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
@@ -21,6 +26,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -45,6 +51,7 @@ import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -83,8 +90,8 @@ import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
 import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.main.Dest
 import net.phbwt.paperwork.ui.main.WrappedScaffold
-import net.phbwt.paperwork.ui.theme.AppTheme
 import net.phbwt.paperwork.ui.pairing.ScanContract
+import net.phbwt.paperwork.ui.theme.AppTheme
 
 @Destination(style = AppTransitions::class)
 @Composable
@@ -117,10 +124,25 @@ fun SettingsScreen(
         it?.let { vm.updateServerCa(it) }
     }
 
+    // start activity to ask for the notification permission or show the notification settings
+    val activity = LocalActivity.current
+    val permissionState = rememberPermissionState(android.Manifest.permission.POST_NOTIFICATIONS)
+    val launcherN: (Boolean) -> Unit = { on ->
+        if (on) {
+            permissionState.launchPermissionRequest()
+        } else {
+            activity?.startActivity(Intent().apply {
+                action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
+            })
+        }
+    }
+
     SettingsContent(
         baseUrl,
         autoDowloadLabels,
         data,
+        hasNotificationPermission = permissionState.status.isGranted,
         onBaseUrlChanged = {
             vm.updateBaseUrl(it)
         },
@@ -166,6 +188,7 @@ fun SettingsScreen(
         },
         snackbarHostState,
         onNavigationIcon,
+        onSetNotification = launcherN,
     )
 }
 
@@ -174,6 +197,7 @@ fun SettingsContent(
     baseUrl: String,
     autoDowloadLabels: TextFieldValue,
     data: SettingsData,
+    hasNotificationPermission: Boolean = false,
     onBaseUrlChanged: (String) -> Unit = {},
     onClientPemChanged: (String) -> Unit = {},
     onServerCaChanged: (String) -> Unit = {},
@@ -187,6 +211,7 @@ fun SettingsContent(
     onStartSync: (Boolean) -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onNavigationIcon: (Boolean) -> Unit = {},
+    onSetNotification: (Boolean) -> Unit = {},
 ) = WrappedScaffold(
     snackbarHostState,
     onNavigationIcon,
@@ -206,6 +231,7 @@ fun SettingsContent(
             // when wrapped
             Spacer(modifier = Modifier.height(8.dp))
 
+            // autodownloaded labels
             PrefLabelsItem(
                 value = autoDowloadLabels,
                 allValues = data.allLabels,
@@ -215,6 +241,7 @@ fun SettingsContent(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
+            // base URL
             PrefSimpleItem(
                 value = baseUrl,
                 error = data.baseUrlError,
@@ -225,6 +252,7 @@ fun SettingsContent(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
+            // client certificate
             PrefLoadableTextItem(
                 data.clientPem,
                 onClientPemChanged,
@@ -234,6 +262,7 @@ fun SettingsContent(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
+            // server CA
             PrefLoadableTextItem(
                 data.serverCa,
                 onServerCaChanged,
@@ -241,8 +270,30 @@ fun SettingsContent(
                 R.string.settings_serverCa_label,
                 R.string.settings_serverCa_hint,
             )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (Build.VERSION.SDK_INT >= 33) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        stringResource(R.string.settings_show_notification),
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Switch(
+                        checked = hasNotificationPermission,
+                        onCheckedChange = onSetNotification,
+                    )
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
 
+        // buttons
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -624,6 +675,7 @@ fun DefaultPreview() {
                 SettingItem("value 1", "An error"),
                 SettingItem(""),
             ),
+            true,
         )
     }
 }

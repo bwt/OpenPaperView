@@ -14,8 +14,9 @@
 
     <string name="download_channel_name">Téléchargement</string>
     <string name="download_channel_desc">Téléchargement des documents</string>
-    <string name="download_title">En cours</string>
-    <string name="download_body">Téléchargement des documents en cours</string>
+    <string name="download_title">Documents</string>
+    <string name="download_body">Téléchargement des documents</string>
+    <string name="download_cancel">Annuler (Relancez l\'application pour reprendre)</string>
 
     <string name="db_update_available">Une nouvelle BD est disponible</string>
     <string name="db_update_restart">Redémarrer l\'application</string>
@@ -44,7 +45,7 @@
     <string name="settings_baseUrl_hint">Une URL HTTPS (sans /papers/)</string>
     <string name="settings_autoDownloadLabels_label">Étiquettes téléchargées automatiquement ("*" pour toutes)</string>
     <string name="settings_autoDownloadLabels_hint">Séparées par des ,</string>
-    <string name="settings_autoDownloadLabels_info">Documents : %1$d, à télécharger : %2$d</string>
+    <string name="settings_autoDownloadLabels_info">Documents : %1$d, manquants : %2$d</string>
     <plurals name="settings_auto_dowload_started">
         <item quantity="one">Ajout de %d téléchargement</item>
         <item quantity="other">Ajout de %d téléchargements</item>
@@ -58,10 +59,11 @@
 \nLe serveur doit fournir une chaîne de certificat remontant à ce certificat.
 \nOptionnel, sinon les certificats racines d\'Android seront utilisés.
     </string>
+    <string name="settings_show_notification">Afficher une notification lors du téléchargement</string>
     <string name="settings_start_pairing">Appairage</string>
     <string name="settings_check">Test</string>
     <string name="settings_pairing_title">Appairage</string>
-    <string name="settings_pairing_starting">Demmarrage</string>
+    <string name="settings_pairing_starting">Demarrage</string>
     <string name="settings_pairing_trying">Essai avec %1$s</string>
     <string name="settings_pairing_failed">Échec de l\'appairage, aucune des adresses n\'a pu être utilisée</string>
     <string name="settings_pairing_success">Appairage réussi avec %1$s.\n\nLa base de données va être téléchargée et l\'application va redémarrer.\n\nSi cela ne fonctionne pas utilisez la fonction de test des paramètres.</string>
