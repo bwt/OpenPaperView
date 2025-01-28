@@ -37,8 +37,11 @@ where p.downloadStatus in ($DNL_QUEUED) order by d.date desc limit 1
         return dnl
     }
 
-    @Query("update Part set downloadStatus = $DNL_ERROR, downloadError = 'canceled' where downloadStatus = $DNL_DOWNLOADING")
-    suspend fun clearStuckDownloads(): Int
+    @Query("select count(*) from Part where downloadStatus = $DNL_QUEUED")
+    suspend fun countRemainingDownloads(): Int
+
+    @Query("update Part set downloadStatus = $DNL_QUEUED, downloadError = null where downloadStatus = $DNL_DOWNLOADING")
+    suspend fun retryStuckDownloads(): Int
 
     @Query("update Part set downloadStatus = $DNL_NONE, downloadError = null where downloadStatus != $DNL_NONE")
     suspend fun purgeDownloads(): Int

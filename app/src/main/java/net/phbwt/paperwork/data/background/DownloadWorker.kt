@@ -181,10 +181,10 @@ class DownloadWorker @AssistedInject constructor(
     private suspend fun downloadParts() {
         val dao = repo.db.downloadDao()
 
-        val clearedCount = dao.clearStuckDownloads()
+        val clearedCount = dao.retryStuckDownloads()
 
         if (clearedCount > 0) {
-            Log.w(TAG, "Cleared $clearedCount stuck downloads")
+            Log.w(TAG, "Retrying $clearedCount stuck downloads")
         }
 
         val doneDocuments = mutableIntSetOf()
