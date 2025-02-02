@@ -8,6 +8,7 @@ import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import net.phbwt.paperwork.data.entity.db.*
+import net.phbwt.paperwork.data.settings.isFullDownload
 
 @Dao
 interface DownloadDao {
@@ -100,7 +101,7 @@ where partId = :partId
   and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
 """
     )
-    suspend fun restartPart(partId: Int)
+    suspend fun queueDownloadForPart(partId: Int)
 
     @Query(
         """
@@ -115,7 +116,7 @@ and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
 
     suspend fun queueAutoDownloads(labels: List<String>): Int = when {
         labels.isEmpty() -> 0
-        labels.any { it == "*" } -> queueAutoDownloadsAllImpl()
+        labels.isFullDownload() -> queueAutoDownloadsAllImpl()
         else -> queueAutoDownloadsImpl(labels)
     }
 
@@ -142,7 +143,7 @@ and downloadStatus not in ($DNL_QUEUED, $DNL_DOWNLOADING, $DNL_DONE)
 
     fun countAutoDownloads(labels: List<String>): Flow<AutoDownloadInfo> = when {
         labels.isEmpty() -> flowOf(AutoDownloadInfo(0, 0))
-        labels.any { it == "*" } -> countAutoDownloadsAllImpl()
+        labels.isFullDownload() -> countAutoDownloadsAllImpl()
         else -> countAutoDownloadsImpl(labels)
     }
 

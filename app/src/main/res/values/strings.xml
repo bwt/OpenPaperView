@@ -123,14 +123,15 @@ PEM encoded text containing one certificate and one private key.
     <string name="check_received_size_bytes_2">Read %1$s (%2$s bytes)</string>
     <string name="check_no_network_response_2">No network response ?? %1$s, \'%2$s\'</string>
 
-    <plurals name="dowloads_documents">
+    <string name="downloads_fullmode">In full download mode, only missing documents are shown</string>
+    <plurals name="downloads_documents">
         <item quantity="one">%d document</item>
         <item quantity="other">%d documents</item>
     </plurals>
-    <plurals name="dowloads_parts">
+    <plurals name="downloads_parts">
         <item quantity="one">, %d file</item>
         <item quantity="other">, %d files</item>
     </plurals>
-    <string name="dowloads_size">, %1$s</string>
+    <string name="downloads_size">, %1$s</string>
 
 </resources>

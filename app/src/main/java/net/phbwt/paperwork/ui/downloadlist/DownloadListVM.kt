@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package net.phbwt.paperwork.ui.downloadlist
 
 import android.app.Application
@@ -6,7 +8,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
@@ -32,15 +38,33 @@ class DownloadListVM @Inject constructor(
 
     private val enterAnimDone = savedStateHandle.getStateFlow(ENTER_ANIM_DONE, false)
 
+    private val downloads: Flow<Downloads> = settings.isFullDownload.flatMapLatest { fullMode ->
+        when {
+            // should not happen
+            fullMode.isFailure -> throw IllegalStateException("Could not get the full download setting")
+            // full download mode, show the missing documents
+            fullMode.getOrThrow() -> repo.db.docDao().notFullyDownloaded()
+            // the downloaded documents
+            else -> repo.db.docDao().withDownloads()
+        }.map {
+            Downloads(fullMode.getOrThrow(), it.toComposeImmutable())
+        }
+    }
+
     val screenData = combine(
-        repo.db.docDao().withDownloads(),
+        downloads,
         repo.db.downloadDao().stats(),
         enterAnimDone,
-    ) { d, s, e -> DownloadListData(d.toComposeImmutable(), s, e) }
+    ) { d, s, e -> DownloadListData(d, s, e) }
         .latestRelease(viewModelScope, DownloadListData())
 
     suspend fun restart(part: Part) {
-        repo.db.downloadDao().restartPart(part.partId)
+        repo.db.downloadDao().queueDownloadForPart(part.partId)
+        DownloadWorker.enqueueLoad(getApplication())
+    }
+
+    suspend fun restart(doc: DocumentFull) {
+        repo.db.downloadDao().queueDownloadForDocument(doc.document.documentId)
         DownloadWorker.enqueueLoad(getApplication())
     }
 
@@ -56,8 +80,13 @@ class DownloadListVM @Inject constructor(
 
 private const val ENTER_ANIM_DONE = "enter_anim_done"
 
+data class Downloads(
+    val fullMode: Boolean = false,
+    val documents: List<DocumentFull> = listOf(),
+)
+
 data class DownloadListData(
-    val downloads: List<DocumentFull> = listOf(),
+    val downloads: Downloads = Downloads(),
     val stats: DownloadStats? = null,
     val enterFlashDone: Boolean = false,
 )

@@ -87,6 +87,10 @@ class Settings @Inject constructor(
         runCatching { it.split(LABELS_SEPARATOR).map { it.trim() }.distinct() }
     }
 
+    val isFullDownload: Flow<Result<Boolean>> = autoDownloadLabels.mapResultFlow {
+        it.isFullDownload()
+    }
+
     val clientPem: Flow<Result<HeldCertificate?>> = clientPemStr.map {
         runCatching { if (it.isNotBlank()) HeldCertificate.decode(it.trim()) else null }
     }
@@ -131,5 +135,7 @@ class Settings @Inject constructor(
         }
 
 }
+
+fun List<String>.isFullDownload() = this.any { it == "*" }
 
 const val MAX_VALUE_SIZE = 65536

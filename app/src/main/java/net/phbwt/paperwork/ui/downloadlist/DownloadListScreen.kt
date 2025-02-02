@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Downloading
 import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material.icons.outlined.RestartAlt
@@ -104,6 +105,7 @@ fun DownloadListScreen(
         data,
         onPartRestart = { scope.launch { vm.restart(it) } },
         onDocumentDelete = { scope.launch { vm.clear(it) } },
+        onDocumentRetry = { scope.launch { vm.restart(it) } },
         onDocClicked = { doc ->
             if (doc.canBeViewed) {
                 navigator.navigate(PageListScreenDestination(doc.document.documentId))
@@ -121,6 +123,7 @@ fun DownloadListContent(
     data: DownloadListData,
     onPartRestart: (Part) -> Unit = {},
     onDocumentDelete: (DocumentFull) -> Unit = { },
+    onDocumentRetry: (DocumentFull) -> Unit = { },
     onDocClicked: (DocumentFull) -> Unit = {},
     onFlashFinished: () -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -134,12 +137,26 @@ fun DownloadListContent(
     Column(
         modifier = modifier,
     ) {
+        // explanation
+        if (data.downloads.fullMode) {
+            Text(
+                text = stringResource(id = R.string.downloads_fullmode),
+                modifier = Modifier
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.secondary,
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Justify,
+            )
+        }
         DownloadRows(
-            data.downloads,
+            data.downloads.documents,
+            data.downloads.fullMode,
             navArgs.documentId,
             data.enterFlashDone,
             onPartRestart,
             onDocumentDelete,
+            onDocumentRetry,
             onDocClicked,
             onFlashFinished,
             modifier = Modifier.weight(1f),
@@ -157,7 +174,6 @@ fun DownloadListContent(
     }
 }
 
-
 @Composable
 fun DownloadStatsRow(
     stats: DownloadStats?,
@@ -172,9 +188,9 @@ fun DownloadStatsRow(
         horizontalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = pluralStringResource(id = R.plurals.dowloads_documents, count = d, d)
-                    + (if (d == p) "" else pluralStringResource(id = R.plurals.dowloads_parts, count = p, p))
-                    + stringResource(id = R.string.dowloads_size, Formatter.formatFileSize(context, s)),
+            text = pluralStringResource(id = R.plurals.downloads_documents, count = d, d)
+                    + (if (d == p) "" else pluralStringResource(id = R.plurals.downloads_parts, count = p, p))
+                    + stringResource(id = R.string.downloads_size, Formatter.formatFileSize(context, s)),
             color = MaterialTheme.colorScheme.secondary,
             style = MaterialTheme.typography.bodySmall,
         )
@@ -185,10 +201,12 @@ fun DownloadStatsRow(
 @Composable
 fun DownloadRows(
     docs: List<DocumentFull>,
+    fullMode: Boolean,
     documentId: Int?,
     enterFlashDone: Boolean,
     onPartRestart: (Part) -> Unit,
     onDocumentDelete: (DocumentFull) -> Unit,
+    onDocumentRetry: (DocumentFull) -> Unit,
     onDocClicked: (DocumentFull) -> Unit,
     onFlashFinished: () -> Unit,
     modifier: Modifier = Modifier,
@@ -253,14 +271,14 @@ fun DownloadRows(
             // main item for the document infos
             item(key = -doc.document.documentId, contentType = "header") {
                 HorizontalDivider(thickness = Dp.Hairline, color = MaterialTheme.colorScheme.onBackground)
-                DownloadHeader(doc, baseModifier.animateItem(), onDocumentDelete, onDocClicked)
+                DownloadHeader(doc, fullMode, baseModifier.animateItem(), onDocumentDelete, onDocumentRetry, onDocClicked)
             }
             currentIndex++
 
-            // optional items for each part not yet downloaded
+            // optional items for each part that should be downloaded
+            // but isn't yet
             doc.parts.filter { it.isIn }.forEach { part ->
                 item(key = part.partId, contentType = "part") {
-
                     DownloadRow(
                         part,
                         onPartRestart,
@@ -276,8 +294,10 @@ fun DownloadRows(
 @Composable
 fun DownloadHeader(
     doc: DocumentFull,
+    fullMode: Boolean,
     modifier: Modifier = Modifier,
     onDocumentDelete: (DocumentFull) -> Unit,
+    onDocumentRetry: (DocumentFull) -> Unit,
     onDocClicked: (DocumentFull) -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -293,6 +313,7 @@ fun DownloadHeader(
         Column(
             modifier = Modifier.weight(1f),
         ) {
+            // document title
             Text(
                 text = doc.document.titleOrName,
                 color = colors.primary,
@@ -300,27 +321,33 @@ fun DownloadHeader(
                 style = MaterialTheme.typography.bodyLarge,
                 maxLines = 1,
             )
+
+            // count and date
             Row {
                 CompositionLocalProvider(
                     LocalTextStyle provides MaterialTheme.typography.bodyMedium,
 //                    LocalContentAlpha provides 0.5f,
                 ) {
+                    // parts count
                     if (doc.parts.size > 1) {
                         // ok / total
                         Text(doc.parts.count { it.isLocal }.toString(), fontWeight = FontWeight.Bold)
                         Text(" / ")
                         Text(doc.parts.size.toString(), fontWeight = FontWeight.Bold)
                     }
+
                     Spacer(Modifier.weight(1f))
+
+                    // document's date
                     Text(doc.document.date.fmtDtm(LocalContext.current))
                 }
             }
         }
 
-        // button delete
-        IconButton(onClick = { onDocumentDelete(doc) }) {
+        // button donwload / delete
+        IconButton(onClick = { if (fullMode) onDocumentRetry(doc) else onDocumentDelete(doc) }) {
             Icon(
-                icons.Delete,
+                if (fullMode) icons.Download else icons.Delete,
                 contentDescription = null,
             )
         }
@@ -410,7 +437,10 @@ private const val TAG = "DownloadListScreen"
 @Composable
 fun DefaultPreview() {
     AppTheme {
-        DownloadListContent(DownloadListScreenArgs(12), DownloadListData(makeFakeDocuments(13, "document"), DownloadStats(32, 434, 534535)))
+        DownloadListContent(
+            DownloadListScreenArgs(12),
+            DownloadListData(Downloads(true, makeFakeDocuments(13, "document")), DownloadStats(32, 434, 534535))
+        )
 //        DocListContent("zz", listOf("label1", "label2"), makeFakeDocuments(5, "none"))
     }
 }
