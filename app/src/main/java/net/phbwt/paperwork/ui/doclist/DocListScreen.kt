@@ -130,6 +130,7 @@ fun DocListScreen(
     val search = vm.search
     val labels by vm.labelFilters.collectAsStateWithLifecycle()
     val labelTypes by vm.labelTypes.collectAsStateWithLifecycle()
+    val fullMode by vm.fullMode.collectAsStateWithLifecycle(false)
     val rows by vm.documentsWithHeaders.collectAsStateWithLifecycle()
 
     val hasFilter = search.isNotBlank() || labels.isNotEmpty()
@@ -150,6 +151,7 @@ fun DocListScreen(
         labels,
         rows = rows,
         labelTypes,
+        fullMode,
         onSearchChange = { vm.updateSearch(it) },
         onDocClicked = { doc ->
             when {
@@ -210,6 +212,7 @@ fun DocListContent(
     labels: List<DocListVM.LabelFilter>,
     rows: List<Any>,
     labelTypes: List<LabelType>,
+    fullMode: Boolean,
     onSearchChange: (String) -> Unit = {},
     onDocClicked: (DocumentFull) -> Unit = {},
     onLabelAdded: (String) -> Unit = {},
@@ -235,7 +238,7 @@ fun DocListContent(
         // because the list is temporarily empty
         // https://issuetracker.google.com/issues/179397301
         if (rows.isNotEmpty()) {
-            DocRows(rows, onDocClicked, onLabelAdded, onDownloadClicked, onShowClicked, onShareClicked)
+            DocRows(rows, fullMode, onDocClicked, onLabelAdded, onDownloadClicked, onShowClicked, onShareClicked)
         }
     }
 
@@ -349,6 +352,7 @@ fun Filters(
 @Composable
 fun DocRows(
     rows: List<Any>,
+    fullMode: Boolean,
     onDocClicked: (DocumentFull) -> Unit,
     onLabelClicked: (String) -> Unit,
     onDownloadClicked: (DocumentFull) -> Unit,
@@ -392,6 +396,7 @@ fun DocRows(
                         HorizontalDivider(thickness = Dp.Hairline, color = colors.primary)
                         DocRow(
                             row,
+                            fullMode,
                             onDocClicked, onLabelClicked, onDownloadClicked, onShowClicked, onShareClicked,
                             Modifier.animateItem(),
                         )
@@ -431,6 +436,7 @@ fun DateHeader(header: DocListVM.HeaderData) {
 @Composable
 fun DocRow(
     doc: DocumentFull,
+    fullMode: Boolean,
     onDocClicked: (DocumentFull) -> Unit,
     onLabelClicked: (String) -> Unit,
     onDownloadClicked: (DocumentFull) -> Unit,
@@ -583,26 +589,30 @@ fun DocRow(
                     }
                 }
 
-                // download button
-                IconButton(
-                    onClick = { onDownloadClicked(doc) },
-                    modifier = Modifier.size(40.dp, 32.dp),
-                ) {
-                    Icon(
-                        when (dnlStatus) {
-                            DownloadState.DOWNLOADABLE -> icons.DownloadForOffline
-                            DownloadState.LOCAL -> icons.DownloadDone
-                            DownloadState.FAILED -> icons.Error
-                            DownloadState.IN_PROGRESS -> icons.Downloading
-                            DownloadState.QUEUED -> icons.Timer
-                        },
-                        contentDescription = null,
-                        tint = when (dnlStatus) {
-                            DownloadState.FAILED -> colors.error
-                            DownloadState.LOCAL -> colors.primary
-                            else -> colors.secondary
-                        },
-                    )
+                // download / "show in downloads" button
+                // in fullmode, LOCAL is the normal state, not shown in the downloads screen
+                // there is nothing to do
+                if (!fullMode || dnlStatus != DownloadState.LOCAL) {
+                    IconButton(
+                        onClick = { onDownloadClicked(doc) },
+                        modifier = Modifier.size(40.dp, 32.dp),
+                    ) {
+                        Icon(
+                            when (dnlStatus) {
+                                DownloadState.DOWNLOADABLE -> icons.DownloadForOffline
+                                DownloadState.LOCAL -> icons.DownloadDone
+                                DownloadState.FAILED -> icons.Error
+                                DownloadState.IN_PROGRESS -> icons.Downloading
+                                DownloadState.QUEUED -> icons.Timer
+                            },
+                            contentDescription = null,
+                            tint = when (dnlStatus) {
+                                DownloadState.FAILED -> colors.error
+                                DownloadState.LOCAL -> colors.primary
+                                else -> colors.secondary
+                            },
+                        )
+                    }
                 }
 
                 // size
@@ -667,9 +677,11 @@ fun Chip(
 fun DefaultPreview() {
     AppTheme {
         DocListContent(
-            "zz", listOf(DocListVM.LabelFilter("label1"), DocListVM.LabelFilter("label2", false)),
+            "zz",
+            listOf(DocListVM.LabelFilter("label1"), DocListVM.LabelFilter("label2", false)),
             makeFakeDocuments(5, "none"),
             listOf(LabelType("label1")),
+            false,
         )
     }
 }

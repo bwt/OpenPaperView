@@ -69,6 +69,8 @@ class DocListVM @Inject constructor(
 
     val labelFilters = savedStateHandle.getStateFlow("labels", listOf<LabelFilter>())
 
+    val fullMode = settings.isFullDownload.map { it.isSuccess && it.getOrThrow() }
+
     fun updateSearch(v: String) {
         // replace with easier to access characters
         search = v.map { chr ->
