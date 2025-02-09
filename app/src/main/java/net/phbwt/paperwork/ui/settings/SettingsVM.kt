@@ -90,8 +90,7 @@ class SettingsVM @Inject constructor(
     // Editable text fields states are hoisted directly :
     // base URL and auto download labels
     // here we only use the URL validation error and the downloadable count
-    val data = combine6(
-        pairingRunner.pairingStatus,
+    val data = combine(
         settings.baseUrl,
         allLabels,
         labelInfo,
@@ -103,9 +102,8 @@ class SettingsVM @Inject constructor(
             val certInfo = certResult.mapCatching { it?.toString() }
             SettingItem(txt, certInfo.getOrNull(), certInfo.exceptionOrNull()?.msg())
         },
-    ) { pairing, url, all, info, client, server ->
+    ) { url, all, info, client, server ->
         SettingsData(
-            pairing,
             url.exceptionOrNull().msg(),
             all,
             info,
@@ -197,45 +195,6 @@ class SettingsVM @Inject constructor(
             "Error: ${ex.desc()}"
         }
     }
-
-    /** Try to connect to one of the addresses */
-    fun startPairing(config: QrCodeContent) {
-        Log.d(TAG, "Starting pairing")
-        currentPairingJob?.cancel("Restarted")
-        currentPairingJob = viewModelScope.launch {
-            val result = pairingRunner.runPairing(config)
-
-            if (result != null) {
-                settings.updateServerCa(result.config.server.certificate)
-                settings.updateClientPem(result.config.client.certificate)
-                settings.updateBaseUrl(result.address)
-                // also the hoisted field
-                baseUrl = result.address
-            }
-        }
-    }
-
-    fun endPairing() {
-        currentPairingJob?.cancel("Cancelled")
-        currentPairingJob = null
-        pairingRunner.pairingCanceled()
-    }
-
-    fun startSync(full: Boolean) {
-        val labels = if (full) listOf("*") else listOf("")
-
-        autoDownloadLabels = TextFieldValue(labels.joinToString())
-
-        viewModelScope.launch {
-            settings.updateAutoDownloadLabels(labels.joinToString())
-//            repo.db.downloadDao().queueAutoDownloads(labels)
-            repo.purgeCache()
-            repo.purgeDownloaded()
-            DownloadWorker.enqueueLoad(getApplication())
-        }
-    }
-
-
 }
 
 private const val TAG = "SettingsVM"
@@ -257,7 +216,6 @@ data class LabelsInfo(
 
 @Immutable
 data class SettingsData(
-    val pairingStatus: PairingRunner.PairingStatus? = null,
     val baseUrlError: String = "",
     val allLabels: List<LabelType> = listOf(),
     val labelsInfo: LabelsInfo = LabelsInfo(),

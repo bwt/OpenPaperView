@@ -15,6 +15,7 @@ import net.phbwt.paperwork.ui.destinations.Destination
 import net.phbwt.paperwork.ui.destinations.DocListScreenDestination
 import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
 import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
+import net.phbwt.paperwork.ui.destinations.PairingScreenDestination
 import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
 import net.phbwt.paperwork.ui.destinations.SettingsScreenDestination
 
@@ -60,6 +61,14 @@ sealed class Dest(
         transitionPosition = "ba",
     )
 
+    data object Pairing : Dest(
+        PairingScreenDestination,
+        PairingScreenDestination(null),
+        icon = Icons.Filled.Settings,
+        labelRes = R.string.screen_pairing,
+        transitionPosition = "bb",
+    )
+
     data object PageList : Dest(
         PageListScreenDestination,
         PageListScreenDestination(0),
@@ -85,6 +94,6 @@ sealed class Dest(
 
 val TLDS = listOf(Dest.DocList, Dest.DownloadList, Dest.Settings, Dest.About)
 val TEST_TLDS = listOf(Dest.DocList, Dest.DownloadList)
-val ALL_DESTS = listOf(Dest.DocList, Dest.PageList, Dest.DownloadList, Dest.Settings, Dest.SettingsCheck, Dest.About)
+val ALL_DESTS = listOf(Dest.DocList, Dest.PageList, Dest.DownloadList, Dest.Settings, Dest.SettingsCheck, Dest.Pairing, Dest.About)
 
 

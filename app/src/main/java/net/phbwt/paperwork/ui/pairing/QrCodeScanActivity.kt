@@ -1,6 +1,5 @@
 package net.phbwt.paperwork.ui.pairing
 
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -49,12 +48,14 @@ class QrCodeScanActivity : ComponentActivity() {
         setContentView(R.layout.qr_code_scan_activity)
 
         barcodeView = findViewById<DecoratedBarcodeView>(R.id.barcode_scanner)
-        barcodeView.barcodeView.setDecoderFactory(DefaultDecoderFactory(
-            listOf(BarcodeFormat.QR_CODE),
-            mapOf(DecodeHintType.ALSO_INVERTED to true),
-            null,
-            0,
-        ))
+        barcodeView.barcodeView.setDecoderFactory(
+            DefaultDecoderFactory(
+                listOf(BarcodeFormat.QR_CODE),
+                mapOf(DecodeHintType.ALSO_INVERTED to true),
+                null,
+                0,
+            )
+        )
 
         barcodeView.decodeContinuous(callback)
 

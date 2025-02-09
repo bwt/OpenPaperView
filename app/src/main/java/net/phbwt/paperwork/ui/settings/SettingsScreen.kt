@@ -5,7 +5,6 @@ package net.phbwt.paperwork.ui.settings
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -66,7 +65,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -83,9 +84,8 @@ import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.entity.db.LabelType
 import net.phbwt.paperwork.data.entity.db.asFilter
-import net.phbwt.paperwork.data.helper.PairingRunner
-import net.phbwt.paperwork.data.helper.PairingRunner.PairingStatus
 import net.phbwt.paperwork.data.settings.LABELS_SEPARATOR
+import net.phbwt.paperwork.ui.destinations.PairingScreenDestination
 import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
 import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.main.Dest
@@ -108,12 +108,6 @@ fun SettingsScreen(
     val autoDowloadLabels = vm.autoDownloadLabels
     val data by vm.data.collectAsStateWithLifecycle()
 
-    // start activity to get the QR Codes
-    val launcherQR = rememberLauncherForActivityResult(ScanContract()) {
-        // then start the pairing
-        it?.let { vm.startPairing(it) }
-    }
-
     // start activity for client certificate
     val launcherC = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
         it?.let { vm.updateClientPem(it) }
@@ -135,6 +129,13 @@ fun SettingsScreen(
                 action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
                 putExtra(Settings.EXTRA_APP_PACKAGE, activity.packageName)
             })
+        }
+    }
+
+    // start activity to get the QR Codes
+    val launcherQR = rememberLauncherForActivityResult(ScanContract()) {
+        if (it != null) {
+            navigator.navigate(PairingScreenDestination(it))
         }
     }
 
@@ -180,12 +181,6 @@ fun SettingsScreen(
                 snackbarHostState.showSnackbar(toastMessage)
             }
         },
-        onEndPairing = {
-            vm.endPairing()
-        },
-        onStartSync = { full ->
-            vm.startSync(full)
-        },
         snackbarHostState,
         onNavigationIcon,
         onSetNotification = launcherN,
@@ -207,8 +202,6 @@ fun SettingsContent(
     onQrCodeInit: () -> Unit = {},
     onCheck: () -> Unit = {},
     onAutoDownload: () -> Unit = {},
-    onEndPairing: () -> Unit = {},
-    onStartSync: (Boolean) -> Unit = {},
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onNavigationIcon: (Boolean) -> Unit = {},
     onSetNotification: (Boolean) -> Unit = {},
@@ -311,69 +304,21 @@ fun SettingsContent(
         // edge2edge : bottom
         Spacer(Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
-
-    PairingDialog(
-        data.pairingStatus,
-        onEndPairing,
-        onStartSync,
-    )
 }
 
 
-@Composable
-fun PairingDialog(
-    status: PairingStatus?,
-    onFinish: () -> Unit,
-//    onClear: () -> Unit,
-    onStartSync: (Boolean) -> Unit,
-) {
-    if (status != null) {
-
-        AlertDialog(
-            onDismissRequest = { /* not dismissible */ },
-            title = { Text(stringResource(id = R.string.settings_pairing_title)) },
-            text = { Text(status.message, minLines = 7) },
-            confirmButton = {
-                if (status is PairingRunner.Succeeded) {
-                    TextButton(
-                        onClick = {
-                            onFinish()
-                            onStartSync(false)
-                        }
-                    ) { Text(stringResource(id = R.string.settings_pairing_dialog_sync)) }
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            dismissButton = {
-                when (status) {
-                    is PairingRunner.Ongoing -> TextButton(
-                        onClick = { onFinish() }
-                    ) { Text(stringResource(id = R.string.settings_pairing_dialog_cancel)) }
-
-                    is PairingRunner.Succeeded -> TextButton(
-                        onClick = {
-                            onFinish()
-                            onStartSync(true)
-                        }
-                    ) { Text(stringResource(id = R.string.settings_pairing_dialog_fullsync)) }
-
-                    is PairingRunner.Failed -> TextButton(
-                        onClick = { onFinish() }
-                    ) { Text(stringResource(id = R.string.settings_pairing_dialog_done)) }
-                }
-            },
-        )
-    }
-
-}
-
-
+/**
+ * Pairing.
+ * Show a warning dialog, ask for the camera permission, start the QR code scanner
+ */
 @Composable
 fun ScanButton(
     onQrCodeInit: () -> Unit,
+    testDialog: Boolean = false,
 ) {
 
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    var showWarning by remember { mutableStateOf(testDialog) }
     var deferredStart by remember { mutableStateOf(false) }
 
     if (deferredStart && cameraPermissionState.status.isGranted) {
@@ -383,12 +328,7 @@ fun ScanButton(
 
     Button(
         onClick = {
-            if (cameraPermissionState.status.isGranted) {
-                onQrCodeInit()
-            } else {
-                cameraPermissionState.launchPermissionRequest()
-                deferredStart = true
-            }
+            showWarning = true
         }
     ) {
         Icon(
@@ -398,6 +338,35 @@ fun ScanButton(
         )
         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
         Text(stringResource(R.string.settings_start_pairing))
+    }
+
+    if (showWarning) {
+        AlertDialog(
+            onDismissRequest = { showWarning = false },
+            title = { Text(stringResource(R.string.settings_pairing_title)) },
+            text = { Text(AnnotatedString.fromHtml(stringResource(R.string.settings_pairing_warning))) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showWarning = false
+                        if (cameraPermissionState.status.isGranted) {
+                            onQrCodeInit()
+                        } else {
+                            cameraPermissionState.launchPermissionRequest()
+                            deferredStart = true
+                        }
+                    }
+                ) { Text(stringResource(R.string.settings_pairing_warning_ok)) }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showWarning = false
+                    }
+                ) { Text(stringResource(R.string.settings_pairing_warning_cancel)) }
+            },
+        )
     }
 
 }
@@ -668,13 +637,24 @@ fun DefaultPreview() {
             "http://",
             TextFieldValue("aaa, dddd"),
             SettingsData(
-                null,
                 "URL error",
                 listOf(),
                 LabelsInfo(),
                 SettingItem("value 1", "An error"),
                 SettingItem(""),
             ),
+            true,
+        )
+    }
+}
+
+@ExperimentalComposeUiApi
+@Preview(showBackground = true)
+@Composable
+fun DialogPreview() {
+    AppTheme {
+        ScanButton(
+            {},
             true,
         )
     }

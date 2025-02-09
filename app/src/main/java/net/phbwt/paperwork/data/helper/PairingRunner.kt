@@ -1,18 +1,27 @@
 package net.phbwt.paperwork.data.helper
 
 import android.content.Context
+import android.os.Build
+import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.entity.pairing.PairingConfig
 import net.phbwt.paperwork.data.entity.pairing.QrCodeContent
 import net.phbwt.paperwork.helper.desc
+import net.phbwt.paperwork.ui.settingscheck.Check
+import net.phbwt.paperwork.ui.settingscheck.Level
+import net.phbwt.paperwork.ui.settingscheck.Msg
 import okhttp3.Call
 import okhttp3.Connection
 import okhttp3.EventListener
@@ -22,9 +31,12 @@ import okhttp3.internal.connection.RealCall
 import okhttp3.tls.HandshakeCertificates
 import okio.ByteString.Companion.toByteString
 import ru.gildor.coroutines.okhttp.await
+import java.net.InetAddress
+import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.net.ssl.SSLSocket
+import kotlin.coroutines.coroutineContext
 
 /**
  * Pairing step 2
@@ -33,42 +45,94 @@ import javax.net.ssl.SSLSocket
  */
 class PairingRunner(private val applicationContext: Context) {
 
-    val pairingStatus = MutableStateFlow<PairingStatus?>(null)
+    val logFlow = MutableStateFlow<ImmutableList<Check>>(persistentListOf())
 
-    suspend fun runPairing(config: QrCodeContent): PairinResult? = withContext(Dispatchers.IO) {
-        pairingStatus.value = Ongoing(getString(R.string.settings_pairing_starting))
+    private var log = persistentListOf<Check>()
+
+    suspend fun runPairing(config: QrCodeContent): PairingResult? = withContext(Dispatchers.IO) {
+
+        log = log.clear()
 
         // try each one of the addresses
         for (address in config.serverAddresses) {
-            pairingStatus.value = Ongoing(getString(R.string.settings_pairing_trying, address))
+            val label = "$address:${config.port}"
+            addItem(Msg(R.string.pairing_trying, label), Level.Title, null)
             try {
                 delay(1000)
 
                 val result = pairAddress(config, address)
 
                 if (result != null) {
-                    pairingStatus.value = Succeeded(getString(R.string.settings_pairing_success, address))
                     return@withContext result
                 }
             } catch (ex: Exception) {
                 coroutineContext.ensureActive()
+
+                // Tee "Cancelled" message is handled elsewhere :
+                // - It may take some time to get the exception (e.g. network)
+                // - The job may have been restarted and we should ignore the previous job's exception
+
+                addItem(Msg(R.string.pairing_failed), Level.Error, Msg(R.string.pairing_exception, ex.desc()))
+
                 Log.i(TAG, "Pairing with ${address} failed ${ex.desc()}")
                 delay(500)
             }
         }
 
         // none of the addresses worked
-        pairingStatus.value = Failed(getString(R.string.settings_pairing_failed))
+        addItem(Msg(R.string.pairing_all_failed), Level.Title, null)
         return@withContext null
     }
 
-    fun pairingCanceled() {
-        pairingStatus.value = null
+    fun jobWasCancelled() {
+        addItem(Msg(R.string.pairing_cancelled), Level.Error, null)
     }
 
-    private suspend fun pairAddress(qrCode: QrCodeContent, address: String): PairinResult? {
+    private suspend fun pairAddress(qrCode: QrCodeContent, address: String): PairingResult? {
 
         Log.i(TAG, "Trying : '$address'")
+
+        // very crude, but it is only a avoid spurious messages
+        val isIPv4 = address.count { it == '.' } == 3 && address.matches("^[0-9.]+$".toRegex())
+        val isIPv6 = address.count { it == ':' } > 0 && address.matches("^\\[?[a-fA-F0-9:.]+]?$".toRegex())
+        val addressIsIp = isIPv4 || isIPv6
+
+        if (addressIsIp) {
+            addItem(Msg(R.string.pairing_ip_address), Level.Warn, Msg(R.string.pairing_ip_address_warning))
+        }
+
+        // DNS / mDNS resolution
+        var ipAddress: InetAddress?
+        try {
+            ipAddress = InetAddress.getByName(address)
+
+            coroutineContext.ensureActive()
+
+            if (!addressIsIp) {
+                addItem(Msg(R.string.pairing_resolved), Level.OK, Msg(R.string.pairing_resolved_as, ipAddress.hostAddress))
+            }
+        } catch (ex: UnknownHostException) {
+            coroutineContext.ensureActive()
+
+            ipAddress = null
+            addItem(Msg(R.string.pairing_not_resolved), Level.Warn, Msg(R.string.pairing_dns_or_mdns_problem))
+        }
+
+        // ping
+        if (ipAddress != null && Build.VERSION.SDK_INT > 26) {
+
+            val ts = SystemClock.elapsedRealtime()
+            val pinged = ipAddress.isReachable(5_000)
+            val pingTime = SystemClock.elapsedRealtime() - ts
+
+            if (pinged) {
+                addItem(Msg(R.string.pairing_pinged), Level.OK, Msg(R.string.pairing_pinged_in, pingTime.toString()))
+            } else {
+                addItem(Msg(R.string.pairing_not_pinged), Level.Warn, Msg(R.string.pairing_no_ping_response))
+            }
+        }
+
+        coroutineContext.ensureActive()
 
         val expectedServerCertHash = qrCode.serverFingerprint.toByteString()
 
@@ -100,7 +164,7 @@ class PairingRunner(private val applicationContext: Context) {
                         hash == expectedServerCertHash
                     }
 
-                    serverValidated.set(hashMatches ?: false)
+                    serverValidated.set(hashMatches == true)
                 }
             }).build()
 
@@ -116,12 +180,15 @@ class PairingRunner(private val applicationContext: Context) {
             if (!response.isSuccessful) {
                 // We can connect but something is wrong
                 // This should not really happen
-                Log.w(TAG, "Response " + response.code)
+
+                addItem(Msg(R.string.pairing_failed), Level.Error, Msg(R.string.pairing_http_error, response.code))
+
                 return null
             } else {
 
                 if (!serverValidated.get()) {
                     // the server's certificate's fingerprint does not match
+                    addItem(Msg(R.string.pairing_failed), Level.Error, Msg(R.string.pairing_fingerprint_error))
                     return null
                 }
 
@@ -129,23 +196,24 @@ class PairingRunner(private val applicationContext: Context) {
 
                 val config = Json.decodeFromString<PairingConfig>(body)
 
-                Log.i(TAG, "Pairing succeeded")
-                return PairinResult(currentUrl, config)
+                addItem(Msg(R.string.pairing_success), Level.OK, Msg(R.string.pairing_success_detail, address))
+                return PairingResult(currentUrl, config)
             }
         }
     }
 
-    private fun getString(msgRes: Int, vararg args: String) = applicationContext.getString(msgRes, *args)
-
-    sealed interface PairingStatus {
-        val message: String
+    private fun addItem(item: Check) {
+        log += item
+        logFlow.update { log }
     }
 
-    data class Ongoing(override val message: String) : PairingStatus
-    data class Succeeded(override val message: String) : PairingStatus
-    data class Failed(override val message: String) : PairingStatus
+    private fun addItem(
+        desc: Msg,
+        level: Level,
+        msg: Msg?,
+    ) = addItem(Check(desc, level, msg))
 
-    data class PairinResult(
+    data class PairingResult(
         val address: String,
         val config: PairingConfig,
     )

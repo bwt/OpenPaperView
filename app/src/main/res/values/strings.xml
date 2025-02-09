@@ -25,6 +25,7 @@
     <string name="screen_docList">Documents</string>
     <string name="screen_settings">Settings</string>
     <string name="screen_settingsCheck">Check settings</string>
+    <string name="screen_pairing">Pairing with PaperWork</string>
     <string name="screen_downloadList">Downloads</string>
     <string name="screen_pageList">Pages</string>
     <string name="screen_about">About</string>
@@ -62,23 +63,45 @@ PEM encoded text containing one certificate and one private key.
     <string name="settings_show_notification">Show notification when downloading</string>
     <string name="settings_start_pairing">Start pairing</string>
     <string name="settings_check">Test</string>
-    <string name="settings_pairing_title">Pairing</string>
-    <string name="settings_pairing_starting">Starting</string>
-    <string name="settings_pairing_trying">Trying %1$s</string>
-    <string name="settings_pairing_failed">Pairing failed, none of the addresses worked</string>
-    <string name="settings_pairing_success">Successfully paired with %1$s.\n\nThe database will be downloaded and the app restarted.\n\nIf it doesn\'t work, the test procedure may be helpful.</string>
-    <string name="settings_pairing_dialog_cancel">Cancel</string>
-    <string name="settings_pairing_dialog_sync">Download database</string>
-    <string name="settings_pairing_dialog_fullsync">Download database and documents</string>
-    <string name="settings_pairing_dialog_done">OK</string>
-
-    <string name="settingsCheck_stop">Stop</string>
-    <string name="settingsCheck_restart">Test again</string>
-    <string name="settingsCheck_reset">Clear Data</string>
+    <string name="settings_pairing_title">Pairing with Paperwork</string>
+    <string name="settings_pairing_warning">&lt;p>This is an experimental feature.&lt;/p>
+&lt;p>It may not work as expected.&lt;/p>
+&lt;p>It also requires the development version of Paperwork be started with :&lt;/p>&lt;br>
+&lt;p>&lt;b>&lt;tt>paperwork-cli https pair&lt;/tt>&lt;/b>&lt;/p>
+    </string>
+    <string name="settings_pairing_warning_cancel">I\'ll wait until it\'s ready</string>
+    <string name="settings_pairing_warning_ok">Interesting, let\'s go</string>
 
     <string name="pairing_scan">Please scan Paperwork\'s QrCode(s)</string>
     <string name="pairing_bad_qrcode">Bad QR Code : %1$s</string>
 
+    <string name="pairing_trying">Trying %1$s</string>
+    <string name="pairing_all_failed">Pairing failed, none of the addresses worked</string>
+    <string name="pairing_ip_address">Using an IP address</string>
+    <string name="pairing_ip_address_warning">You must ensure that it doesn\'t change</string>
+    <string name="pairing_not_resolved">Can not be resolved</string>
+    <string name="pairing_dns_or_mdns_problem">There may be a DNS or mDNS problem</string>
+    <string name="pairing_resolved">Resolved</string>
+    <string name="pairing_resolved_as">The IP address is %1$s</string>
+    <string name="pairing_pinged">Pinged</string>
+    <string name="pairing_pinged_in">in %1$s ms</string>
+    <string name="pairing_not_pinged">Could not be reached</string>
+    <string name="pairing_no_ping_response">Maybe it is not responding to ICMP ping</string>
+    <string name="pairing_failed">Failed</string>
+    <string name="pairing_cancelled">Cancelled</string>
+    <string name="pairing_http_error">HTTP status %1$s</string>
+    <string name="pairing_fingerprint_error">Query succeeded but the fingerprint did not match</string>
+    <string name="pairing_exception">%1$s</string>
+    <string name="pairing_success">Pairing succeeded</string>
+    <string name="pairing_success_detail">Successfully paired with %1$s.\nThe database will be downloaded and the app restarted.\nIf it doesn\'t work, the test procedure may be helpful.</string>
+    <string name="pairing_download_db">Download database</string>
+    <string name="pairing_download_db_and_docs">Download database and documents</string>
+    <string name="pairing_stop">Stop</string>
+    <string name="pairing_restart">Retry</string>
+
+    <string name="check_stop">Stop</string>
+    <string name="check_restart">Test again</string>
+    <string name="check_reset">Clear Data</string>
     <string name="check_stopped">Stopped</string>
     <string name="check_checking_parameters">Checking parameters</string>
     <string name="check_failure">Failure</string>

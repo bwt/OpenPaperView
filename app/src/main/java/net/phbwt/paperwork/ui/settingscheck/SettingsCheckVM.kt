@@ -1,11 +1,9 @@
 package net.phbwt.paperwork.ui.settingscheck
 
 import android.app.Application
-import android.content.Context
 import android.net.ConnectivityManager
 import android.text.format.Formatter
 import android.util.Log
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Immutable
 import androidx.core.content.getSystemService
 import androidx.lifecycle.AndroidViewModel
@@ -29,7 +27,6 @@ import net.phbwt.paperwork.data.background.DownloadWorker
 import net.phbwt.paperwork.data.buildOkHttpClientWithoutCache
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.data.withHttpCache
-import net.phbwt.paperwork.helper.desc
 import okhttp3.Call
 import okhttp3.EventListener
 import okhttp3.Request
@@ -379,23 +376,4 @@ data class SettingsCheckState(
     val items: ImmutableList<Check> = persistentListOf(),
 )
 
-enum class Level { OK, Warn, Error, None }
 
-@Immutable
-data class Check(
-    val desc: Msg,
-    val level: Level,
-    val msg: Msg?,
-)
-
-@Immutable
-class Msg(
-    @StringRes
-    val res: Int,
-    vararg val args: String,
-) {
-    constructor(ex: Throwable?) : this(R.string.check_exception_1, ex.desc())
-    constructor(@StringRes res: Int, v: Int) : this(res, v.toString())
-
-    fun format(ctxt: Context) = ctxt.getString(res, *args)
-}
