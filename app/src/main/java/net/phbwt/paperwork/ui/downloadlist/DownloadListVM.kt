@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
+@file:OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 
 package net.phbwt.paperwork.ui.downloadlist
 
@@ -9,10 +9,12 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
@@ -44,6 +46,8 @@ class DownloadListVM @Inject constructor(
             fullMode.isFailure -> throw IllegalStateException("Could not get the full download setting")
             // full download mode, show the missing documents
             fullMode.getOrThrow() -> repo.db.docDao().notFullyDownloaded()
+                // throttling, otherwise the UI is jerky
+                .sample(300)
             // the downloaded documents
             else -> repo.db.docDao().withDownloads()
         }.map {

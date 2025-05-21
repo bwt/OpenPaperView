@@ -197,7 +197,7 @@ fun MainContent(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(drawerState) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 val tlds = if (runningInTestLab) TEST_TLDS else TLDS

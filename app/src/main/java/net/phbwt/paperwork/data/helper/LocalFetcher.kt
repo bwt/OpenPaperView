@@ -37,7 +37,7 @@ class LocalFetcher(private val data: File) : Fetcher {
                 // currently we only check if the file has not modified recently
                 val p = File(baseDir, k)
 
-                // 0 is the file does not exists
+                // 0 if the file does not exist
                 val lastModified = p.lastModified()
 
                 if (0 < lastModified && lastModified < System.currentTimeMillis() - CACHE_DELAY_MILLIS) {
