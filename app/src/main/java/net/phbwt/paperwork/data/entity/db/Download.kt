@@ -14,4 +14,4 @@ data class Download(
     fun partPathAndKey() = part.path(documentName)
 }
 
-fun File.isThumb() = this.isFile && this.name.contains(".thumb.", ignoreCase = true)
+fun File.isThumb() = this.name.contains(".thumb.", ignoreCase = true)

@@ -7,12 +7,14 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.os.Build
+import android.os.SystemClock
 import android.util.Log
 import androidx.collection.mutableIntSetOf
 import androidx.core.app.NotificationCompat
 import androidx.core.content.getSystemService
 import androidx.hilt.work.HiltWorker
 import androidx.room.RoomDatabase
+import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.work.*
 import coil3.SingletonImageLoader
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.BuildConfig
 import net.phbwt.paperwork.R
+import net.phbwt.paperwork.data.AppDatabase
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.entity.db.isThumb
 import net.phbwt.paperwork.data.entity.db.makeDocumentThumbPathAndKey
@@ -119,7 +122,15 @@ class DownloadWorker @AssistedInject constructor(
                     val body = response.body ?: throw IOException("No body")
                     val newDbName = applicationContext.newDbName()
                     try {
-                        downloadAndPrepareDb(body.source().inputStream(), newDbName)
+                        val newDb = downloadDb(body.source().inputStream(), newDbName)
+
+                        newDb.withTransaction {
+                            cleanupLocalFiles(newDb)
+                        }
+
+                        prepareAutoDownloads(newDb)
+
+                        newDb.close()
                         repo.dbUpdateReady()
                     } catch (ex: Exception) {
                         Log.e(TAG, "New DB failed", ex)
@@ -131,7 +142,9 @@ class DownloadWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun downloadAndPrepareDb(from: InputStream, newDbName: String) = withContext(Dispatchers.IO) {
+    private suspend fun downloadDb(from: InputStream, newDbName: String): AppDatabase = withContext(Dispatchers.IO) {
+
+        Log.i(TAG, "Download and check the new DB")
 
         // It seems that a corrupted db file may be silently deleted
         // and a DB created from scratch
@@ -152,37 +165,75 @@ class DownloadWorker @AssistedInject constructor(
             throw IllegalStateException("Db not processed")
         }
 
+        newDb
+    }
+
+    private suspend fun cleanupLocalFiles(newDb: AppDatabase) = withContext(Dispatchers.IO) {
+
+        Log.i(TAG, "Sync local state and DB")
+
+        val ts = SystemClock.elapsedRealtime()
+        var thumbs = 0
+        var parts = 0
+        var errors = 0
+        var deleted = 0
+
         // update the status of the already downloaded parts
         var depth = 0
         for (f in settings.localPartsDir.walkTopDown()
             .onEnter { depth += 1; true }
             .onLeave { depth -= 1 }
         ) {
-            if (depth != 2 && f.isFile) {
-                Log.e(TAG, "Structure problem : $f, $depth")
+            if (!f.isFile) {
+                continue
             }
+
+            if (depth != 2) {
+                Log.e(TAG, "Structure problem : $f, $depth")
+                continue
+            }
+
+            if (f.length() == 0L) {
+                Log.e(TAG, "Empty file : $f")
+
+                // TODO : if this is a thumbnail, also delete the document (in order to trigger a new download)
+                // and / or update the DB accordingly
+                f.delete()
+
+                errors++
+                continue
+            }
+
             if (f.isThumb()) {
                 // OK, keep it
-            } else if (f.isFile) {
-                val count = newDb.downloadDao().setPartDone(f.parentFile!!.name, f.name)
-                when (count) {
-                    1 -> {
-                        // OK
-                    }
+                thumbs++
+                continue
+            }
 
-                    0 -> {
-                        Log.i(TAG, "Deleting disappeared part $f")
-                        f.delete()
-                    }
+            val count = newDb.downloadDao().setPartDone(f.parentFile!!.name, f.name)
+            when (count) {
+                1 -> {
+                    // OK
+                    parts++
+                }
 
-                    else -> {
-                        Log.e(TAG, "Db inconsistency for file $f : $count")
-                    }
+                0 -> {
+                    Log.i(TAG, "Deleting disappeared part $f")
+                    f.delete()
+                    deleted++
+                }
+
+                else -> {
+                    Log.e(TAG, "Db inconsistency for file $f : $count")
                 }
             }
+
         }
 
-        // Prepare auto downloads
+        Log.i(TAG, "Files cleaned : $parts parts, $thumbs thumbs, $errors errors, $deleted deleted in ${SystemClock.elapsedRealtime() - ts} ms")
+    }
+
+    private suspend fun prepareAutoDownloads(newDb: AppDatabase) = withContext(Dispatchers.IO) {
         // the actual downloads will be triggered
         // after switching to the new DB
 
@@ -191,8 +242,6 @@ class DownloadWorker @AssistedInject constructor(
             val count = newDb.downloadDao().queueAutoDownloads(labels)
             Log.i(TAG, "Will auto download $count parts for labels ${labels.joinToString()}")
         }
-
-        newDb.close()
     }
 
     private suspend fun downloadParts() {
@@ -217,7 +266,6 @@ class DownloadWorker @AssistedInject constructor(
 
             if (canNotify && initialCount > 5 && (downloadPartCount + errorCount > 1)) {
                 val remaining = dao.countRemainingDownloads()
-                Log.e(TAG, "Notify $downloadPartCount, $remaining")
 
                 notificationManager.notify(
                     NOTIFICATION_ID,
