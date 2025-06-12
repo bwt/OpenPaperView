@@ -1,6 +1,7 @@
 package net.phbwt.paperwork.ui.settingscheck
 
 import android.content.Context
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.helper.desc
+import net.phbwt.paperwork.ui.theme.caution
+import net.phbwt.paperwork.ui.theme.success
 
 /**
  * The common parts between the SettingsCheck and the Pairing screens.
@@ -45,6 +48,7 @@ fun ItemRow(
                 text = item.desc.format(context),
                 modifier = Modifier.alpha(alpha),
                 style = if (item.level == Level.Title) MaterialTheme.typography.titleMedium else MaterialTheme.typography.bodyMedium,
+                color = if (item.level == Level.Title) MaterialTheme.colorScheme.primary else LocalContentColor.current,
             )
             if (item.msg != null) {
                 Text(
@@ -55,7 +59,13 @@ fun ItemRow(
             }
         }
         if (item.level !in listOf(Level.None, Level.Title)) {
-            val color = if (item.level == Level.Error) MaterialTheme.colorScheme.error else LocalContentColor.current
+            val color = when (item.level) {
+                Level.OK -> MaterialTheme.colorScheme.success
+                Level.Warn -> MaterialTheme.colorScheme.caution
+                Level.Error -> MaterialTheme.colorScheme.error
+                else -> LocalContentColor.current
+            }
+
             Icon(
                 imageVector = when (item.level) {
                     Level.OK -> Icons.Outlined.Check
@@ -86,8 +96,16 @@ class Msg(
     constructor(ex: Throwable?) : this(R.string.check_exception_1, ex.desc())
     constructor(@StringRes res: Int, v: Int) : this(res, v.toString())
 
-    fun format(ctxt: Context) = ctxt.getString(res, *args)
+    fun format(ctxt: Context): String = try {
+        ctxt.getString(res, *args)
+    } catch (ex: Exception) {
+        val msg = "Failed to format the message '${ctxt.getString(res)}' : ${ex.message}"
+        Log.e(TAG, msg, ex)
+        msg
+    }
 }
+
+private const val TAG = "CommonChecks"
 
 enum class Level { OK, Warn, Error, None, Title }
 
