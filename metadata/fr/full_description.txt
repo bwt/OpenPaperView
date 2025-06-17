@@ -3,3 +3,5 @@ Un serveur HTTPS statique est nécessaire mais l'application est conçue pour fo
 hors ligne avec un pré-téléchargement paramétrable et une recherche en texte intégral locale.
 Cf les <a href="https://github.com/bwt/OpenPaperView?tab=readme-ov-file#openpaperview">instructions détaillées</a>.
 
+La permission "Appareil photo" n'est utilisée que pour l'appairage (experimental) avec Paperwork
+

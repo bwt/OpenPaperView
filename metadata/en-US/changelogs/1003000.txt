@@ -1,0 +1,4 @@
+- Add experimental support for pairing with Paperwork
+- Better handling of full download mode
+- Dependency updates
+
