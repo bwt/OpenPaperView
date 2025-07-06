@@ -1,9 +1,9 @@
 [versions]
-agp = "8.10.1"
-kotlin = "2.1.21"
+agp = "8.11.0"
+kotlin = "2.2.0"
 
 # https://github.com/google/ksp/releases
-ksp = "2.1.21-2.0.2"
+ksp = "2.2.0-2.0.2"
 
 #https://github.com/google/dagger/releases
 dagger = "2.56.2"
@@ -15,7 +15,7 @@ hilt = "1.2.0"
 # https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/CHANGELOG.md
 kotlinxImmutable = "0.4.0"
 # https://github.com/Kotlin/kotlinx.serialization/releases
-kotlinxSerialization = "1.8.1"
+kotlinxSerialization = "1.9.0"
 
 # https://developer.android.com/jetpack/androidx/versions
 activityCompose = "1.10.1"
@@ -31,10 +31,10 @@ navigation = "2.7.7"
 
 # Workmanager
 # https://developer.android.com/jetpack/androidx/releases/work
-workmanager = "2.10.1"
+workmanager = "2.10.2"
 
 # https://developer.android.com/jetpack/androidx/releases/room
-room = "2.7.1"
+room = "2.7.2"
 
 #  https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
 coil = "3.2.0"
@@ -46,7 +46,7 @@ okhttpBom = "4.12.0"
 gildorCoroutinesOkhttp = "1.0"
 
 # https://developer.android.com/jetpack/compose/bom/bom-mapping
-composeBom = "2025.06.00"
+composeBom = "2025.06.01"
 # https://github.com/google/accompanist/releases
 accompanist = "0.37.3"
 # https://github.com/raamcosta/compose-destinations/releases
