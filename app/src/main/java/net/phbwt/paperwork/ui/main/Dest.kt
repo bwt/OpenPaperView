@@ -8,20 +8,21 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavDestination
+import com.ramcosta.composedestinations.generated.destinations.AboutScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.DocListScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.DownloadListScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.PageListScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.PairingScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsCheckScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsScreenDestination
+import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.Direction
 import net.phbwt.paperwork.R
-import net.phbwt.paperwork.ui.destinations.AboutScreenDestination
-import net.phbwt.paperwork.ui.destinations.Destination
-import net.phbwt.paperwork.ui.destinations.DocListScreenDestination
-import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
-import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
-import net.phbwt.paperwork.ui.destinations.PairingScreenDestination
-import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
-import net.phbwt.paperwork.ui.destinations.SettingsScreenDestination
 
 
 sealed class Dest(
-    val destination: Destination,
+    val destination: DestinationSpec,
     val topDirection: Direction,
     val icon: ImageVector,
     @StringRes val labelRes: Int,
@@ -86,7 +87,7 @@ sealed class Dest(
     )
 
     companion object {
-        fun Destination.asDest() = ALL_DESTS.first {
+        fun DestinationSpec.asDest() = ALL_DESTS.first {
             it.destination == this
         }
     }

@@ -60,23 +60,25 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination
 import androidx.navigation.compose.rememberNavController
 import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.navigation.dependency
+import com.ramcosta.composedestinations.spec.DestinationSpec
 import com.ramcosta.composedestinations.spec.DestinationStyle
+import com.ramcosta.composedestinations.utils.currentDestinationAsState
+import com.ramcosta.composedestinations.utils.destination
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import com.ramcosta.composedestinations.utils.route
+import com.ramcosta.composedestinations.utils.startDestination
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.DbUpdateStatus
 import net.phbwt.paperwork.data.UpdateAvailable
 import net.phbwt.paperwork.data.UpdateError
-import net.phbwt.paperwork.ui.NavGraphs
-import net.phbwt.paperwork.ui.appCurrentDestinationAsState
-import net.phbwt.paperwork.ui.appDestination
-import net.phbwt.paperwork.ui.destinations.Destination
 import net.phbwt.paperwork.ui.main.Dest.Companion.asDest
-import net.phbwt.paperwork.ui.startAppDestination
 
 @Composable
 fun MainScreen(
@@ -110,8 +112,8 @@ fun MainContent(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    val currentDest = ((navController.appCurrentDestinationAsState().value
-        ?: NavGraphs.root.startAppDestination)).asDest()
+    val currentDest = ((navController.currentDestinationAsState().value
+        ?: NavGraphs.root.startDestination)).asDest()
 
     // 'New DB' snackbar
     when (updateState) {
@@ -268,9 +270,10 @@ private fun <T> outNow() =
 private fun <T> inDelayed() =
     tween<T>(transitionDuration * 16 / 20, transitionDuration * 4 / 20, LinearOutSlowInEasing)
 
-object AppTransitions : DestinationStyle.Animated {
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition(): EnterTransition {
-        return when (val tt = transitionType()) {
+object AppTransitions : DestinationStyle.Animated() {
+
+    override val enterTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? = {
+        when (val tt = transitionType()) {
             TransType.FADE -> fadeIn(inDelayed()) + scaleIn(inDelayed(), .92f)
 
             else -> slideIntoContainer(
@@ -281,8 +284,8 @@ object AppTransitions : DestinationStyle.Animated {
         }
     }
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition(): ExitTransition {
-        return when (val tt = transitionType()) {
+    override val exitTransition: AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? = {
+        when (val tt = transitionType()) {
             TransType.FADE -> fadeOut(outNow())
 
             else -> slideOutOfContainer(
@@ -294,9 +297,9 @@ object AppTransitions : DestinationStyle.Animated {
     }
 
     private fun AnimatedContentTransitionScope<NavBackStackEntry>.transitionType() =
-        transitionType(initialState.appDestination(), targetState.appDestination())
+        transitionType(initialState.destination(), targetState.destination())
 
-    private fun transitionType(from: Destination, to: Destination): TransType {
+    private fun transitionType(from: DestinationSpec, to: DestinationSpec): TransType {
         val f = from.asDest().transitionPosition
         val t = to.asDest().transitionPosition
 
@@ -309,7 +312,6 @@ object AppTransitions : DestinationStyle.Animated {
     }
 
     private enum class TransType { IN, OUT, FADE }
-
 }
 
 

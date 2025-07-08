@@ -50,7 +50,7 @@ composeBom = "2025.06.01"
 # https://github.com/google/accompanist/releases
 accompanist = "0.37.3"
 # https://github.com/raamcosta/compose-destinations/releases
-composeDestinations = "1.11.9"
+composeDestinations = "2.2.0"
 
 # https://github.com/journeyapps/zxing-android-embedded/releases
 zxingJourneyapps = "4.3.0"

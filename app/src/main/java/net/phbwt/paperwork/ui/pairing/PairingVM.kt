@@ -6,6 +6,7 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.PairingScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -21,7 +22,6 @@ import net.phbwt.paperwork.data.helper.PairingRunner
 import net.phbwt.paperwork.data.helper.PairingRunner.PairingResult
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.latestRelease
-import net.phbwt.paperwork.ui.destinations.PairingScreenDestination
 import net.phbwt.paperwork.ui.settingscheck.Check
 import javax.inject.Inject
 

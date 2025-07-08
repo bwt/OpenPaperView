@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.main.EmptyScaffold
 
@@ -18,8 +19,8 @@ data class PageListScreenArgs(
     val documentId: Int,
 )
 
-@Destination(
-    navArgsDelegate = PageListScreenArgs::class,
+@Destination<RootGraph>(
+    navArgs = PageListScreenArgs::class,
     style = AppTransitions::class,
 )
 @Composable

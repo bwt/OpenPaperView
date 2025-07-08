@@ -63,6 +63,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.PageListScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
@@ -71,7 +73,6 @@ import net.phbwt.paperwork.data.entity.db.DocumentFull
 import net.phbwt.paperwork.data.entity.db.DownloadState
 import net.phbwt.paperwork.data.entity.db.Part
 import net.phbwt.paperwork.helper.fmtDtm
-import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import net.phbwt.paperwork.ui.doclist.makeFakeDocuments
 import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.main.Dest
@@ -85,8 +86,8 @@ data class DownloadListScreenArgs(
     val documentId: Int? = null,
 )
 
-@Destination(
-    navArgsDelegate = DownloadListScreenArgs::class,
+@Destination<RootGraph>(
+    navArgs = DownloadListScreenArgs::class,
     style = AppTransitions::class,
 )
 @Composable

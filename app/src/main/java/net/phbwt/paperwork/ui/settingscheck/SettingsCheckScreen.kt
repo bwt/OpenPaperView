@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
@@ -39,7 +40,7 @@ import net.phbwt.paperwork.ui.main.Dest
 import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.theme.AppTheme
 
-@Destination(style = AppTransitions::class)
+@Destination<RootGraph>(style = AppTransitions::class)
 @Composable
 fun SettingsCheckScreen(
     snackbarHostState: SnackbarHostState,

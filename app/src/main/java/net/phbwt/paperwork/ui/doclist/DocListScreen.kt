@@ -94,7 +94,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.RootNavGraph
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.DownloadListScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.PageListScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
@@ -110,16 +112,13 @@ import net.phbwt.paperwork.data.entity.db.makeDocumentThumbPathAndKey
 import net.phbwt.paperwork.helper.TrailingClose
 import net.phbwt.paperwork.helper.fmtDtm
 import net.phbwt.paperwork.helper.startActivitySafely
-import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
-import net.phbwt.paperwork.ui.destinations.PageListScreenDestination
 import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.main.Dest
 import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.theme.AppTheme
 import kotlin.random.Random
 
-@RootNavGraph(start = true)
-@Destination(style = AppTransitions::class)
+@Destination<RootGraph>(start = true, style = AppTransitions::class)
 @Composable
 fun DocListScreen(
     navigator: DestinationsNavigator,

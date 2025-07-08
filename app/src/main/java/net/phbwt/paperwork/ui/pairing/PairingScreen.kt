@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.collections.immutable.persistentListOf
 import net.phbwt.paperwork.R
@@ -47,8 +48,8 @@ data class PairingScreenArgs(
     val qrCode: QrCodeContent?,
 )
 
-@Destination(
-    navArgsDelegate = PairingScreenArgs::class,
+@Destination<RootGraph>(
+    navArgs = PairingScreenArgs::class,
     style = AppTransitions::class,
 )
 @Composable

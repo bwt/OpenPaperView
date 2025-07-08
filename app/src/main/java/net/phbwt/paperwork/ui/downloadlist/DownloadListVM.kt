@@ -6,6 +6,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.DownloadListScreenDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,7 +25,6 @@ import net.phbwt.paperwork.data.entity.db.Part
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.latestRelease
 import net.phbwt.paperwork.helper.toComposeImmutable
-import net.phbwt.paperwork.ui.destinations.DownloadListScreenDestination
 import java.io.File
 import javax.inject.Inject
 

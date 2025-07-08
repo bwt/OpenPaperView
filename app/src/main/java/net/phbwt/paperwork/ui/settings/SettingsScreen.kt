@@ -79,21 +79,22 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootGraph
+import com.ramcosta.composedestinations.generated.destinations.PairingScreenDestination
+import com.ramcosta.composedestinations.generated.destinations.SettingsCheckScreenDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.entity.db.LabelType
 import net.phbwt.paperwork.data.entity.db.asFilter
 import net.phbwt.paperwork.data.settings.LABELS_SEPARATOR
-import net.phbwt.paperwork.ui.destinations.PairingScreenDestination
-import net.phbwt.paperwork.ui.destinations.SettingsCheckScreenDestination
 import net.phbwt.paperwork.ui.main.AppTransitions
 import net.phbwt.paperwork.ui.main.Dest
 import net.phbwt.paperwork.ui.main.WrappedScaffold
 import net.phbwt.paperwork.ui.pairing.ScanContract
 import net.phbwt.paperwork.ui.theme.AppTheme
 
-@Destination(style = AppTransitions::class)
+@Destination<RootGraph>(style = AppTransitions::class)
 @Composable
 fun SettingsScreen(
     navigator: DestinationsNavigator,
