@@ -62,7 +62,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -507,7 +507,10 @@ fun PrefLoadableTextItem(
     @StringRes labelRes: Int,
     @StringRes hintRes: Int,
 ) {
-    val clipboardManager = LocalClipboardManager.current
+    val clipboardManager = LocalClipboard.current
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
     var showDialog by remember { mutableStateOf(false) }
 
     val isError = !data.error.isNullOrEmpty()
@@ -563,11 +566,14 @@ fun PrefLoadableTextItem(
                         IconButton(onClick = onImport) {
                             Icon(Icons.Outlined.Download, null)
                         }
+
                         IconButton(
                             onClick = {
-                                val t = clipboardManager.getText()?.text
-                                if (t != null) {
-                                    onValueChanged(t)
+                                scope.launch {
+                                    val txt = clipboardManager.getClipEntry()?.clipData?.getItemAt(0)?.coerceToText(context)?.toString()
+                                    if (!txt.isNullOrBlank()) {
+                                        onValueChanged(txt)
+                                    }
                                 }
                             },
                         ) {

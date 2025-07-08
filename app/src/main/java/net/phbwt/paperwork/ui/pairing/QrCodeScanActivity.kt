@@ -20,6 +20,7 @@ import com.journeyapps.barcodescanner.BarcodeCallback
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import com.journeyapps.barcodescanner.DefaultDecoderFactory
+import net.phbwt.paperwork.BuildConfig
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.entity.pairing.QrCodeFragment
 import net.phbwt.paperwork.data.helper.extractQrCodeContent
@@ -125,11 +126,27 @@ class QrCodeScanActivity : ComponentActivity() {
 
         beepManager.playBeepSoundAndVibrate()
 
-        val segments = result.resultMetadata[ResultMetadataType.BYTE_SEGMENTS] as? List<ByteArray>
+        val rawSegments = result.resultMetadata[ResultMetadataType.BYTE_SEGMENTS] as? List<Any?>
 
-        if (segments.isNullOrEmpty()) {
+        if (rawSegments.isNullOrEmpty()) {
             updateUi("Not a binary QR Code")
             return
+        }
+
+        val segments = rawSegments.map { rawSegment ->
+            val segment = rawSegment as? ByteArray
+            if (segment == null) {
+                val msg = "Segment is not ByteArray ???"
+                // should not happen
+                if (BuildConfig.DEBUG) {
+                    throw IllegalStateException(msg)
+                } else {
+                    updateUi(msg)
+                    return
+                }
+            }
+
+            segment
         }
 
         val data = segments.fold(byteArrayOf()) { acc, seg -> acc + seg }

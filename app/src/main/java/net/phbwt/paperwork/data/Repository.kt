@@ -43,7 +43,7 @@ private const val TAG = "Repository"
 
 @Singleton
 class Repository @Inject constructor(
-    @ApplicationContext private val applicationContext: Context,
+    @param:ApplicationContext private val applicationContext: Context,
     private val settings: Settings,
     private val externalScope: CoroutineScope,
 ) {

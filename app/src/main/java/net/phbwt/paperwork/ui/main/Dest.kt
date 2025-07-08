@@ -25,7 +25,7 @@ sealed class Dest(
     val destination: DestinationSpec,
     val topDirection: Direction,
     val icon: ImageVector,
-    @StringRes val labelRes: Int,
+    @param:StringRes val labelRes: Int,
     // Used to know which transition to use
     val transitionPosition: String,
 ) {

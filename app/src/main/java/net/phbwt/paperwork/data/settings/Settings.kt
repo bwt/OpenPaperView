@@ -34,7 +34,7 @@ const val LABELS_SEPARATOR = ','
 
 @Singleton
 class Settings @Inject constructor(
-    @ApplicationContext private val ctxt: Context,
+    @param:ApplicationContext private val ctxt: Context,
 ) {
 
     //region stored preferences

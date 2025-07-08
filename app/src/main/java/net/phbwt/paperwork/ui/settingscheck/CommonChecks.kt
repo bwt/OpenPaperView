@@ -89,7 +89,7 @@ data class Check(
 
 @Immutable
 class Msg(
-    @StringRes
+    @param:StringRes
     val res: Int,
     vararg val args: String,
 ) {
