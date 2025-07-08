@@ -156,12 +156,6 @@ fun AboutContent(
         )
 
         LibRow(
-            "kotlin-coroutines-okhttp",
-            "https://github.com/gildor/kotlin-coroutines-okhttp",
-            "Kotlin Coroutines await() extension for OkHttp Call.",
-        )
-
-        LibRow(
             "kotlinx.collections.immutable",
             "https://github.com/Kotlin/kotlinx.collections.immutable",
             "Immutable persistent collections for Kotlin.",

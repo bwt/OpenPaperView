@@ -35,11 +35,11 @@ import net.phbwt.paperwork.data.newDbName
 import net.phbwt.paperwork.data.settings.Settings
 import net.phbwt.paperwork.helper.desc
 import okhttp3.Request
+import okhttp3.coroutines.executeAsync
 import okio.FileSystem
 import okio.Path.Companion.toOkioPath
 import okio.buffer
 import okio.sink
-import ru.gildor.coroutines.okhttp.await
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -101,41 +101,42 @@ class DownloadWorker @AssistedInject constructor(
         val httpClient = repo.dbHttpClient.first().getOrNull() ?: return
         val dbRequest = settings.dbRequest.first().getOrNull() ?: return
 
-        httpClient.newCall(dbRequest).await().use { response ->
+        httpClient.newCall(dbRequest).executeAsync().use { response ->
+            withContext(Dispatchers.IO) {
+                when {
+                    !response.isSuccessful -> {
+                        Log.w(TAG, "Could not download DB : HTTP code ${response.code}, '${response.message}'")
+                    }
 
-            when {
-                !response.isSuccessful -> {
-                    Log.w(TAG, "Could not download DB : HTTP code ${response.code}, '${response.message}'")
-                }
+                    response.networkResponse == null -> {
+                        // should not happen
+                        Log.e(TAG, "No network request ?? ${response.code}, '${response.message}'")
+                    }
 
-                response.networkResponse == null -> {
-                    // should not happen
-                    Log.e(TAG, "No network request ?? ${response.code}, '${response.message}'")
-                }
+                    response.networkResponse?.code == 304 -> {
+                        Log.i(TAG, "No new DB")
+                    }
 
-                response.networkResponse?.code == 304 -> {
-                    Log.i(TAG, "No new DB")
-                }
+                    else -> {
+                        Log.i(TAG, "New DB available")
+                        val body = response.body
+                        val newDbName = applicationContext.newDbName()
+                        try {
+                            val newDb = downloadDb(body.source().inputStream(), newDbName)
 
-                else -> {
-                    Log.i(TAG, "New DB available")
-                    val body = response.body ?: throw IOException("No body")
-                    val newDbName = applicationContext.newDbName()
-                    try {
-                        val newDb = downloadDb(body.source().inputStream(), newDbName)
+                            newDb.withTransaction {
+                                cleanupLocalFiles(newDb)
+                            }
 
-                        newDb.withTransaction {
-                            cleanupLocalFiles(newDb)
+                            prepareAutoDownloads(newDb)
+
+                            newDb.close()
+                            repo.dbUpdateReady()
+                        } catch (ex: Exception) {
+                            Log.e(TAG, "New DB failed", ex)
+                            applicationContext.deleteDatabase(newDbName)
+                            repo.dbUpdateFailed(ex)
                         }
-
-                        prepareAutoDownloads(newDb)
-
-                        newDb.close()
-                        repo.dbUpdateReady()
-                    } catch (ex: Exception) {
-                        Log.e(TAG, "New DB failed", ex)
-                        applicationContext.deleteDatabase(newDbName)
-                        repo.dbUpdateFailed(ex)
                     }
                 }
             }
@@ -374,29 +375,30 @@ class DownloadWorker @AssistedInject constructor(
             .url(url)
             .build()
 
-        httpClient.newCall(request).await().use { response ->
-
-            if (!response.isSuccessful) {
-                var msg = "HTTP ${response.code}"
-
-                if (response.message.isNotBlank()) {
-                    msg += " : ${response.message}"
-                }
-                throw IOException(msg)
-            }
-
-            val body = response.body ?: throw IOException("No body")
-
+        httpClient.newCall(request).executeAsync().use { response ->
             withContext(Dispatchers.IO) {
-                // see https://github.com/square/okio/issues/501
-                dest.sink().buffer().use { sink ->
+                if (!response.isSuccessful) {
+                    var msg = "HTTP ${response.code}"
 
-                    if (BuildConfig.DEBUG && DEBUG_NETWORK) {
-                        Log.e(TAG, "Adding copy delay")
-                        delay(520 + (Random.Default.nextLong() % 480))
+                    if (response.message.isNotBlank()) {
+                        msg += " : ${response.message}"
                     }
+                    throw IOException(msg)
+                }
 
-                    sink.writeAll(body.source())
+                val body = response.body
+
+                withContext(Dispatchers.IO) {
+                    // see https://github.com/square/okio/issues/501
+                    dest.sink().buffer().use { sink ->
+
+                        if (BuildConfig.DEBUG && DEBUG_NETWORK) {
+                            Log.e(TAG, "Adding copy delay")
+                            delay(520 + (Random.Default.nextLong() % 480))
+                        }
+
+                        sink.writeAll(body.source())
+                    }
                 }
             }
         }

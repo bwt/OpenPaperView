@@ -140,7 +140,6 @@
 
     <string name="check_response_code_1">Réponse code %1$s</string>
     <string name="check_response_code_expected_401_or_403_1">Réponse code %1$s (au lieu de 401 ou 403)</string>
-    <string name="check_response_code_without_body_1">Réponse code %1$s vide ???</string>
     <string name="check_exception_1">%1$s</string>
 
     <string name="check_received_size_bytes_2">Lu %1$s (%2$s octets)</string>

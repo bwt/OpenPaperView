@@ -27,10 +27,10 @@ import okhttp3.Connection
 import okhttp3.EventListener
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.coroutines.executeAsync
 import okhttp3.internal.connection.RealCall
 import okhttp3.tls.HandshakeCertificates
 import okio.ByteString.Companion.toByteString
-import ru.gildor.coroutines.okhttp.await
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
@@ -176,28 +176,32 @@ class PairingRunner(private val applicationContext: Context) {
             Request.Builder().url(pairingUrl).addHeader(
                 "Authorization", "Basic $authorization"
             ).build()
-        ).await().use { response ->
-            if (!response.isSuccessful) {
-                // We can connect but something is wrong
-                // This should not really happen
+        ).executeAsync().use { response ->
+            return withContext(Dispatchers.IO) {
+                when {
+                    !response.isSuccessful -> {
+                        // We can connect but something is wrong
+                        // This should not really happen
 
-                addItem(Msg(R.string.pairing_failed), Level.Error, Msg(R.string.pairing_http_error, response.code))
+                        addItem(Msg(R.string.pairing_failed), Level.Error, Msg(R.string.pairing_http_error, response.code))
+                        null
+                    }
 
-                return null
-            } else {
+                    !serverValidated.get() -> {
+                        // the server's certificate's fingerprint does not match
+                        addItem(Msg(R.string.pairing_failed), Level.Error, Msg(R.string.pairing_fingerprint_error))
+                        null
+                    }
 
-                if (!serverValidated.get()) {
-                    // the server's certificate's fingerprint does not match
-                    addItem(Msg(R.string.pairing_failed), Level.Error, Msg(R.string.pairing_fingerprint_error))
-                    return null
+                    else -> {
+                        val body = response.body.source().readUtf8()
+
+                        val config = Json.decodeFromString<PairingConfig>(body)
+
+                        addItem(Msg(R.string.pairing_success), Level.OK, Msg(R.string.pairing_success_detail, address))
+                        PairingResult(currentUrl, config)
+                    }
                 }
-
-                val body = response.body?.source()?.readUtf8() ?: throw RuntimeException("Response without body")
-
-                val config = Json.decodeFromString<PairingConfig>(body)
-
-                addItem(Msg(R.string.pairing_success), Level.OK, Msg(R.string.pairing_success_detail, address))
-                return PairingResult(currentUrl, config)
             }
         }
     }

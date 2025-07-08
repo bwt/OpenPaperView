@@ -140,7 +140,6 @@ PEM encoded text containing one certificate and one private key.
 
     <string name="check_response_code_1">Response code %1$s</string>
     <string name="check_response_code_expected_401_or_403_1">Response code %1$s (expected 401 ot 403)</string>
-    <string name="check_response_code_without_body_1">Response code %1$s without body ???</string>
     <string name="check_exception_1">%1$s</string>
 
     <string name="check_received_size_bytes_2">Read %1$s (%2$s bytes)</string>

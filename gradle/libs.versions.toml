@@ -39,11 +39,8 @@ room = "2.7.2"
 #  https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
 coil = "3.2.0"
 
-# https://github.com/square/okhttp/blob/master/docs/changelogs/changelog_4x.md
-okhttpBom = "4.12.0"
-
-#  https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/CHANGELOG.md
-gildorCoroutinesOkhttp = "1.0"
+# https://github.com/square/okhttp/blob/master/CHANGELOG.md
+okhttpBom = "5.1.0"
 
 # https://developer.android.com/jetpack/compose/bom/bom-mapping
 composeBom = "2025.06.01"
@@ -124,8 +121,8 @@ hilt-workmanager = { group = "androidx.hilt", name = "hilt-work", version.ref = 
 okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttpBom" }
 okhttp-okhttp = { group = "com.squareup.okhttp3", name = "okhttp" }
 okhttp-tls = { group = "com.squareup.okhttp3", name = "okhttp-tls" }
+okhttp-coroutines = { group = "com.squareup.okhttp3", name = "okhttp-coroutines" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor" }
-gildor-coroutines-okhttp = { group = "ru.gildor.coroutines", name = "kotlin-coroutines-okhttp", version.ref = "gildorCoroutinesOkhttp" }
 
 zxing-journeyapps = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxingJourneyapps" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxingCore" }

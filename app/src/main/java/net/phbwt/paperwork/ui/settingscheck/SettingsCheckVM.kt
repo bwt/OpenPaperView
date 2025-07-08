@@ -21,6 +21,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.phbwt.paperwork.R
 import net.phbwt.paperwork.data.Repository
 import net.phbwt.paperwork.data.background.DownloadWorker
@@ -30,9 +31,9 @@ import net.phbwt.paperwork.data.withHttpCache
 import okhttp3.Call
 import okhttp3.EventListener
 import okhttp3.Request
+import okhttp3.coroutines.executeAsync
 import okhttp3.tls.HeldCertificate
 import okio.Buffer
-import ru.gildor.coroutines.okhttp.await
 import java.security.cert.X509Certificate
 import javax.inject.Inject
 
@@ -190,26 +191,28 @@ class SettingsCheckVM @Inject constructor(
             settings.checksCacheDir.deleteRecursively()
             val httpClient = buildOkHttpClientWithoutCache(null, p.serverCa).withHttpCache(settings.checksCacheDir)
 
-            httpClient.newCall(p.dbRequest).await().use { response ->
-                when {
-                    response.code in listOf(401, 403) -> {
-                        addItem(Msg(R.string.check_response_code_1, response.code), Level.OK, Msg(R.string.check_denied_as_expected))
-                    }
+            httpClient.newCall(p.dbRequest).executeAsync().use { response ->
+                withContext(Dispatchers.IO) {
+                    when {
+                        response.code in listOf(401, 403) -> {
+                            addItem(Msg(R.string.check_response_code_1, response.code), Level.OK, Msg(R.string.check_denied_as_expected))
+                        }
 
-                    response.isSuccessful -> {
-                        addItem(
-                            Msg(R.string.check_response_code_expected_401_or_403_1, response.code),
-                            Level.Error,
-                            Msg(R.string.check_access_not_denied_server_not_secure)
-                        )
-                    }
+                        response.isSuccessful -> {
+                            addItem(
+                                Msg(R.string.check_response_code_expected_401_or_403_1, response.code),
+                                Level.Error,
+                                Msg(R.string.check_access_not_denied_server_not_secure)
+                            )
+                        }
 
-                    else -> {
-                        addItem(
-                            Msg(R.string.check_response_code_1, response.code),
-                            Level.Warn,
-                            Msg(R.string.check_unexpected_error_expected_401_or_403)
-                        )
+                        else -> {
+                            addItem(
+                                Msg(R.string.check_response_code_1, response.code),
+                                Level.Warn,
+                                Msg(R.string.check_unexpected_error_expected_401_or_403)
+                            )
+                        }
                     }
                 }
             }
@@ -241,15 +244,13 @@ class SettingsCheckVM @Inject constructor(
             })
             .build()
 
-        httpClient.newCall(p.dbRequest).await().use { response ->
-            if (response.isSuccessful) {
-                // HTTP OK
+        httpClient.newCall(p.dbRequest).executeAsync().use { response ->
+            withContext(Dispatchers.IO) {
 
-                val src = response.body?.source()
+                if (response.isSuccessful) {
+                    // HTTP OK
 
-                if (src == null) {
-                    addItem(Msg(R.string.check_empty_response), Level.Error, Msg(R.string.check_response_code_without_body_1, response.code))
-                } else {
+                    val src = response.body.source()
 
                     var size = 0L
                     val buffer = Buffer()
@@ -263,49 +264,49 @@ class SettingsCheckVM @Inject constructor(
                         Level.OK,
                         null
                     )
-                }
 
-                // AFTER the response body has been read, so that the responseBodyEnd event has been triggered
+                    // AFTER the response body has been read, so that the responseBodyEnd event has been triggered
 
-                val networkResponse = response.networkResponse
+                    val networkResponse = response.networkResponse
 
-                if (networkResponse == null || networkResponse.code == 304) {
-                    // should not happen, we cleared the cache
-                    addItem(
-                        Msg(R.string.check_response_was_cached_desc),
-                        Level.Warn,
-                        Msg(R.string.check_response_was_cached_msg),
-                    )
-                } else if (networkResponse.header("Content-Encoding") != "gzip") {
-                    // not compressed
-                    val contentType = networkResponse.header("Content-Type").toString()
-                    addItem(
-                        Msg(R.string.check_response_was_not_compressed_desc),
-                        Level.Warn,
-                        Msg(R.string.check_response_was_not_compressed_msg, contentType),
-                    )
-                } else {
-                    // compressed
+                    if (networkResponse == null || networkResponse.code == 304) {
+                        // should not happen, we cleared the cache
+                        addItem(
+                            Msg(R.string.check_response_was_cached_desc),
+                            Level.Warn,
+                            Msg(R.string.check_response_was_cached_msg),
+                        )
+                    } else if (networkResponse.header("Content-Encoding") != "gzip") {
+                        // not compressed
+                        val contentType = networkResponse.header("Content-Type").toString()
+                        addItem(
+                            Msg(R.string.check_response_was_not_compressed_desc),
+                            Level.Warn,
+                            Msg(R.string.check_response_was_not_compressed_msg, contentType),
+                        )
+                    } else {
+                        // compressed
 
-                    val compressedSizeFromHeader = networkResponse.header("Content-Length")?.toLongOrNull() ?: -1
+                        val compressedSizeFromHeader = networkResponse.header("Content-Length")?.toLongOrNull() ?: -1
 
-                    if (compressedSizeFromHeader > 0 && compressedSizeFromHeader != compressedSizeFromEvent) {
-                        Log.e(TAG, "Network size mismatch : Content-Length $compressedSizeFromHeader, Event $compressedSizeFromEvent")
+                        if (compressedSizeFromHeader > 0 && compressedSizeFromHeader != compressedSizeFromEvent) {
+                            Log.e(TAG, "Network size mismatch : Content-Length $compressedSizeFromHeader, Event $compressedSizeFromEvent")
+                        }
+
+                        addItem(
+                            Msg(
+                                R.string.check_compressed_response,
+                                Formatter.formatFileSize(getApplication(), compressedSizeFromEvent),
+                                compressedSizeFromEvent.toString(),
+                            ),
+                            Level.OK,
+                            null
+                        )
                     }
-
-                    addItem(
-                        Msg(
-                            R.string.check_compressed_response,
-                            Formatter.formatFileSize(getApplication(), compressedSizeFromEvent),
-                            compressedSizeFromEvent.toString(),
-                        ),
-                        Level.OK,
-                        null
-                    )
+                } else {
+                    // HTTP error
+                    addItem(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code))
                 }
-            } else {
-                // HTTP error
-                addItem(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code))
             }
         }
     }
@@ -321,27 +322,30 @@ class SettingsCheckVM @Inject constructor(
 
         // the Okhttp cache must be populated (by downloading the db)
 
-        httpClient.newCall(p.dbRequest).await().use { response ->
-            when {
-                !response.isSuccessful -> {
-                    addItem(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code))
-                }
+        httpClient.newCall(p.dbRequest).executeAsync().use { response ->
+            withContext(Dispatchers.IO) {
 
-                response.networkResponse == null -> {
-                    // should not happen
-                    addItem(
-                        Msg(R.string.check_no_network_response),
-                        Level.Error,
-                        Msg(R.string.check_no_network_response_2, response.code.toString(), response.message)
-                    )
-                }
+                when {
+                    !response.isSuccessful -> {
+                        addItem(Msg(R.string.check_http_error), Level.Error, Msg(R.string.check_response_code_1, response.code))
+                    }
 
-                response.networkResponse?.code == 304 -> {
-                    addItem(Msg(R.string.check_response_code_1, 304), Level.OK, Msg(R.string.check_not_modified_as_expected))
-                }
+                    response.networkResponse == null -> {
+                        // should not happen
+                        addItem(
+                            Msg(R.string.check_no_network_response),
+                            Level.Error,
+                            Msg(R.string.check_no_network_response_2, response.code.toString(), response.message)
+                        )
+                    }
 
-                else -> {
-                    addItem(Msg(R.string.check_db_received_again), Level.Error, Msg(R.string.check_the_cache_control_does_not_work_properly))
+                    response.networkResponse?.code == 304 -> {
+                        addItem(Msg(R.string.check_response_code_1, 304), Level.OK, Msg(R.string.check_not_modified_as_expected))
+                    }
+
+                    else -> {
+                        addItem(Msg(R.string.check_db_received_again), Level.Error, Msg(R.string.check_the_cache_control_does_not_work_properly))
+                    }
                 }
             }
         }

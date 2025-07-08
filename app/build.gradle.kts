@@ -139,14 +139,12 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp.okhttp)
     implementation(libs.okhttp.tls)
+    implementation(libs.okhttp.coroutines)
     implementation(libs.okhttp.logging.interceptor)
 
     // workmanager + hilt and coroutine integration
     implementation(libs.workmanager.runtime)
     implementation(libs.hilt.workmanager)
-
-    // https://github.com/gildor/kotlin-coroutines-okhttp/blob/master/CHANGELOG.md
-    implementation(libs.gildor.coroutines.okhttp)
 
     implementation(libs.zxing.journeyapps)
     implementation(libs.zxing.core)
