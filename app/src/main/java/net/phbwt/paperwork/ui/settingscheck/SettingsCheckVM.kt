@@ -36,6 +36,7 @@ import okhttp3.tls.HeldCertificate
 import okio.Buffer
 import java.security.cert.X509Certificate
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 
 @HiltViewModel
@@ -255,7 +256,8 @@ class SettingsCheckVM @Inject constructor(
                     var size = 0L
                     val buffer = Buffer()
 
-                    while (src.read(buffer, 8192) != -1L) {
+                    while (src.read(buffer, 16384) != -1L) {
+                        coroutineContext.ensureActive()
                         size += buffer.size
                         buffer.clear()
                     }

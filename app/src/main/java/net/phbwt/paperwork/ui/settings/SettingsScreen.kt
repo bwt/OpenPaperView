@@ -434,7 +434,6 @@ fun PrefLabelsItem(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = Modifier.padding(horizontal = 5.dp),
     ) {
 
         OutlinedTextField(

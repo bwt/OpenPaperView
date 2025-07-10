@@ -68,7 +68,7 @@ class PairingRunner(private val applicationContext: Context) {
             } catch (ex: Exception) {
                 coroutineContext.ensureActive()
 
-                // Tee "Cancelled" message is handled elsewhere :
+                // The "Cancelled" message is handled elsewhere :
                 // - It may take some time to get the exception (e.g. network)
                 // - The job may have been restarted and we should ignore the previous job's exception
 
