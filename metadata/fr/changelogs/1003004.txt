@@ -1,4 +1,7 @@
+Depuis la v1.2.0 :
+
 - Ajout d'une fonction experimentale d'appairage avec Paperwork
 - Meilleure gestion du cas où tous les documents sont téléchargés
 - Mise à jour des dépendances
+- Suppression du Dependency Info Block opaque de Google
 

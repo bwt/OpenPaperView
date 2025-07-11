@@ -1,4 +1,6 @@
+Since v1.2.0 :
+
 - Add experimental support for pairing with Paperwork
 - Better handling of full download mode
 - Dependency updates
-
+- Removed Google's opaque Dependency Info Block
