@@ -1,15 +1,15 @@
 [versions]
-agp = "8.11.0"
-kotlin = "2.2.0"
+agp = "8.13.2"
+kotlin = "2.3.0"
 
 # https://github.com/google/ksp/releases
-ksp = "2.2.0-2.0.2"
+ksp = "2.3.4"
 
 #https://github.com/google/dagger/releases
-dagger = "2.56.2"
+dagger = "2.57.2"
 
 # https://developer.android.com/jetpack/androidx/releases/hilt
-hilt = "1.2.0"
+hilt = "1.3.0"
 
 # kotlinx
 # https://github.com/Kotlin/kotlinx.collections.immutable/blob/master/CHANGELOG.md
@@ -18,45 +18,45 @@ kotlinxImmutable = "0.4.0"
 kotlinxSerialization = "1.9.0"
 
 # https://developer.android.com/jetpack/androidx/versions
-activityCompose = "1.10.1"
-core = "1.16.0"
-coreSplashscreen = "1.0.1"
-datastorePreference = "1.1.7"
+activityCompose = "1.12.2"
+core = "1.17.0"
+coreSplashscreen = "1.2.0"
+datastorePreference = "1.2.0"
 
 # https://developer.android.com/jetpack/androidx/releases/lifecycle#kts
-lifecycle = "2.9.1"
+lifecycle = "2.10.0"
 
 # https://developer.android.com/jetpack/androidx/releases/navigation
 navigation = "2.7.7"
 
 # Workmanager
 # https://developer.android.com/jetpack/androidx/releases/work
-workmanager = "2.10.2"
+workmanager = "2.11.0"
 
 # https://developer.android.com/jetpack/androidx/releases/room
-room = "2.7.2"
+room = "2.8.4"
 
 #  https://github.com/coil-kt/coil/blob/main/CHANGELOG.md
-coil = "3.2.0"
+coil = "3.3.0"
 
 # https://github.com/square/okhttp/blob/master/CHANGELOG.md
-okhttpBom = "5.1.0"
+okhttpBom = "5.3.2"
 
 # https://developer.android.com/jetpack/compose/bom/bom-mapping
-composeBom = "2025.06.01"
+composeBom = "2025.12.01"
 # https://github.com/google/accompanist/releases
 accompanist = "0.37.3"
 # https://github.com/raamcosta/compose-destinations/releases
-composeDestinations = "2.2.0"
+composeDestinations = "2.3.0"
 
 # https://github.com/journeyapps/zxing-android-embedded/releases
 zxingJourneyapps = "4.3.0"
 # https://github.com/zxing/zxing/releases
-zxingCore = "3.5.3"
+zxingCore = "3.5.4"
 
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
 
 
 [libraries]

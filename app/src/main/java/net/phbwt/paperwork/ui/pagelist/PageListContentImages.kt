@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,8 +61,7 @@ fun PageListContentImages(
                 .fillMaxSize()
         ) {
             if (pages.size > 1) {
-                ScrollableTabRow(
-                    // Our selected tab is our current page
+                SecondaryScrollableTabRow(
                     selectedTabIndex = pagerState.currentPage,
                 ) {
                     pages.forEachIndexed { index, _ ->

@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,8 +75,7 @@ fun PageListContentPdf(
     ) {
 
         if (pageCount > 1) {
-            ScrollableTabRow(
-                // Our selected tab is our current page
+            SecondaryScrollableTabRow(
                 selectedTabIndex = pagerState.currentPage,
             ) {
                 for (index in 0 until pageCount) {
