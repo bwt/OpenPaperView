@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -19,7 +21,6 @@ android {
         versionCode = 1003004
         versionName = "1.3.4"
 
-        resourceConfigurations += arrayOf("en", "fr")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -62,8 +63,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_17
+        }
     }
 
     buildFeatures {
@@ -77,6 +80,12 @@ android {
     ksp {
         arg("room.schemaLocation", "$projectDir/schemas")
         arg("room.generateKotlin", "true")
+    }
+
+    androidResources {
+        localeFilters.addAll(
+            listOf("en", "fr")
+        )
     }
 
     packaging {
