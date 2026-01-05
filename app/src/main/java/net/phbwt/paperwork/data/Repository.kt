@@ -1,4 +1,4 @@
-@file:OptIn(DelicateCoilApi::class)
+@file:OptIn(DelicateCoilApi::class, ExperimentalCoilApi::class)
 
 package net.phbwt.paperwork.data
 
@@ -10,8 +10,10 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.Uri
 import coil3.annotation.DelicateCoilApi
+import coil3.annotation.ExperimentalCoilApi
 import coil3.disk.DiskCache
 import coil3.map.Mapper
+import coil3.memoryCacheMaxSizePercentWhileInBackground
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.toUri
 import coil3.util.DebugLogger
@@ -122,6 +124,7 @@ class Repository @Inject constructor(
         Log.d(TAG, "Build ImageLoader")
         val b = ImageLoader.Builder(applicationContext)
             .diskCache(coilDiskCache)
+            .memoryCacheMaxSizePercentWhileInBackground(.1)
             .components {
                 // data is a relative path, to which we add the base URL
                 add(Mapper<String, Uri> { data, _ -> baseUrl.newBuilder().addEncodedPathSegments(data).build().toString().toUri() })
